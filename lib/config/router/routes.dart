@@ -14,18 +14,46 @@ class AuthRoute extends GoRouteData with _$AuthRoute {
   }
 }
 
-// // Main pages
-// @TypedShellRoute<MainLayoutShellRoute>(
-//   routes: <TypedRoute<RouteData>>[TypedGoRoute<AuthRoute>(path: '/')],
-// )
-// class MainLayoutShellRoute extends ShellRouteData {
-//   const MainLayoutShellRoute();
-//
-//   static final GlobalKey<NavigatorState> $navigatorKey = shellNavigatorKey;
-//
-//   @override
-//   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
-//     // In the navigator, we get the current tab widget.
-//     return Scaffold();
-//   }
-// }
+// Main pages
+@TypedShellRoute<MainLayoutShellRoute>(
+  routes: <TypedRoute<RouteData>>[
+    TypedGoRoute<DashboardRoute>(path: "/dashboard"),
+    TypedGoRoute<StationsRoute>(path: "/stations"),
+    TypedGoRoute<ProfileRoute>(path: "/profile"),
+  ],
+)
+class MainLayoutShellRoute extends ShellRouteData {
+  const MainLayoutShellRoute();
+
+  static final GlobalKey<NavigatorState> $navigatorKey = shellNavigatorKey;
+
+  @override
+  Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
+    // In the navigator, we get the current tab widget.
+    return DashboardShell(navigator: navigator);
+  }
+}
+
+class DashboardRoute extends GoRouteData with _$DashboardRoute {
+  const DashboardRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return DashboardPage();
+  }
+}
+
+class StationsRoute extends GoRouteData with _$StationsRoute {
+  const StationsRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return StationsPage();
+  }
+}
+
+class ProfileRoute extends GoRouteData with _$ProfileRoute {
+  const ProfileRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return ProfilePage();
+  }
+}

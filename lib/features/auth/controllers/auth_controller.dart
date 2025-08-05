@@ -21,6 +21,11 @@ class AuthController extends GetxController {
     _loadCurrentUser();
   }
 
+  Future<bool> isUserLoggedIn() async {
+    await _loadCurrentUser();
+    return currentUser.value != null;
+  }
+
   bool get isLoggedIn => currentUser.value != null;
 
   Future<void> _loadCurrentUser() async {
