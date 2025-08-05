@@ -9,7 +9,16 @@ class Flow360App extends StatelessWidget {
     return MaterialApp.router(
       title: "Flow 360",
       routerConfig: AppRouter.router,
-      
+      theme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Color(0xff1D8289),
+        brightness: Brightness.light,
+      ),
+      darkTheme: ThemeData(
+        useMaterial3: true,
+        colorSchemeSeed: Color(0xff1D8289),
+        brightness: Brightness.dark,
+      ),
     );
   }
 }

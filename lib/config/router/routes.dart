@@ -1,3 +1,4 @@
+import 'package:flow_360/features/features.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -9,7 +10,7 @@ class AuthRoute extends GoRouteData with _$AuthRoute {
   const AuthRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return Scaffold(body: Center(child: Text("Auth")));
+    return LoginScreen();
   }
 }
 
