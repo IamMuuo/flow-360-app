@@ -23,21 +23,50 @@ class AuthRepository {
         data: {'username': username, 'password': password},
       );
 
-      final data = response.data;
-      final auth = AuthModel.fromJson(data);
+      if (response.statusCode != 200) {
+        return left(
+          Failure(
+            message:
+                response.data['detail'] ??
+                response.data['error'] ??
+                'Login failed',
+          ),
+        );
+      }
+      final authData = response.data;
+      final profileResponse = await dioClient.dio.get(
+        '/accounts/me',
+        options: Options(
+          headers: {"Authorization": "Bearer ${authData['access']}"},
+        ),
+      );
+
+      if (profileResponse.statusCode != 200) {
+        return left(
+          Failure(
+            message:
+                response.data['detail'] ??
+                response.data['error'] ??
+                'Failed to fetch your profile from remote',
+          ),
+        );
+      }
+
+      authData["user"] = profileResponse.data;
+      final auth = AuthModel.fromJson(authData);
 
       // Ensure boxes are open
       await HiveService.openBox<AuthModel>(_authBox);
       await HiveService.openBox<String>(_metaBox);
 
       // Save auth object
-      await HiveService.put<AuthModel>(_authBox, auth.user.pk.toString(), auth);
+      await HiveService.put<AuthModel>(_authBox, auth.user.id.toString(), auth);
 
       // Set current user
       await HiveService.put<String>(
         _metaBox,
         _currentUserKey,
-        auth.user.pk.toString(),
+        auth.user.id.toString(),
       );
 
       return right(auth);
@@ -110,6 +139,6 @@ class AuthRepository {
   Future<void> cacheUser(AuthModel user) async {
     await HiveService.openBox<AuthModel>(_authBox);
     final box = HiveService.getBox<AuthModel>(_authBox);
-    await box.put(user.user.pk.toString(), user);
+    await box.put(user.user.id.toString(), user);
   }
 }

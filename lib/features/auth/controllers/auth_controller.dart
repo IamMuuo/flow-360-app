@@ -55,7 +55,7 @@ class AuthController extends GetxController {
 
     result.fold((failure) => errorMessage.value = failure.message, (auth) {
       currentUser.value = auth;
-      if (!allUsers.any((u) => u.user.pk == auth.user.pk)) {
+      if (!allUsers.any((u) => u.user.id == auth.user.id)) {
         authRepository.cacheUser(auth);
         allUsers.add(auth);
       }
@@ -65,15 +65,15 @@ class AuthController extends GetxController {
   }
 
   Future<void> switchUser(AuthModel user) async {
-    await authRepository.switchUser(user.user.pk.toString());
+    await authRepository.switchUser(user.user.id.toString());
     currentUser.value = user;
   }
 
   Future<void> logoutCurrentUser() async {
-    final userId = currentUser.value?.user.pk.toString();
+    final userId = currentUser.value?.user.id.toString();
     if (userId != null) {
       await authRepository.clearUser(userId);
-      allUsers.removeWhere((u) => u.user.pk.toString() == userId);
+      allUsers.removeWhere((u) => u.user.id.toString() == userId);
       currentUser.value = null;
     }
   }

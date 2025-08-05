@@ -1,3 +1,4 @@
+import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -107,8 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               ),
                             );
                           } else {
-                            // Optional: Navigate to another screen or show success
                             if (!context.mounted) return;
+                            DashboardRoute().go(context);
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text("Login successful"),
