@@ -1,4 +1,6 @@
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,6 +13,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final formKey = GlobalKey<FormState>();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final AuthController authController = Get.find<AuthController>();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +72,55 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               SizedBox(height: 22),
-              FilledButton(
-                onPressed: () {
-                  if (!formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Please correct the form and retry"),
-                        behavior: SnackBarBehavior.floating,
-                      ),
-                    );
-                  }
-                },
-                child: Text("Continue"),
+              Obx(
+                () => FilledButton(
+                  onPressed: authController.isLoading.value
+                      ? null
+                      : () async {
+                          if (!formKey.currentState!.validate()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Please correct the form and retry",
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                            return;
+                          }
+
+                          print("boom");
+
+                          await authController.login(
+                            username: _usernameController.text.trim(),
+                            password: _passwordController.text,
+                          );
+
+                          if (authController.errorMessage.value != null &&
+                              context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  authController.errorMessage.value!,
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          } else {
+                            // Optional: Navigate to another screen or show success
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Login successful"),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
+                        },
+                  child: authController.isLoading.value
+                      ? CircularProgressIndicator.adaptive()
+                      : Text("Continue"),
+                ),
               ),
             ],
           ),
