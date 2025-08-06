@@ -10,13 +10,15 @@ class Flow360App extends StatelessWidget {
       title: "Flow 360",
       routerConfig: AppRouter.router,
       theme: ThemeData(
+        fontFamily: 'Poppins',
         useMaterial3: true,
-        colorSchemeSeed: Color(0xff1D8289),
+        colorSchemeSeed: Color(0xff285094),
         brightness: Brightness.light,
       ),
       darkTheme: ThemeData(
+        fontFamily: 'Poppins',
         useMaterial3: true,
-        colorSchemeSeed: Color(0xff1D8289),
+        colorSchemeSeed: Color(0xff285094),
         brightness: Brightness.dark,
       ),
     );
