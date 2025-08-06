@@ -10,6 +10,7 @@ List<RouteBase> get $appRoutes => [
       $authRoute,
       $mainLayoutShellRoute,
       $fuelPricesRoute,
+      $fuelDispensersPageRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -133,12 +134,6 @@ mixin _$ProfileRoute on GoRouteData {
 RouteBase get $fuelPricesRoute => GoRouteData.$route(
       path: '/fuel',
       factory: _$FuelPricesRoute._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: '/add',
-          factory: _$CreateFuelRoute._fromState,
-        ),
-      ],
     );
 
 mixin _$FuelPricesRoute on GoRouteData {
@@ -164,13 +159,51 @@ mixin _$FuelPricesRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin _$CreateFuelRoute on GoRouteData {
-  static CreateFuelRoute _fromState(GoRouterState state) =>
-      const CreateFuelRoute();
+RouteBase get $fuelDispensersPageRoute => GoRouteData.$route(
+      path: '/fuel-dispenser',
+      factory: _$FuelDispensersPageRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'create/:stationId',
+          factory: _$CreateFuelDispenserRoute._fromState,
+        ),
+      ],
+    );
+
+mixin _$FuelDispensersPageRoute on GoRouteData {
+  static FuelDispensersPageRoute _fromState(GoRouterState state) =>
+      const FuelDispensersPageRoute();
 
   @override
   String get location => GoRouteData.$location(
-        '/add',
+        '/fuel-dispenser',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$CreateFuelDispenserRoute on GoRouteData {
+  static CreateFuelDispenserRoute _fromState(GoRouterState state) =>
+      CreateFuelDispenserRoute(
+        stationId: state.pathParameters['stationId']!,
+      );
+
+  CreateFuelDispenserRoute get _self => this as CreateFuelDispenserRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/fuel-dispenser/create/${Uri.encodeComponent(_self.stationId)}',
       );
 
   @override

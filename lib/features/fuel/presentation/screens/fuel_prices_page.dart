@@ -192,4 +192,3 @@ class FuelPricesPage extends StatelessWidget {
     );
   }
 }
-

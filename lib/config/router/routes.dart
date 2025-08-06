@@ -59,10 +59,7 @@ class ProfileRoute extends GoRouteData with _$ProfileRoute {
   }
 }
 
-@TypedGoRoute<FuelPricesRoute>(
-  path: "/fuel",
-  routes: <TypedGoRoute>[TypedGoRoute<CreateFuelRoute>(path: "/add")],
-)
+@TypedGoRoute<FuelPricesRoute>(path: "/fuel")
 class FuelPricesRoute extends GoRouteData with _$FuelPricesRoute {
   const FuelPricesRoute();
   @override
@@ -71,10 +68,26 @@ class FuelPricesRoute extends GoRouteData with _$FuelPricesRoute {
   }
 }
 
-class CreateFuelRoute extends GoRouteData with _$CreateFuelRoute {
-  const CreateFuelRoute();
+@TypedGoRoute<FuelDispensersPageRoute>(
+  path: "/fuel-dispenser",
+  routes: [TypedGoRoute<CreateFuelDispenserRoute>(path: "create/:stationId")],
+)
+class FuelDispensersPageRoute extends GoRouteData
+    with _$FuelDispensersPageRoute {
+  const FuelDispensersPageRoute();
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return CreateFuelPricePage();
+    return FuelDispensersPage();
+  }
+}
+
+class CreateFuelDispenserRoute extends GoRouteData
+    with _$CreateFuelDispenserRoute {
+  final String stationId;
+  const CreateFuelDispenserRoute({required this.stationId});
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return CreateFuelDispenserPage(stationId: stationId);
   }
 }

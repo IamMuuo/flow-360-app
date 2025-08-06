@@ -19,6 +19,7 @@ class SupervisorDashboard extends StatelessWidget {
         title: 'Manage Fuel Dispensers',
         icon: Icons.local_gas_station_outlined,
         onTap: () {
+          FuelDispensersPageRoute().push(context);
           // Navigate to dispensers list
         },
       ),
