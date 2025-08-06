@@ -8,7 +8,8 @@ part of 'routes.dart';
 
 List<RouteBase> get $appRoutes => [
       $authRoute,
-      $mainLayoutShellRoute,
+      $dashboardRoute,
+      $profileRoute,
       $fuelPricesRoute,
       $fuelDispensersPageRoute,
     ];
@@ -40,29 +41,10 @@ mixin _$AuthRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-RouteBase get $mainLayoutShellRoute => ShellRouteData.$route(
-      navigatorKey: MainLayoutShellRoute.$navigatorKey,
-      factory: $MainLayoutShellRouteExtension._fromState,
-      routes: [
-        GoRouteData.$route(
-          path: '/dashboard',
-          factory: _$DashboardRoute._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/stations',
-          factory: _$StationsRoute._fromState,
-        ),
-        GoRouteData.$route(
-          path: '/profile',
-          factory: _$ProfileRoute._fromState,
-        ),
-      ],
+RouteBase get $dashboardRoute => GoRouteData.$route(
+      path: '/',
+      factory: _$DashboardRoute._fromState,
     );
-
-extension $MainLayoutShellRouteExtension on MainLayoutShellRoute {
-  static MainLayoutShellRoute _fromState(GoRouterState state) =>
-      const MainLayoutShellRoute();
-}
 
 mixin _$DashboardRoute on GoRouteData {
   static DashboardRoute _fromState(GoRouterState state) =>
@@ -70,7 +52,7 @@ mixin _$DashboardRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location(
-        '/dashboard',
+        '/',
       );
 
   @override
@@ -87,27 +69,10 @@ mixin _$DashboardRoute on GoRouteData {
   void replace(BuildContext context) => context.replace(location);
 }
 
-mixin _$StationsRoute on GoRouteData {
-  static StationsRoute _fromState(GoRouterState state) => const StationsRoute();
-
-  @override
-  String get location => GoRouteData.$location(
-        '/stations',
-      );
-
-  @override
-  void go(BuildContext context) => context.go(location);
-
-  @override
-  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
-
-  @override
-  void pushReplacement(BuildContext context) =>
-      context.pushReplacement(location);
-
-  @override
-  void replace(BuildContext context) => context.replace(location);
-}
+RouteBase get $profileRoute => GoRouteData.$route(
+      path: '/profile',
+      factory: _$ProfileRoute._fromState,
+    );
 
 mixin _$ProfileRoute on GoRouteData {
   static ProfileRoute _fromState(GoRouterState state) => const ProfileRoute();

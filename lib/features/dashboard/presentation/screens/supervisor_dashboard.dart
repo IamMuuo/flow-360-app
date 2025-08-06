@@ -48,6 +48,14 @@ class SupervisorDashboard extends StatelessWidget {
           flexibleSpace: FlexibleSpaceBar(
             title: const Text('Supervisor Dashboard'),
           ),
+          actions: [
+            IconButton(
+              onPressed: () {
+                ProfileRoute().push(context);
+              },
+              icon: Icon(Icons.person),
+            ),
+          ],
         ),
         SliverPadding(
           padding: const EdgeInsets.all(16.0),
