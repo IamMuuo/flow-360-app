@@ -68,6 +68,7 @@
 
 import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
+import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/auth/models/auth_model.dart';
@@ -87,6 +88,7 @@ class HiveService {
     Hive.registerAdapter(FuelPriceModelAdapter());
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(FuelDispenserModelAdapter());
+    Hive.registerAdapter(NozzleModelAdapter());
 
     // Open the generic cache box once as Box<dynamic>
     await Hive.openBox<dynamic>(_cacheBoxName);
