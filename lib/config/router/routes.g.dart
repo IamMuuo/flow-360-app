@@ -9,6 +9,7 @@ part of 'routes.dart';
 List<RouteBase> get $appRoutes => [
       $authRoute,
       $mainLayoutShellRoute,
+      $fuelPricesRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -113,6 +114,63 @@ mixin _$ProfileRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/profile',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $fuelPricesRoute => GoRouteData.$route(
+      path: '/fuel',
+      factory: _$FuelPricesRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: '/add',
+          factory: _$CreateFuelRoute._fromState,
+        ),
+      ],
+    );
+
+mixin _$FuelPricesRoute on GoRouteData {
+  static FuelPricesRoute _fromState(GoRouterState state) =>
+      const FuelPricesRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/fuel',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$CreateFuelRoute on GoRouteData {
+  static CreateFuelRoute _fromState(GoRouterState state) =>
+      const CreateFuelRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/add',
       );
 
   @override

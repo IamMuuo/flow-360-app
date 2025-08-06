@@ -1,4 +1,5 @@
 import 'package:flow_360/features/features.dart';
+import 'package:flow_360/features/fuel/fuel.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -55,5 +56,25 @@ class ProfileRoute extends GoRouteData with _$ProfileRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return ProfilePage();
+  }
+}
+
+@TypedGoRoute<FuelPricesRoute>(
+  path: "/fuel",
+  routes: <TypedGoRoute>[TypedGoRoute<CreateFuelRoute>(path: "/add")],
+)
+class FuelPricesRoute extends GoRouteData with _$FuelPricesRoute {
+  const FuelPricesRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return FuelPricesPage();
+  }
+}
+
+class CreateFuelRoute extends GoRouteData with _$CreateFuelRoute {
+  const CreateFuelRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return CreateFuelPricePage();
   }
 }

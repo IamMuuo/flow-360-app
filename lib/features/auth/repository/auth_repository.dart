@@ -5,20 +5,26 @@ import 'package:flow_360/core/network/dio_client.dart';
 import 'package:flow_360/features/auth/models/auth_model.dart';
 
 class AuthRepository {
-  final DioClient dioClient;
+  final DioClient _dioClient;
+  final HiveService _hiveService; // Inject HiveService
 
   static const String _authBox = 'authBox';
   static const String _metaBox = 'metaBox';
   static const String _currentUserKey = 'current_user_id';
 
-  AuthRepository({required this.dioClient});
+  // The constructor now receives its dependencies
+  AuthRepository({
+    required DioClient dioClient,
+    required HiveService hiveService,
+  }) : _dioClient = dioClient,
+       _hiveService = hiveService;
 
   Future<Either<Failure, AuthModel>> login({
     required String username,
     required String password,
   }) async {
     try {
-      final response = await dioClient.dio.post(
+      final response = await _dioClient.dio.post(
         '/auth/login/',
         data: {'username': username, 'password': password},
       );
@@ -34,7 +40,7 @@ class AuthRepository {
         );
       }
       final authData = response.data;
-      final profileResponse = await dioClient.dio.get(
+      final profileResponse = await _dioClient.dio.get(
         '/accounts/me',
         options: Options(
           headers: {"Authorization": "Bearer ${authData['access']}"},
@@ -55,15 +61,19 @@ class AuthRepository {
       authData["user"] = profileResponse.data;
       final auth = AuthModel.fromJson(authData);
 
-      // Ensure boxes are open
-      await HiveService.openBox<AuthModel>(_authBox);
-      await HiveService.openBox<String>(_metaBox);
+      // Use the injected HiveService instance
+      // await _hiveService.openBox<AuthModel>(_authBox);
+      // await _hiveService.openBox<String>(_metaBox);
 
       // Save auth object
-      await HiveService.put<AuthModel>(_authBox, auth.user.id.toString(), auth);
+      await _hiveService.put<AuthModel>(
+        _authBox,
+        auth.user.id.toString(),
+        auth,
+      );
 
       // Set current user
-      await HiveService.put<String>(
+      await _hiveService.put<String>(
         _metaBox,
         _currentUserKey,
         auth.user.id.toString(),
@@ -83,62 +93,58 @@ class AuthRepository {
   }
 
   Future<Option<AuthModel>> getCachedAuth() async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    await HiveService.openBox<String>(_metaBox);
-
-    final currentUserId = HiveService.get<String>(_metaBox, _currentUserKey);
+    // Open boxes here to ensure they're available, or rely on the global init
+    // await _hiveService.openBox<AuthModel>(_authBox);
+    // await _hiveService.openBox<String>(_metaBox);
+    //
+    final currentUserId = _hiveService.get<String>(_metaBox, _currentUserKey);
     if (currentUserId == null) return none();
 
-    final auth = HiveService.get<AuthModel>(_authBox, currentUserId);
+    final auth = _hiveService.get<AuthModel>(_authBox, currentUserId);
     return optionOf(auth);
   }
 
-  /// Get all cached users
   Future<List<AuthModel>> getAllCachedUsers() async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    return HiveService.getBox<AuthModel>(_authBox).values.toList();
+    await _hiveService.openBox<AuthModel>(_authBox);
+    return _hiveService.getBox<AuthModel>(_authBox).values.toList();
   }
 
-  /// Switch current user by ID
   Future<void> switchUser(String userId) async {
-    await HiveService.openBox<String>(_metaBox);
-    await HiveService.put<String>(_metaBox, _currentUserKey, userId);
+    await _hiveService.openBox<String>(_metaBox);
+    await _hiveService.put<String>(_metaBox, _currentUserKey, userId);
   }
 
-  /// Clear a specific user
   Future<void> clearUser(String userId) async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    await HiveService.delete<AuthModel>(_authBox, userId);
+    await _hiveService.openBox<AuthModel>(_authBox);
+    await _hiveService.delete<AuthModel>(_authBox, userId);
 
-    final currentId = HiveService.get<String>(_metaBox, _currentUserKey);
+    final currentId = _hiveService.get<String>(_metaBox, _currentUserKey);
     if (currentId == userId) {
-      await HiveService.delete<String>(_metaBox, _currentUserKey);
+      await _hiveService.delete<String>(_metaBox, _currentUserKey);
     }
   }
 
-  /// Clear everything
   Future<void> clearAllUsers() async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    await HiveService.openBox<String>(_metaBox);
-    await HiveService.clear(_authBox);
-    await HiveService.clear(_metaBox);
+    await _hiveService.openBox<AuthModel>(_authBox);
+    await _hiveService.openBox<String>(_metaBox);
+    await _hiveService.clear(_authBox);
+    await _hiveService.clear(_metaBox);
   }
 
   Future<void> clearAuth() async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    await HiveService.openBox<String>(_metaBox);
+    await _hiveService.openBox<AuthModel>(_authBox);
+    await _hiveService.openBox<String>(_metaBox);
 
-    final currentUserId = HiveService.get<String>(_metaBox, _currentUserKey);
+    final currentUserId = _hiveService.get<String>(_metaBox, _currentUserKey);
     if (currentUserId != null) {
-      await HiveService.delete<AuthModel>(_authBox, currentUserId);
+      await _hiveService.delete<AuthModel>(_authBox, currentUserId);
     }
 
-    await HiveService.delete<String>(_metaBox, _currentUserKey);
+    await _hiveService.delete<String>(_metaBox, _currentUserKey);
   }
 
   Future<void> cacheUser(AuthModel user) async {
-    await HiveService.openBox<AuthModel>(_authBox);
-    final box = HiveService.getBox<AuthModel>(_authBox);
-    await box.put(user.user.id.toString(), user);
+    await _hiveService.openBox<AuthModel>(_authBox);
+    await _hiveService.put<AuthModel>(_authBox, user.user.id.toString(), user);
   }
 }

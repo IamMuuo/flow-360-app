@@ -1,4 +1,6 @@
 import 'package:dio/dio.dart';
+import 'package:flow_360/core/network/auth_interceptor.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class DioClient {
   final Dio dio;
@@ -15,7 +17,15 @@ class DioClient {
             ),
           ) {
     this.dio.interceptors.add(
-      LogInterceptor(requestBody: true, responseBody: true),
+      PrettyDioLogger(
+        error: true,
+        request: true,
+        requestHeader: true,
+        responseHeader: true,
+        responseBody: true,
+        requestBody: true,
+      ),
     );
+    this.dio.interceptors.add(AuthInterceptor());
   }
 }

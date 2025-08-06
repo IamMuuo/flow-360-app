@@ -74,8 +74,8 @@ class ProfilePage extends StatelessWidget {
                     ),
                     const Divider(),
                     ProfileTile(
-                      title: "Station",
-                      value: user.firstName ?? "Anonymous",
+                      title: "Name",
+                      value: "${user.firstName} ${user.lastName}",
                     ),
                     const Divider(),
                     ProfileTile(
