@@ -50,4 +50,27 @@ class FuelDispenserModel extends HiveObject {
   factory FuelDispenserModel.fromJson(Map<String, dynamic> json) =>
       _$FuelDispenserModelFromJson(json);
   Map<String, dynamic> toJson() => _$FuelDispenserModelToJson(this);
+
+  // Add the copyWith method here
+  FuelDispenserModel copyWith({
+    String? id,
+    String? name,
+    String? serialNumber,
+    String? manufacturer,
+    String? installedAt,
+    bool? isActive,
+    String? createdAt,
+    String? station,
+  }) {
+    return FuelDispenserModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      serialNumber: serialNumber ?? this.serialNumber,
+      manufacturer: manufacturer ?? this.manufacturer,
+      installedAt: installedAt ?? this.installedAt,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      station: station ?? this.station,
+    );
+  }
 }

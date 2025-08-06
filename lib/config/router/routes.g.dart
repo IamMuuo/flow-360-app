@@ -167,6 +167,16 @@ RouteBase get $fuelDispensersPageRoute => GoRouteData.$route(
           path: 'create/:stationId',
           factory: _$CreateFuelDispenserRoute._fromState,
         ),
+        GoRouteData.$route(
+          path: ':dispenserId',
+          factory: _$DispenserDetailsRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'edit',
+              factory: _$EditDispenserRoute._fromState,
+            ),
+          ],
+        ),
       ],
     );
 
@@ -204,6 +214,60 @@ mixin _$CreateFuelDispenserRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/fuel-dispenser/create/${Uri.encodeComponent(_self.stationId)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$DispenserDetailsRoute on GoRouteData {
+  static DispenserDetailsRoute _fromState(GoRouterState state) =>
+      DispenserDetailsRoute(
+        dispenserId: state.pathParameters['dispenserId']!,
+      );
+
+  DispenserDetailsRoute get _self => this as DispenserDetailsRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/fuel-dispenser/${Uri.encodeComponent(_self.dispenserId)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$EditDispenserRoute on GoRouteData {
+  static EditDispenserRoute _fromState(GoRouterState state) =>
+      EditDispenserRoute(
+        dispenserId: state.pathParameters['dispenserId']!,
+      );
+
+  EditDispenserRoute get _self => this as EditDispenserRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/fuel-dispenser/${Uri.encodeComponent(_self.dispenserId)}/edit',
       );
 
   @override

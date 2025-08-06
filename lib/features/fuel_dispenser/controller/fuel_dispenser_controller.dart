@@ -78,4 +78,49 @@ class FuelDispenserController extends GetxController
       throw Failure(message: 'An unexpected error occurred: $e');
     }
   }
+
+  Future<void> updateFuelDispenser({
+    required String stationId,
+    required String dispenserId,
+    required String name,
+    required String serialNumber,
+    required String manufacturer,
+    required String installedAt,
+    required bool isActive,
+  }) async {
+    try {
+      final Map<String, dynamic> data = {
+        "station": stationId,
+        "name": name,
+        "serial_number": serialNumber,
+        "manufacturer": manufacturer,
+        "installed_at": installedAt,
+        "is_active": isActive,
+      };
+
+      await _repository.updateFuelDispenser(
+        dispenserId: dispenserId,
+        data: data,
+      );
+
+      final currentDispenser = dispensers.firstWhere(
+        (d) => d.id == dispenserId,
+      );
+      final updatedDispenser = currentDispenser.copyWith(
+        name: name,
+        serialNumber: serialNumber,
+        manufacturer: manufacturer,
+        installedAt: installedAt,
+        isActive: isActive,
+      );
+
+      // Update the list of dispensers
+      final index = dispensers.indexOf(currentDispenser);
+      dispensers[index] = updatedDispenser;
+    } on Failure {
+      rethrow;
+    } catch (e) {
+      throw Failure(message: 'An unexpected error occurred: $e');
+    }
+  }
 }

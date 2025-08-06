@@ -99,4 +99,29 @@ class FuelDispenserRepository {
       throw Failure(message: 'An unexpected error occurred.');
     }
   }
+
+  Future<void> updateFuelDispenser({
+    required String dispenserId,
+    required Map<String, dynamic> data,
+  }) async {
+    try {
+      // Assuming your API endpoint for updating is /fuel-dispensers/:id/
+      await _dioClient.dio.put(
+        'station/fuel-dispensers/$dispenserId/',
+        data: data,
+      );
+    } on DioException catch (e) {
+      String errorMessage;
+      if (e.response?.data is Map) {
+        errorMessage =
+            e.response?.data['detail'] ?? 'Failed to update dispenser.';
+      } else {
+        errorMessage =
+            'An unexpected server error occurred during dispenser update.';
+      }
+      throw Failure(message: errorMessage);
+    } catch (e) {
+      throw Failure(message: 'An unexpected error occurred.');
+    }
+  }
 }

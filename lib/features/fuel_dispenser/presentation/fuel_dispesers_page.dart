@@ -72,6 +72,9 @@ class FuelDispensersPage extends StatelessWidget {
           elevation: 0,
           margin: const EdgeInsets.symmetric(vertical: 8.0),
           child: ListTile(
+            onTap: () {
+              DispenserDetailsRoute(dispenserId: dispenser.id).go(context);
+            },
             title: Text(dispenser.name),
             subtitle: Text(
               'Serial: ${dispenser.serialNumber}\nManufacturer: ${dispenser.manufacturer}',
