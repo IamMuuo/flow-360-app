@@ -61,10 +61,15 @@ class ShiftRepository {
 
   Future<ShiftModel?> getCurrentShift() async {
     try {
-      final shifts = await getShifts();
-      return shifts.firstWhere(
-        (shift) => shift.isActive && shift.endedAt == null,
-        orElse: () => throw Exception('No active shift found'),
+      final response = await _dioClient.dio.get('/shift/current/');
+      return ShiftModel.fromJson(response.data);
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        // No active shift found
+        return null;
+      }
+      throw Failure(
+        message: e.response?.data['detail'] ?? 'Failed to fetch current shift.',
       );
     } catch (e) {
       return null;

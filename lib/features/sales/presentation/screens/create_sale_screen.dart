@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
+import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 
 class CreateSaleScreen extends StatefulWidget {
   const CreateSaleScreen({super.key});
@@ -19,11 +21,14 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   late Animation<double> _progressAnimation;
 
   final SalesController _salesController = Get.find<SalesController>();
+  final FuelDispenserController _dispenserController = Get.find<FuelDispenserController>();
+  final AuthController _authController = Get.find<AuthController>();
   
   int _currentStep = 0;
-  final int _totalSteps = 4;
+  final int _totalSteps = 5;
   
   // Form data
+  String? selectedDispenserId;
   String? selectedNozzleId;
   final totalAmountController = TextEditingController();
   String selectedPaymentMode = 'CASH';
@@ -74,6 +79,16 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     _fadeController.forward();
     _slideController.forward();
     _progressController.forward();
+    
+    // Load dispensers for the current user's station
+    _loadDispensers();
+  }
+  
+  void _loadDispensers() {
+    final user = _authController.currentUser.value;
+    if (user?.user.station != null) {
+      _dispenserController.fetchFuelDispensers(user!.user.station!);
+    }
   }
 
   @override
@@ -226,16 +241,67 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   Widget _buildCurrentStep() {
     switch (_currentStep) {
       case 0:
-        return _buildNozzleSelectionStep();
+        return _buildDispenserSelectionStep();
       case 1:
-        return _buildAmountStep();
+        return _buildNozzleSelectionStep();
       case 2:
-        return _buildPaymentStep();
+        return _buildAmountStep();
       case 3:
+        return _buildPaymentStep();
+      case 4:
         return _buildOptionalDetailsStep();
       default:
         return const Center(child: Text('Unknown step'));
     }
+  }
+
+  Widget _buildDispenserSelectionStep() {
+    final user = _authController.currentUser.value;
+    final stationId = user?.user.station ?? '';
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Dispenser',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Choose the fuel dispenser you want to use',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 24),
+        Obx(() {
+          if (_dispenserController.dispensers.isEmpty) {
+            return const Center(
+              child: Text('No available dispensers'),
+            );
+          }
+          return GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 1.2,
+            ),
+            itemCount: _dispenserController.dispensers.length,
+            itemBuilder: (context, index) {
+              final dispenser = _dispenserController.dispensers[index];
+              final isSelected = selectedDispenserId == dispenser.id;
+              return _buildDispenserCard(dispenser, isSelected);
+            },
+          );
+        }),
+      ],
+    );
   }
 
   Widget _buildNozzleSelectionStep() {
@@ -251,7 +317,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          'Choose the nozzle you want to use for this sale',
+          selectedDispenserId != null 
+              ? 'Choose the nozzle from the selected dispenser'
+              : 'Choose the nozzle you want to use for this sale',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
@@ -263,6 +331,37 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               child: Text('No available nozzles'),
             );
           }
+          
+          // Filter nozzles by selected dispenser
+          final filteredNozzles = selectedDispenserId != null
+              ? _salesController.availableNozzles.where((nozzle) => 
+                  nozzle['dispenser_id'] == selectedDispenserId).toList()
+              : _salesController.availableNozzles;
+          
+          if (filteredNozzles.isEmpty) {
+            return Center(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.info_outline,
+                    size: 48,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    selectedDispenserId != null 
+                        ? 'No nozzles available for selected dispenser'
+                        : 'Please select a dispenser first',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Colors.grey,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+          
           return GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -272,9 +371,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               mainAxisSpacing: 16,
               childAspectRatio: 1.2,
             ),
-            itemCount: _salesController.availableNozzles.length,
+            itemCount: filteredNozzles.length,
             itemBuilder: (context, index) {
-              final nozzle = _salesController.availableNozzles[index];
+              final nozzle = filteredNozzles[index];
               final isSelected = selectedNozzleId == nozzle['id'];
               return _buildNozzleCard(nozzle, isSelected);
             },
@@ -351,6 +450,93 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDispenserCard(dynamic dispenser, bool isSelected) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedDispenserId = dispenser.id;
+          // Reset nozzle selection when dispenser changes
+          selectedNozzleId = null;
+        });
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          color: isSelected 
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
+              : Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: isSelected 
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.local_gas_station,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                dispenser.name,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Serial: ${dispenser.serialNumber}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: dispenser.isActive 
+                      ? Colors.green.withValues(alpha: 0.1)
+                      : Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  dispenser.isActive ? 'Active' : 'Inactive',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: dispenser.isActive ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -636,13 +822,15 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   bool _canProceed() {
     switch (_currentStep) {
       case 0:
-        return selectedNozzleId != null;
+        return selectedDispenserId != null;
       case 1:
+        return selectedNozzleId != null;
+      case 2:
         final amount = double.tryParse(totalAmountController.text);
         return amount != null && amount > 0;
-      case 2:
-        return selectedPaymentMode.isNotEmpty;
       case 3:
+        return selectedPaymentMode.isNotEmpty;
+      case 4:
         return true; // Optional step
       default:
         return false;

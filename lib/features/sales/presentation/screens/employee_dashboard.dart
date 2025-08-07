@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:async';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
@@ -23,6 +24,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
+  Timer? _shiftCheckTimer;
 
   @override
   void initState() {
@@ -80,10 +82,21 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     _slideController.forward();
     _pulseController.repeat(reverse: true);
     _scaleController.forward();
+    
+    // Start periodic shift status check
+    _startShiftStatusCheck();
+  }
+  
+  void _startShiftStatusCheck() {
+    _shiftCheckTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
+      final shiftController = Get.find<ShiftController>();
+      shiftController.checkCurrentShift();
+    });
   }
 
   @override
   void dispose() {
+    _shiftCheckTimer?.cancel();
     _fadeController.dispose();
     _slideController.dispose();
     _pulseController.dispose();
