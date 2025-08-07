@@ -260,7 +260,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Obx(() => _buildStatisticsGrid(context)),
+                      _buildStatisticsGrid(context),
                       const SizedBox(height: 24),
                       _buildQuickActions(context),
                     ],
@@ -362,7 +362,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       child: Container(
-        height: 140,
+        height: 160,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -536,7 +536,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
-            height: 120,
+            height: 140,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
