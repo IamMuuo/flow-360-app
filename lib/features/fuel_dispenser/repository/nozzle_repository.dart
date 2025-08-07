@@ -10,6 +10,12 @@ class NozzleRepository {
   final DioClient _dioClient;
   final HiveService _hiveService;
 
+  List<NozzleModel> _mapDynamicListToNozzleModels(List<dynamic> list) {
+    return list
+        .map((json) => NozzleModel.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
   static const _cacheBoxName = 'app_cache';
   String _getCacheKey(String dispenserId) => 'nozzles_$dispenserId';
 
@@ -27,7 +33,7 @@ class NozzleRepository {
       _getCacheKey(dispenserId),
     );
     if (cachedNozzles != null) {
-      return cachedNozzles;
+      return _mapDynamicListToNozzleModels(cachedNozzles);
     }
     return [];
   }
