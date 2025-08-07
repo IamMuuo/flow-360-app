@@ -9,7 +9,8 @@ class SupervisorDashboard extends StatelessWidget {
     final cards = [
       _DashboardCard(
         title: 'Manage Station Prices',
-        icon: Icons.price_change_outlined,
+        icon: Image.asset("assets/icons/discount.png", height: 60),
+        backgroundColor: Colors.redAccent,
         onTap: () {
           // Navigate to fuel price screen
           FuelPricesRoute().push(context);
@@ -17,7 +18,8 @@ class SupervisorDashboard extends StatelessWidget {
       ),
       _DashboardCard(
         title: 'Manage Fuel Dispensers',
-        icon: Icons.local_gas_station_outlined,
+        backgroundColor: Colors.pinkAccent,
+        icon: Image.asset("assets/icons/gas-pump.png", height: 60),
         onTap: () {
           FuelDispensersPageRoute().push(context);
           // Navigate to dispensers list
@@ -25,14 +27,16 @@ class SupervisorDashboard extends StatelessWidget {
       ),
       _DashboardCard(
         title: 'View Sales Reports',
-        icon: Icons.insights,
+        backgroundColor: Colors.blue,
+        icon: Image.asset("assets/icons/financial-profit.png", height: 60),
         onTap: () {
           // Navigate to nozzle management
         },
       ),
       _DashboardCard(
+        backgroundColor: Colors.indigo,
         title: 'Manage Employee Shifts',
-        icon: Icons.access_time_outlined,
+        icon: Image.asset("assets/icons/work-schedule.png", height: 60),
         onTap: () {
           // Navigate to reading input
         },
@@ -74,23 +78,23 @@ class SupervisorDashboard extends StatelessWidget {
 
 class _DashboardCard extends StatelessWidget {
   final String title;
-  final IconData icon;
+  final Widget icon;
+  final Color? backgroundColor;
   final VoidCallback onTap;
 
   const _DashboardCard({
     required this.title,
     required this.icon,
     required this.onTap,
+    this.backgroundColor,
   });
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      color: Theme.of(context).colorScheme.secondaryContainer,
+      color: backgroundColor ?? Theme.of(context).colorScheme.primaryContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
         onTap: onTap,
@@ -99,7 +103,7 @@ class _DashboardCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 42, color: colorScheme.primary),
+              icon,
               const SizedBox(height: 16),
               Text(
                 title,
