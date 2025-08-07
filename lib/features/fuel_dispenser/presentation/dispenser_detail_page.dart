@@ -48,7 +48,7 @@ class DispenserDetailPage extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () {
-              EditDispenserRoute(dispenserId: dispenser.id).go(context);
+              EditDispenserRoute(dispenserId: dispenser.id).push(context);
             },
             icon: const Icon(Icons.edit),
           ),
