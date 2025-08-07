@@ -193,3 +193,13 @@ class SupervisorShiftManagementRoute extends GoRouteData with _$SupervisorShiftM
     return const SupervisorShiftManagementScreen();
   }
 }
+
+@TypedGoRoute<EmployeeDashboardRoute>(path: "/employee-dashboard")
+class EmployeeDashboardRoute extends GoRouteData with _$EmployeeDashboardRoute {
+  const EmployeeDashboardRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const EmployeeDashboard();
+  }
+}

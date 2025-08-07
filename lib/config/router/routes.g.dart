@@ -15,6 +15,7 @@ List<RouteBase> get $appRoutes => [
       $employeeManagementPageRoute,
       $shiftManagementRoute,
       $supervisorShiftManagementRoute,
+      $employeeDashboardRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -413,6 +414,34 @@ mixin _$SupervisorShiftManagementRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/supervisor-shift-management',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $employeeDashboardRoute => GoRouteData.$route(
+      path: '/employee-dashboard',
+      factory: _$EmployeeDashboardRoute._fromState,
+    );
+
+mixin _$EmployeeDashboardRoute on GoRouteData {
+  static EmployeeDashboardRoute _fromState(GoRouterState state) =>
+      const EmployeeDashboardRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/employee-dashboard',
       );
 
   @override
