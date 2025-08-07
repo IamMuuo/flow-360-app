@@ -45,7 +45,21 @@ class ManagerDashboard extends StatelessWidget {
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
 
-                FilledButton(onPressed: () {}, child: Text("Logout")),
+                FilledButton(
+                  onPressed: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Logging out..."),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                    await controller.logoutCurrentUser();
+
+                    if (!context.mounted) return;
+                    AuthRoute().go(context);
+                  },
+                  child: Text("Logout"),
+                ),
 
                 Spacer(),
               ],
