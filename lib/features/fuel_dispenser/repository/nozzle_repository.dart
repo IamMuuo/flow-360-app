@@ -29,7 +29,7 @@ class NozzleRepository {
     required String dispenserId,
   }) async {
     // Check cache first
-    final cachedNozzles = await _hiveService.getCache<List<NozzleModel>>(
+    final cachedNozzles = _hiveService.getCache<List<NozzleModel>>(
       _getCacheKey(dispenserId),
     );
     if (cachedNozzles != null) {
@@ -39,10 +39,6 @@ class NozzleRepository {
   }
 
   Future<List<NozzleModel>> getNozzles({required String dispenserId}) async {
-    // Check cache first
-    final cachedNozzles = await _hiveService.getCache<List<NozzleModel>>(
-      _getCacheKey(dispenserId),
-    );
     try {
       final response = await _dioClient.dio.get(
         '/station/fuel-dispensers/$dispenserId/nozzles',
