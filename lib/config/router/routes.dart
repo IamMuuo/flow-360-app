@@ -1,5 +1,8 @@
+import 'package:flow_360/features/auth/models/user_model.dart';
+import 'package:flow_360/features/employees/presentation/presentation.dart';
 import 'package:flow_360/features/features.dart';
 import 'package:flow_360/features/fuel/fuel.dart';
+import 'package:flow_360/features/shift/shift.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -117,5 +120,76 @@ class EditDispenserRoute extends GoRouteData with _$EditDispenserRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return EditDispenserPage(dispenserId: dispenserId);
+  }
+}
+
+@TypedGoRoute<EmployeeManagementPageRoute>(
+  path: "/employees",
+  routes: [
+    TypedGoRoute<EmployeeCreatePageRoute>(path: "create"),
+    TypedGoRoute<EmployeeDetailsPageRoute>(
+      path: ":employeeId",
+      routes: [TypedGoRoute<EmployeeEditPageRoute>(path: "edit")],
+    ),
+  ],
+)
+class EmployeeManagementPageRoute extends GoRouteData
+    with _$EmployeeManagementPageRoute {
+  const EmployeeManagementPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EmployeeManagementPage();
+  }
+}
+
+class EmployeeCreatePageRoute extends GoRouteData
+    with _$EmployeeCreatePageRoute {
+  const EmployeeCreatePageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const EmployeeCreationPage();
+  }
+}
+
+class EmployeeDetailsPageRoute extends GoRouteData
+    with _$EmployeeDetailsPageRoute {
+  const EmployeeDetailsPageRoute({required this.employeeId});
+  final String employeeId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EmployeeProfilePage(employeeId: employeeId);
+  }
+}
+
+class EmployeeEditPageRoute extends GoRouteData with _$EmployeeEditPageRoute {
+  const EmployeeEditPageRoute({required this.employeeId});
+  final String employeeId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return EmployeeEditPage(employeeId: employeeId);
+  }
+}
+
+@TypedGoRoute<ShiftManagementRoute>(path: "/shift-management")
+class ShiftManagementRoute extends GoRouteData with _$ShiftManagementRoute {
+  const ShiftManagementRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ShiftManagementScreen();
+  }
+}
+
+@TypedGoRoute<SupervisorShiftManagementRoute>(path: "/supervisor-shift-management")
+class SupervisorShiftManagementRoute extends GoRouteData with _$SupervisorShiftManagementRoute {
+  const SupervisorShiftManagementRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const SupervisorShiftManagementScreen();
   }
 }

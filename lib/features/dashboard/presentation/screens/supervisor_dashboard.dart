@@ -1,5 +1,5 @@
-import 'package:flow_360/config/router/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:flow_360/config/router/routes.dart';
 
 class SupervisorDashboard extends StatelessWidget {
   const SupervisorDashboard({super.key});
@@ -8,79 +8,70 @@ class SupervisorDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cards = [
       _DashboardCard(
-        title: 'Manage Station Prices',
-        icon: Image.asset("assets/icons/discount.png", height: 60),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.blue,
+        title: 'Manage Employees',
+        icon: Image.asset("assets/icons/employees.png", height: 60),
         onTap: () {
-          // Navigate to fuel price screen
+          EmployeeManagementPageRoute().push(context);
+        },
+      ),
+      _DashboardCard(
+        backgroundColor: Colors.green,
+        title: 'Fuel Dispensers',
+        icon: Image.asset("assets/icons/fuel-dispenser.png", height: 60),
+        onTap: () {
+          FuelDispensersPageRoute().push(context);
+        },
+      ),
+      _DashboardCard(
+        backgroundColor: Colors.orange,
+        title: 'Fuel Prices',
+        icon: Image.asset("assets/icons/fuel-price.png", height: 60),
+        onTap: () {
           FuelPricesRoute().push(context);
         },
       ),
-      _DashboardCard(
-        title: 'Manage Fuel Dispensers',
-        backgroundColor: Colors.pinkAccent,
-        icon: Image.asset("assets/icons/gas-pump.png", height: 60),
-        onTap: () {
-          FuelDispensersPageRoute().push(context);
-          // Navigate to dispensers list
-        },
-      ),
-      _DashboardCard(
-        title: 'View Sales Reports',
-        backgroundColor: Colors.blue,
-        icon: Image.asset("assets/icons/financial-profit.png", height: 60),
-        onTap: () {
-          // Navigate to nozzle management
-        },
-      ),
-      _DashboardCard(
-        backgroundColor: Colors.teal,
-        title: 'Manage Attendants',
-        icon: Image.asset("assets/icons/refuel.png", height: 60),
-        onTap: () {
-          // Navigate to reading input
-        },
-      ),
-
       _DashboardCard(
         backgroundColor: Colors.indigo,
         title: 'Manage Employee Shifts',
         icon: Image.asset("assets/icons/work-schedule.png", height: 60),
         onTap: () {
-          // Navigate to reading input
+          SupervisorShiftManagementRoute().push(context);
         },
       ),
     ];
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          expandedHeight: 180,
-          floating: false,
-          pinned: true,
-          flexibleSpace: FlexibleSpaceBar(
-            title: const Text('Supervisor Dashboard'),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () {
-                ProfileRoute().push(context);
-              },
-              icon: Icon(Icons.person),
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 180,
+            floating: false,
+            pinned: true,
+            flexibleSpace: FlexibleSpaceBar(
+              title: const Text('Supervisor Dashboard'),
             ),
-          ],
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16.0),
-          sliver: SliverGrid.count(
-            crossAxisCount: 2,
-            crossAxisSpacing: 2,
-            mainAxisSpacing: 2,
-            childAspectRatio: 1.1,
-            children: cards,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  ProfileRoute().push(context);
+                },
+                icon: Icon(Icons.person),
+              ),
+            ],
           ),
-        ),
-      ],
+          SliverPadding(
+            padding: const EdgeInsets.all(16.0),
+            sliver: SliverGrid.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 2,
+              mainAxisSpacing: 2,
+              childAspectRatio: 1.1,
+              children: cards,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

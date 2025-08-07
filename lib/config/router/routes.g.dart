@@ -12,6 +12,9 @@ List<RouteBase> get $appRoutes => [
       $profileRoute,
       $fuelPricesRoute,
       $fuelDispensersPageRoute,
+      $employeeManagementPageRoute,
+      $shiftManagementRoute,
+      $supervisorShiftManagementRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -233,6 +236,183 @@ mixin _$EditDispenserRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/fuel-dispenser/${Uri.encodeComponent(_self.dispenserId)}/edit',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $employeeManagementPageRoute => GoRouteData.$route(
+      path: '/employees',
+      factory: _$EmployeeManagementPageRoute._fromState,
+      routes: [
+        GoRouteData.$route(
+          path: 'create',
+          factory: _$EmployeeCreatePageRoute._fromState,
+        ),
+        GoRouteData.$route(
+          path: ':employeeId',
+          factory: _$EmployeeDetailsPageRoute._fromState,
+          routes: [
+            GoRouteData.$route(
+              path: 'edit',
+              factory: _$EmployeeEditPageRoute._fromState,
+            ),
+          ],
+        ),
+      ],
+    );
+
+mixin _$EmployeeManagementPageRoute on GoRouteData {
+  static EmployeeManagementPageRoute _fromState(GoRouterState state) =>
+      const EmployeeManagementPageRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/employees',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$EmployeeCreatePageRoute on GoRouteData {
+  static EmployeeCreatePageRoute _fromState(GoRouterState state) =>
+      const EmployeeCreatePageRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/employees/create',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$EmployeeDetailsPageRoute on GoRouteData {
+  static EmployeeDetailsPageRoute _fromState(GoRouterState state) =>
+      EmployeeDetailsPageRoute(
+        employeeId: state.pathParameters['employeeId']!,
+      );
+
+  EmployeeDetailsPageRoute get _self => this as EmployeeDetailsPageRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/employees/${Uri.encodeComponent(_self.employeeId)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+mixin _$EmployeeEditPageRoute on GoRouteData {
+  static EmployeeEditPageRoute _fromState(GoRouterState state) =>
+      EmployeeEditPageRoute(
+        employeeId: state.pathParameters['employeeId']!,
+      );
+
+  EmployeeEditPageRoute get _self => this as EmployeeEditPageRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/employees/${Uri.encodeComponent(_self.employeeId)}/edit',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $shiftManagementRoute => GoRouteData.$route(
+      path: '/shift-management',
+      factory: _$ShiftManagementRoute._fromState,
+    );
+
+mixin _$ShiftManagementRoute on GoRouteData {
+  static ShiftManagementRoute _fromState(GoRouterState state) =>
+      const ShiftManagementRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/shift-management',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $supervisorShiftManagementRoute => GoRouteData.$route(
+      path: '/supervisor-shift-management',
+      factory: _$SupervisorShiftManagementRoute._fromState,
+    );
+
+mixin _$SupervisorShiftManagementRoute on GoRouteData {
+  static SupervisorShiftManagementRoute _fromState(GoRouterState state) =>
+      const SupervisorShiftManagementRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/supervisor-shift-management',
       );
 
   @override
