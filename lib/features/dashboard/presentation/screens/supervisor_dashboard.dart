@@ -93,7 +93,7 @@ class _DashboardCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       color: backgroundColor ?? Theme.of(context).colorScheme.primaryContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
