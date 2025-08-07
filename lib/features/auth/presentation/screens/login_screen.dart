@@ -15,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final AuthController authController = Get.find<AuthController>();
+  bool _showPassword = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,7 +64,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                   return null;
                 },
+                obscureText: !_showPassword,
                 decoration: InputDecoration(
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _showPassword = !_showPassword;
+                      });
+                    },
+                    icon: Icon(
+                      _showPassword ? Icons.visibility_off : Icons.visibility,
+                    ),
+                  ),
                   filled: true,
                   hintText: "Password",
                   border: OutlineInputBorder(
@@ -89,8 +102,6 @@ class _LoginScreenState extends State<LoginScreen> {
                             );
                             return;
                           }
-
-                          print("boom");
 
                           await authController.login(
                             username: _usernameController.text.trim(),
