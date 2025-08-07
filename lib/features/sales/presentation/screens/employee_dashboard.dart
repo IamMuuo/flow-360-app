@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:flow_360/features/shift/controllers/shift_controller.dart';
 
 class EmployeeDashboard extends StatefulWidget {
   const EmployeeDashboard({super.key});
@@ -93,6 +95,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
   Widget build(BuildContext context) {
     final salesController = Get.put(SalesController());
     final authController = Get.find<AuthController>();
+    final shiftController = Get.put(ShiftController());
     final user = authController.currentUser.value;
 
     if (user == null) {
@@ -111,6 +114,13 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             floating: false,
             pinned: true,
             backgroundColor: Theme.of(context).colorScheme.primary,
+            actions: [
+              IconButton(
+                onPressed: () => context.go('/profile'),
+                icon: const Icon(Icons.person, color: Colors.white),
+                tooltip: 'Profile',
+              ),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               title: FadeTransition(
                 opacity: _fadeAnimation,
@@ -235,65 +245,136 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
           ),
         ],
       ),
-      floatingActionButton: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: FloatingActionButton.extended(
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const CreateSaleScreen(),
+      floatingActionButton: Obx(() {
+        final hasActiveShift = shiftController.hasActiveShift;
+        
+        return AnimatedBuilder(
+          animation: _scaleAnimation,
+          builder: (context, child) {
+            return Transform.scale(
+              scale: _scaleAnimation.value,
+              child: FloatingActionButton.extended(
+                onPressed: hasActiveShift 
+                    ? () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const CreateSaleScreen(),
+                        ),
+                      )
+                    : () => _showNoShiftDialog(context),
+                backgroundColor: hasActiveShift 
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                foregroundColor: hasActiveShift 
+                    ? Colors.white
+                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                icon: Icon(
+                  hasActiveShift ? Icons.add_shopping_cart : Icons.schedule,
                 ),
+                label: Text(hasActiveShift ? 'New Sale' : 'Not on Shift'),
               ),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Colors.white,
-              icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('New Sale'),
-            ),
-          );
-        },
-      ),
+            );
+          },
+        );
+      }),
     );
   }
 
   Widget _buildWelcomeSection(BuildContext context, dynamic user) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-            Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+    final shiftController = Get.find<ShiftController>();
+    
+    return Obx(() {
+      final hasActiveShift = shiftController.hasActiveShift;
+      
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: hasActiveShift
+                ? [
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                  ]
+                : [
+                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: hasActiveShift
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
+                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome back, ${user.user.firstName}!',
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        hasActiveShift 
+                            ? 'Ready to serve customers?'
+                            : 'You are not currently on shift',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: hasActiveShift
+                              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                              : Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: hasActiveShift
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        hasActiveShift ? Icons.check_circle : Icons.schedule,
+                        size: 16,
+                        color: hasActiveShift
+                            ? Colors.white
+                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        hasActiveShift ? 'On Shift' : 'Off Shift',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: hasActiveShift
+                              ? Colors.white
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Welcome back, ${user.user.firstName}!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Ready to serve customers?',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
-    );
+      );
+    });
   }
 
   Widget _buildStatisticsSection(BuildContext context, SalesController controller) {
@@ -609,5 +690,86 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     }
   }
 
-
+  void _showNoShiftDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(
+              Icons.schedule,
+              color: Theme.of(context).colorScheme.primary,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            const Text('No Active Shift'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'You cannot create sales while not on an active shift.',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Why is this required?',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• Ensures proper tracking of sales and accountability\n'
+                    '• Required for compliance and audit purposes\n'
+                    '• Helps maintain accurate shift records\n'
+                    '• Contact your supervisor to start your shift',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Got it'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              // Navigate to shift management screen
+              context.go('/shift-management');
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Manage Shift'),
+          ),
+        ],
+      ),
+    );
+  }
 }
