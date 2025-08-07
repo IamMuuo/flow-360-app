@@ -34,6 +34,15 @@ class SupervisorDashboard extends StatelessWidget {
         },
       ),
       _DashboardCard(
+        backgroundColor: Colors.teal,
+        title: 'Manage Attendants',
+        icon: Image.asset("assets/icons/refuel.png", height: 60),
+        onTap: () {
+          // Navigate to reading input
+        },
+      ),
+
+      _DashboardCard(
         backgroundColor: Colors.indigo,
         title: 'Manage Employee Shifts',
         icon: Image.asset("assets/icons/work-schedule.png", height: 60),
