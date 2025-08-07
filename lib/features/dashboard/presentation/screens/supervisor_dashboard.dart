@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
+import 'package:flow_360/features/employees/repository/employee_repository.dart';
+import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
+import 'package:flow_360/features/fuel_dispenser/repository/nozzle_repository.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:get_it/get_it.dart';
 
 class SupervisorDashboard extends StatefulWidget {
   const SupervisorDashboard({super.key});
@@ -18,6 +23,23 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
+
+  // Controllers for data
+  final SupervisorShiftController _shiftController = Get.put(SupervisorShiftController());
+  final EmployeeRepository _employeeRepository = GetIt.instance<EmployeeRepository>();
+  final FuelDispenserRepository _dispenserRepository = GetIt.instance<FuelDispenserRepository>();
+  final NozzleRepository _nozzleRepository = GetIt.instance<NozzleRepository>();
+
+  // Observable data
+  final RxInt totalEmployees = 0.obs;
+  final RxInt activeEmployees = 0.obs;
+  final RxInt totalDispensers = 0.obs;
+  final RxInt activeDispensers = 0.obs;
+  final RxInt totalNozzles = 0.obs;
+  final RxInt activeNozzles = 0.obs;
+  final RxInt totalShifts = 0.obs;
+  final RxInt activeShifts = 0.obs;
+  final RxBool isLoading = true.obs;
 
   @override
   void initState() {
@@ -68,6 +90,61 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
     _fadeController.forward();
     _slideController.forward();
     _pulseController.repeat(reverse: true);
+
+    // Load data
+    _loadDashboardData();
+  }
+
+  Future<void> _loadDashboardData() async {
+    try {
+      isLoading.value = true;
+
+      // Get current user's station ID
+      final authController = Get.find<AuthController>();
+      final currentUser = authController.currentUser.value;
+      final stationId = currentUser?.user.station;
+
+      if (stationId != null) {
+        // Load employees
+        final employees = await _employeeRepository.getEmployees(stationId: stationId);
+        totalEmployees.value = employees.length;
+        activeEmployees.value = employees.where((emp) => emp.isActive == true).length;
+
+        // Load dispensers for the station
+        final dispensers = await _dispenserRepository.getFuelDispensers(stationId: stationId);
+        totalDispensers.value = dispensers.length;
+        activeDispensers.value = dispensers.where((disp) => disp.isActive == true).length;
+
+        // Load nozzles from all dispensers
+        int totalNozzlesCount = 0;
+        int activeNozzlesCount = 0;
+        
+        for (final dispenser in dispensers) {
+          try {
+            final nozzles = await _nozzleRepository.getNozzles(dispenserId: dispenser.id);
+            totalNozzlesCount += nozzles.length;
+            activeNozzlesCount += nozzles.where((nozzle) => nozzle.isActive == true).length;
+          } catch (e) {
+            // Skip dispensers with nozzle loading errors
+            debugPrint('Error loading nozzles for dispenser ${dispenser.id}: $e');
+          }
+        }
+        
+        totalNozzles.value = totalNozzlesCount;
+        activeNozzles.value = activeNozzlesCount;
+      }
+
+      // Load shifts
+      await _shiftController.loadEmployeeShifts();
+      totalShifts.value = _shiftController.employeeShifts.length;
+      activeShifts.value = _shiftController.activeEmployeeShifts.length;
+
+    } catch (e) {
+      // Handle errors silently for now
+      debugPrint('Error loading dashboard data: $e');
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   @override
@@ -80,9 +157,6 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
 
   @override
   Widget build(BuildContext context) {
-    // Initialize supervisor shift controller for statistics
-    Get.put(SupervisorShiftController());
-
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: CustomScrollView(
@@ -186,7 +260,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _buildStatisticsGrid(context),
+                      Obx(() => _buildStatisticsGrid(context)),
                       const SizedBox(height: 24),
                       _buildQuickActions(context),
                     ],
@@ -201,52 +275,78 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   }
 
   Widget _buildStatisticsGrid(BuildContext context) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.2,
-      children: [
-        _buildStatCard(
-          context,
-          'Fuel Pumps',
-          '8',
-          '2 Active',
-          Icons.local_gas_station,
-          Colors.blue,
-          Colors.blue.withValues(alpha: 0.1),
-        ),
-        _buildStatCard(
-          context,
-          'Nozzles',
-          '16',
-          '12 Active',
-          Icons.water_drop,
-          Colors.green,
-          Colors.green.withValues(alpha: 0.1),
-        ),
-        _buildStatCard(
-          context,
-          'Employees',
-          '12',
-          '8 On Duty',
-          Icons.people,
-          Colors.orange,
-          Colors.orange.withValues(alpha: 0.1),
-        ),
-        _buildStatCard(
-          context,
-          'Active Shifts',
-          '6',
-          '2 Ending Soon',
-          Icons.schedule,
-          Colors.purple,
-          Colors.purple.withValues(alpha: 0.1),
-        ),
-      ],
-    );
+    return Obx(() {
+      if (isLoading.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(32.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      return Column(
+        children: [
+          // First row - 2 cards
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  'Fuel Pumps',
+                  totalDispensers.value.toString(),
+                  '${activeDispensers.value} Active',
+                  Icons.local_gas_station,
+                  Colors.blue,
+                  Colors.blue.withValues(alpha: 0.1),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  'Nozzles',
+                  totalNozzles.value.toString(),
+                  '${activeNozzles.value} Active',
+                  Icons.water_drop,
+                  Colors.green,
+                  Colors.green.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Second row - 2 cards
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  'Employees',
+                  totalEmployees.value.toString(),
+                  '${activeEmployees.value} On Duty',
+                  Icons.people,
+                  Colors.orange,
+                  Colors.orange.withValues(alpha: 0.1),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildStatCard(
+                  context,
+                  'Active Shifts',
+                  totalShifts.value.toString(),
+                  '${activeShifts.value} Active',
+                  Icons.schedule,
+                  Colors.purple,
+                  Colors.purple.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    });
   }
 
   Widget _buildStatCard(
@@ -262,6 +362,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       child: Container(
+        height: 140,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -317,7 +418,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
               Text(
                 mainValue,
                 style: TextStyle(
-                  fontSize: 28,
+                  fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
@@ -357,45 +458,60 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
           ),
         ),
         const SizedBox(height: 16),
-        GridView.count(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisCount: 2,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.3,
+        Column(
           children: [
-            _buildActionCard(
-              context,
-              'Manage Employees',
-              'Create, edit, and monitor employees',
-              Icons.people_alt,
-              Colors.blue,
-              () => EmployeeManagementPageRoute().push(context),
+            // First row - 2 cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Manage Employees',
+                    'Create, edit, and monitor employees',
+                    Icons.people_alt,
+                    Colors.blue,
+                    () => EmployeeManagementPageRoute().push(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Fuel Dispensers',
+                    'Monitor pumps and nozzles',
+                    Icons.local_gas_station,
+                    Colors.green,
+                    () => FuelDispensersPageRoute().push(context),
+                  ),
+                ),
+              ],
             ),
-            _buildActionCard(
-              context,
-              'Fuel Dispensers',
-              'Monitor pumps and nozzles',
-              Icons.local_gas_station,
-              Colors.green,
-              () => FuelDispensersPageRoute().push(context),
-            ),
-            _buildActionCard(
-              context,
-              'Fuel Prices',
-              'Set and manage pricing',
-              Icons.attach_money,
-              Colors.orange,
-              () => FuelPricesRoute().push(context),
-            ),
-            _buildActionCard(
-              context,
-              'Employee Shifts',
-              'Manage work schedules',
-              Icons.schedule,
-              Colors.purple,
-              () => SupervisorShiftManagementRoute().push(context),
+            const SizedBox(height: 12),
+            // Second row - 2 cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Fuel Prices',
+                    'Set and manage pricing',
+                    Icons.attach_money,
+                    Colors.orange,
+                    () => FuelPricesRoute().push(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Employee Shifts',
+                    'Manage work schedules',
+                    Icons.schedule,
+                    Colors.purple,
+                    () => SupervisorShiftManagementRoute().push(context),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -420,6 +536,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
           borderRadius: BorderRadius.circular(16),
           onTap: onTap,
           child: Container(
+            height: 120,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -448,23 +565,23 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     child: Icon(
                       icon,
                       color: color,
-                      size: 24,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   Text(
                     title,
                     style: TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 2),
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 10,
                       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
@@ -474,7 +591,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       Text(
                         'Tap to access',
                         style: TextStyle(
-                          fontSize: 10,
+                          fontSize: 8,
                           color: color,
                           fontWeight: FontWeight.w500,
                         ),
@@ -482,7 +599,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       const Spacer(),
                       Icon(
                         Icons.arrow_forward_ios,
-                        size: 12,
+                        size: 10,
                         color: color,
                       ),
                     ],
