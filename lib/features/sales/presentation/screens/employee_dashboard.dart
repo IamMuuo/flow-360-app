@@ -304,11 +304,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               child: FloatingActionButton.extended(
                 onPressed: hasActiveShift 
                     ? () async {
-                        await Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const CreateSaleScreen(),
-                          ),
-                        );
+                        await context.push('/create-sale');
                         // Refresh shift status when returning from sale creation
                         _refreshShiftStatus();
                       }
@@ -322,7 +318,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                 icon: Icon(
                   hasActiveShift ? Icons.add_shopping_cart : Icons.schedule,
                 ),
-                label: Text(hasActiveShift ? 'New Sale' : 'Not on Shift'),
+                label: Text(hasActiveShift ? 'New Sale' : 'Contact Supervisor'),
               ),
             );
           },
@@ -380,7 +376,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                       Text(
                         hasActiveShift 
                             ? 'Ready to serve customers?'
-                            : 'You are not currently on shift',
+                            : 'Contact your supervisor to start your shift',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: hasActiveShift
                               ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
@@ -806,12 +802,12 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => context.pop(),
             child: const Text('Got it'),
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pop();
+              context.pop();
               // Navigate to shift management screen
               context.go('/shift-management');
             },

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
+import 'package:flow_360/features/sales/models/sale_model.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
+import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
+import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
+import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:flow_360/features/auth/models/user_model.dart';
+import 'package:flow_360/features/shift/controllers/shift_controller.dart';
 
 class CreateSaleScreen extends StatefulWidget {
   const CreateSaleScreen({super.key});
@@ -146,7 +153,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       body: Column(
@@ -419,7 +426,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   const SizedBox(height: 16),
                   ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
                     icon: const Icon(Icons.arrow_back),
                     label: const Text('Go Back'),
@@ -988,7 +995,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       );
 
       // Close loading dialog
-      Navigator.of(context).pop();
+      context.pop();
       
       // Check if there was an error
       if (_salesController.errorMessage.value.isNotEmpty) {
@@ -1023,8 +1030,8 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close success dialog
-                Navigator.of(context).pop(); // Go back to dashboard
+                context.pop(); // Close success dialog
+                context.pop(); // Go back to dashboard
                 // Refresh sales on dashboard
                 final salesController = Get.find<SalesController>();
                 salesController.loadSales();
@@ -1036,7 +1043,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       );
     } catch (e) {
       // Close loading dialog
-      Navigator.of(context).pop();
+      context.pop();
       
       print('Error creating sale: $e');
       // Show error dialog
@@ -1047,7 +1054,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           content: Text('Failed to create sale: $e.message'),
           actions: [
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: const Text('OK'),
             ),
           ],

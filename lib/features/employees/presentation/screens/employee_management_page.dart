@@ -1,9 +1,10 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/employees/controllers/employee_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class EmployeeManagementPage extends StatefulWidget {
   const EmployeeManagementPage({super.key});
@@ -185,7 +186,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> with Ti
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [

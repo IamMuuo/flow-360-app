@@ -233,7 +233,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage> with TickerPr
             leading: IconButton(
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
+                  context.pop();
                 } else {
                   // Fallback navigation if can't pop
                   context.go('/employees');

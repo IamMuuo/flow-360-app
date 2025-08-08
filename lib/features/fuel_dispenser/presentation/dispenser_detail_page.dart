@@ -1,10 +1,11 @@
-import 'package:flow_360/config/router/routes.dart';
-import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
+import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 
 const Map<String, String> _fuelTypeNames = {
   'PMS': 'Petrol',
@@ -241,7 +242,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [

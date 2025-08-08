@@ -2,9 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
 import 'package:flow_360/features/shift/models/shift_model.dart';
+import 'package:flow_360/features/auth/models/user_model.dart';
 
 
 class SupervisorShiftManagementScreen extends StatelessWidget {
@@ -564,7 +566,7 @@ class SupervisorShiftManagementScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'Cancel',
                 style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -578,7 +580,7 @@ class SupervisorShiftManagementScreen extends StatelessWidget {
                         employeeId: controller.selectedEmployeeId.value,
                         startTime: DateTime.now(),
                       );
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
               child: controller.isCreatingShift.value
                   ? const SizedBox(
@@ -615,7 +617,7 @@ class SupervisorShiftManagementScreen extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               child: Text(
                 'Cancel',
                 style: TextStyle(color: Theme.of(context).colorScheme.primary),
@@ -626,7 +628,7 @@ class SupervisorShiftManagementScreen extends StatelessWidget {
                   ? null
                   : () async {
                       await controller.endEmployeeShift(shift.id);
-                      Navigator.of(context).pop();
+                      context.pop();
                     },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,

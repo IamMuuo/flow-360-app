@@ -162,7 +162,7 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> with TickerProvider
         }
         
         if (mounted) {
-          Navigator.of(context).pop();
+          context.pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text("Employee updated successfully!"),
@@ -321,7 +321,7 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> with TickerProvider
             leading: IconButton(
               onPressed: () {
                 if (Navigator.of(context).canPop()) {
-                  Navigator.of(context).pop();
+                  context.pop();
                 } else {
                   // Fallback navigation if can't pop
                   context.go('/employees');

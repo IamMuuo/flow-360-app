@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/shift/presentation/widgets/shift_status_indicator.dart';
 import 'package:flow_360/features/shift/presentation/widgets/shift_fab.dart';
 
@@ -12,81 +13,34 @@ class ShiftDemoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final shiftController = Get.put(ShiftController());
+    final authController = Get.find<AuthController>();
+    final currentUser = authController.currentUser.value;
+    final isSupervisor = currentUser?.user.role == 'Supervisor' || currentUser?.user.role == 'Manager';
 
     return Scaffold(
       backgroundColor: Get.theme.colorScheme.surface,
       appBar: AppBar(
         title: const Text(
-          'Shift Management Demo',
+          'Shift Demo',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
         backgroundColor: Get.theme.colorScheme.surface,
         elevation: 0,
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Status Indicator
-            const ShiftStatusIndicator(),
-            const SizedBox(height: 24),
-            
-            // Quick Actions Card
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Quick Actions',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Get.theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildQuickActionButton(
-                            title: 'Start Shift',
-                            icon: Icons.play_arrow,
-                            color: Colors.green,
-                            onPressed: shiftController.hasActiveShift 
-                                ? null 
-                                : () => shiftController.startShift(),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildQuickActionButton(
-                            title: 'End Shift',
-                            icon: Icons.stop,
-                            color: Colors.red,
-                            onPressed: shiftController.hasActiveShift 
-                                ? () => shiftController.endShift()
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            // Current Status Card
-            Obx(() {
-              return Card(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await shiftController.loadShifts();
+          await shiftController.checkCurrentShift();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Quick Actions Card
+              Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -97,7 +51,7 @@ class ShiftDemoScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Current Status',
+                        'Quick Actions',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
@@ -105,101 +59,73 @@ class ShiftDemoScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: 12,
-                            height: 12,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: shiftController.hasActiveShift
-                                  ? Colors.green
-                                  : Colors.grey,
+                      Obx(() {
+                        return Row(
+                          children: [
+                            if (isSupervisor) ...[
+                              Expanded(
+                                child: _buildQuickActionButton(
+                                  title: 'Start Shift',
+                                  icon: Icons.play_arrow,
+                                  color: Colors.green,
+                                  onPressed: shiftController.hasActiveShift 
+                                      ? null 
+                                      : () => shiftController.startShift(),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                            ],
+                            Expanded(
+                              child: _buildQuickActionButton(
+                                title: 'End Shift',
+                                icon: Icons.stop,
+                                color: Colors.red,
+                                onPressed: shiftController.hasActiveShift 
+                                    ? () => shiftController.endShift()
+                                    : null,
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
+                      if (!isSupervisor) ...[
+                        const SizedBox(height: 16),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Get.theme.colorScheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Get.theme.colorScheme.primary.withOpacity(0.2),
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  shiftController.hasActiveShift
-                                      ? 'Shift Active'
-                                      : 'No Active Shift',
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: Get.theme.colorScheme.primary,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Only supervisors can start shifts. Contact your supervisor.',
                                   style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                    color: Get.theme.colorScheme.onSurface,
+                                    color: Get.theme.colorScheme.onPrimaryContainer,
+                                    fontSize: 14,
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  shiftController.hasActiveShift
-                                      ? 'Duration: ${shiftController.shiftDuration}'
-                                      : 'Ready to start shift',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Get.theme.colorScheme.onSurface.withOpacity(0.7),
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
-              );
-            }),
-            const SizedBox(height: 24),
-            
-            // Instructions Card
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'How to Use',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Get.theme.colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildInstructionItem(
-                      icon: Icons.play_arrow,
-                      title: 'Start Shift',
-                      description: 'Tap the green button or FAB to begin your shift',
-                      color: Colors.green,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInstructionItem(
-                      icon: Icons.stop,
-                      title: 'End Shift',
-                      description: 'Tap the red button or FAB to end your shift',
-                      color: Colors.red,
-                    ),
-                    const SizedBox(height: 12),
-                    _buildInstructionItem(
-                      icon: Icons.timer,
-                      title: 'Track Time',
-                      description: 'Your shift duration is automatically tracked',
-                      color: Colors.blue,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       floatingActionButton: const ShiftFAB(),

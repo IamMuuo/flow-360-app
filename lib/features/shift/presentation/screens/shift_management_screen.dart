@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
 import 'package:flow_360/features/shift/models/shift_model.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 
 class ShiftManagementScreen extends StatelessWidget {
   const ShiftManagementScreen({super.key});
@@ -189,6 +190,10 @@ class ShiftManagementScreen extends StatelessWidget {
   }
 
   Widget _buildShiftActions(ShiftController controller) {
+    final authController = Get.find<AuthController>();
+    final currentUser = authController.currentUser.value;
+    final isSupervisor = currentUser?.user.role == 'Supervisor' || currentUser?.user.role == 'Manager';
+    
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
@@ -208,31 +213,91 @@ class ShiftManagementScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildActionButton(
-                    controller,
-                    title: 'Start Shift',
-                    icon: Icons.play_arrow,
-                    color: Colors.green,
-                    isLoading: controller.isStartingShift.value,
-                    onPressed: controller.hasActiveShift ? null : controller.startShift,
+            
+            if (isSupervisor) ...[
+              // Show start/end shift buttons for supervisors
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildActionButton(
+                      controller,
+                      title: 'Start Shift',
+                      icon: Icons.play_arrow,
+                      color: Colors.green,
+                      isLoading: controller.isStartingShift.value,
+                      onPressed: controller.hasActiveShift ? null : controller.startShift,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildActionButton(
+                      controller,
+                      title: 'End Shift',
+                      icon: Icons.stop,
+                      color: Colors.red,
+                      isLoading: controller.isEndingShift.value,
+                      onPressed: controller.hasActiveShift ? controller.endShift : null,
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
+              // Show informational message for employees
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Get.theme.colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Get.theme.colorScheme.primary.withOpacity(0.2),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          color: Get.theme.colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Shift Management',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Get.theme.colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Only supervisors and managers can start shifts. Please contact your supervisor to begin your shift.',
+                      style: TextStyle(
+                        color: Get.theme.colorScheme.onPrimaryContainer,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Show end shift button for employees (if they have an active shift)
+              if (controller.hasActiveShift)
+                SizedBox(
+                  width: double.infinity,
                   child: _buildActionButton(
                     controller,
                     title: 'End Shift',
                     icon: Icons.stop,
                     color: Colors.red,
                     isLoading: controller.isEndingShift.value,
-                    onPressed: controller.hasActiveShift ? controller.endShift : null,
+                    onPressed: controller.endShift,
                   ),
                 ),
-              ],
-            ),
+            ],
           ],
         ),
       ),

@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flow_360/core/network/dio_client.dart';
@@ -228,7 +229,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [

@@ -1,7 +1,10 @@
-import 'package:flow_360/core/failure.dart';
-import 'package:flow_360/features/employees/controllers/employee_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
+import 'package:flow_360/features/employees/controllers/employee_controller.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:flow_360/core/failure.dart';
 
 class EmployeeCreationPage extends StatefulWidget {
   const EmployeeCreationPage({super.key});
@@ -110,7 +113,7 @@ class _EmployeeCreationPageState extends State<EmployeeCreationPage> with Ticker
       try {
         await controller.addEmployee(data: data);
         if (mounted) {
-          Navigator.of(context).pop();
+          context.pop();
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Employee created successfully!'),
@@ -208,7 +211,7 @@ class _EmployeeCreationPageState extends State<EmployeeCreationPage> with Ticker
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
           ),

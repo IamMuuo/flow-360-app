@@ -5,6 +5,7 @@ import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/fuel/controllers/fuel_price_controller.dart';
 import 'package:flow_360/features/fuel/models/fuel_price_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flow_360/config/router/routes.dart';
 
 class FuelPricesPage extends StatefulWidget {
   const FuelPricesPage({super.key});
@@ -225,7 +226,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () => context.pop(),
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [
@@ -687,7 +688,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
                     );
 
                     if (!context.mounted) return;
-                    Navigator.of(context).pop();
+                    context.pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Fuel price updated successfully!'),
@@ -695,7 +696,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
                       ),
                     );
                   } on Failure catch (e) {
-                    Navigator.of(context).pop();
+                    context.pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Update Failed: ${e.message}'),
@@ -704,7 +705,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
                     );
                   }
                 } else {
-                  Navigator.of(context).pop();
+                  context.pop();
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Validation error: Please ensure you fill the form'),

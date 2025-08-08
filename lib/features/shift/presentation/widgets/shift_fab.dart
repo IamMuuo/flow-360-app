@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:go_router/go_router.dart';
 
 class ShiftFAB extends StatelessWidget {
   const ShiftFAB({super.key});
@@ -9,13 +11,21 @@ class ShiftFAB extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ShiftController>();
+    final authController = Get.find<AuthController>();
+    final currentUser = authController.currentUser.value;
+    final isSupervisor = currentUser?.user.role == 'Supervisor' || currentUser?.user.role == 'Manager';
 
     return Obx(() {
       final currentShift = controller.currentShift.value;
       final isActive = currentShift != null && currentShift.endedAt == null;
 
+      // Only show FAB for supervisors, or for employees who have an active shift to end
+      if (!isSupervisor && !isActive) {
+        return const SizedBox.shrink();
+      }
+
       return FloatingActionButton(
-        onPressed: () => _showShiftActionDialog(context, controller, isActive),
+        onPressed: () => _showShiftActionDialog(context, controller, isActive, isSupervisor),
         backgroundColor: isActive 
             ? Colors.red 
             : Theme.of(context).colorScheme.primary,
@@ -27,7 +37,7 @@ class ShiftFAB extends StatelessWidget {
     });
   }
 
-  void _showShiftActionDialog(BuildContext context, ShiftController controller, bool isActive) {
+  void _showShiftActionDialog(BuildContext context, ShiftController controller, bool isActive, bool isSupervisor) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -41,7 +51,9 @@ class ShiftFAB extends StatelessWidget {
           content: Text(
             isActive 
                 ? 'Are you sure you want to end your current shift?'
-                : 'Are you sure you want to start a new shift?',
+                : isSupervisor
+                    ? 'Are you sure you want to start a new shift?'
+                    : 'Only supervisors can start shifts. Please contact your supervisor.',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
             ),
@@ -54,50 +66,51 @@ class ShiftFAB extends StatelessWidget {
                 style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
-            Obx(() => ElevatedButton(
-              onPressed: (isActive ? controller.isEndingShift.value : controller.isStartingShift.value)
-                  ? null
-                  : () async {
-                      Navigator.of(context).pop();
-                      try {
-                        if (isActive) {
-                          await controller.endShift();
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Shift ended successfully!'),
-                                backgroundColor: Theme.of(context).colorScheme.secondary,
-                                behavior: SnackBarBehavior.floating,
-                                duration: const Duration(seconds: 3),
-                              ),
-                            );
+            if (isActive || isSupervisor)
+              Obx(() => ElevatedButton(
+                onPressed: (isActive ? controller.isEndingShift.value : controller.isStartingShift.value)
+                    ? null
+                    : () async {
+                        Navigator.of(context).pop();
+                        try {
+                          if (isActive) {
+                            await controller.endShift();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Shift ended successfully!'),
+                                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          } else if (isSupervisor) {
+                            await controller.startShift();
+                            if (context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Shift started successfully!'),
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  behavior: SnackBarBehavior.floating,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
                           }
-                        } else {
-                          await controller.startShift();
+                        } catch (e) {
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Shift started successfully!'),
-                                backgroundColor: Theme.of(context).colorScheme.primary,
+                                content: Text('Error: ${e.toString()}'),
+                                backgroundColor: Theme.of(context).colorScheme.error,
                                 behavior: SnackBarBehavior.floating,
                                 duration: const Duration(seconds: 3),
                               ),
                             );
                           }
                         }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error: ${e.toString()}'),
-                              backgroundColor: Theme.of(context).colorScheme.error,
-                              behavior: SnackBarBehavior.floating,
-                              duration: const Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                      },
               style: ElevatedButton.styleFrom(
                 backgroundColor: isActive ? Colors.red : Theme.of(context).colorScheme.primary,
                 foregroundColor: Colors.white,
