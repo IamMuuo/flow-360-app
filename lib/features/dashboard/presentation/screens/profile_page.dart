@@ -183,7 +183,13 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
               ),
             ),
             leading: IconButton(
-              onPressed: () => context.pop(),
+              onPressed: () {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/');
+                }
+              },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
           ),
