@@ -17,6 +17,7 @@ List<RouteBase> get $appRoutes => [
       $shiftManagementRoute,
       $supervisorShiftManagementRoute,
       $employeeDashboardRoute,
+      $createSaleRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -471,6 +472,34 @@ mixin _$EmployeeDashboardRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/employee-dashboard',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $createSaleRoute => GoRouteData.$route(
+      path: '/create-sale',
+      factory: _$CreateSaleRoute._fromState,
+    );
+
+mixin _$CreateSaleRoute on GoRouteData {
+  static CreateSaleRoute _fromState(GoRouterState state) =>
+      const CreateSaleRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/create-sale',
       );
 
   @override

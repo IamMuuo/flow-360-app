@@ -4,6 +4,7 @@ import 'package:flow_360/features/features.dart';
 import 'package:flow_360/features/fuel/fuel.dart';
 import 'package:flow_360/features/shift/shift.dart';
 import 'package:flow_360/features/sales/presentation/screens/sales_report_screen.dart';
+import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -211,5 +212,15 @@ class EmployeeDashboardRoute extends GoRouteData with _$EmployeeDashboardRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const EmployeeDashboard();
+  }
+}
+
+@TypedGoRoute<CreateSaleRoute>(path: "/create-sale")
+class CreateSaleRoute extends GoRouteData with _$CreateSaleRoute {
+  const CreateSaleRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const CreateSaleScreen();
   }
 }
