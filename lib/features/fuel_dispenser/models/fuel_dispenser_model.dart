@@ -16,10 +16,10 @@ class FuelDispenserModel extends HiveObject {
 
   @HiveField(2)
   @JsonKey(name: 'serial_number')
-  final String serialNumber;
+  final String? serialNumber;
 
   @HiveField(3)
-  final String manufacturer;
+  final String? manufacturer;
 
   @HiveField(4)
   @JsonKey(name: 'installed_at')

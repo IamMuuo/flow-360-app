@@ -6,6 +6,7 @@ import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_contr
 import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
+import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import './app.dart';
@@ -22,6 +23,7 @@ void main() async {
   Get.put(NozzleController());
   Get.put(SalesController());
   Get.put(ShiftController());
+  Get.put(SupervisorShiftController());
 
   runApp(const Flow360App());
 }

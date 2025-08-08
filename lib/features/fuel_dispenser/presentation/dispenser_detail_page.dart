@@ -27,13 +27,14 @@ class DispenserDetailPage extends StatefulWidget {
   State<DispenserDetailPage> createState() => _DispenserDetailPageState();
 }
 
-class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerProviderStateMixin {
+class _DispenserDetailPageState extends State<DispenserDetailPage>
+    with TickerProviderStateMixin {
   // Animation controllers
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _pulseController;
   late AnimationController _scaleController;
-  
+
   // Animations
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -43,60 +44,45 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize animation controllers
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 1000),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    
+
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
     // Initialize animations
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
     // Start animations
     _fadeController.forward();
@@ -195,7 +181,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                     end: Alignment.bottomRight,
                     colors: [
                       Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -267,7 +255,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                     children: [
                       _buildDispenserInfo(dispenser),
                       const SizedBox(height: 24),
-                      _buildNozzleSection(context, widget.dispenserId, nozzleController),
+                      _buildNozzleSection(
+                        context,
+                        widget.dispenserId,
+                        nozzleController,
+                      ),
                     ],
                   ),
                 ),
@@ -292,7 +284,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -309,7 +303,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -325,27 +321,38 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                       children: [
                         Text(
                           'Dispenser Information',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: Theme.of(context).textTheme.titleLarge
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           dispenser.name,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
                         ),
                       ],
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: dispenser.isActive == true
-                          ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                          : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                          ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1)
+                          : Theme.of(
+                              context,
+                            ).colorScheme.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -361,19 +368,19 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                 ],
               ),
               const SizedBox(height: 20),
-              
+
               // Dispenser details
               _buildInfoTile(
                 context,
                 "Serial Number",
-                dispenser.serialNumber,
+                dispenser.serialNumber ?? "Unknown",
                 Icons.code,
               ),
               const SizedBox(height: 16),
               _buildInfoTile(
                 context,
                 "Manufacturer",
-                dispenser.manufacturer,
+                dispenser.manufacturer ?? "(Not specified)",
                 Icons.business,
               ),
               const SizedBox(height: 16),
@@ -413,7 +420,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.secondary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -430,7 +439,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   Text(
                     title,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -468,7 +479,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -487,7 +500,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.1),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.secondary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -510,7 +525,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                     icon: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Icon(
@@ -519,8 +536,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                         size: 20,
                       ),
                     ),
-                    onPressed: () =>
-                        _showAddNozzleDialog(context, dispenserId, nozzleController),
+                    onPressed: () => _showAddNozzleDialog(
+                      context,
+                      dispenserId,
+                      nozzleController,
+                    ),
                   ),
                 ],
               ),
@@ -539,7 +559,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   return Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -552,9 +574,10 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                         const SizedBox(height: 8),
                         Text(
                           'Error: ${nozzleController.errorMessage.value}',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
                           textAlign: TextAlign.center,
                         ),
                       ],
@@ -565,22 +588,29 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   return Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surface.withValues(alpha: 0.5),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
                       children: [
                         Icon(
                           Icons.water_drop_outlined,
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.5),
                           size: 32,
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'No nozzles available',
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
                         ),
                       ],
                     ),
@@ -600,7 +630,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
     );
   }
 
-  Widget _buildNozzleCard(BuildContext context, NozzleModel nozzle, NozzleController nozzleController) {
+  Widget _buildNozzleCard(
+    BuildContext context,
+    NozzleModel nozzle,
+    NozzleController nozzleController,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
@@ -620,12 +654,18 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: nozzle.isActive == true
-                    ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)
-                    : Theme.of(context).colorScheme.error.withValues(alpha: 0.2),
+                    ? Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.2)
+                    : Theme.of(
+                        context,
+                      ).colorScheme.error.withValues(alpha: 0.2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -638,8 +678,12 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: nozzle.isActive == true
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                        : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.1),
                   ),
                   child: Icon(
                     Icons.water_drop_outlined,
@@ -650,35 +694,45 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Nozzle ${nozzle.nozzleNumber}',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Fuel Type: ${getFriendlyFuelTypeName(nozzle.fuelType)}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withValues(alpha: 0.7),
                         ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: nozzle.isActive == true
-                        ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
-                        : Theme.of(context).colorScheme.error.withValues(alpha: 0.1),
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -699,7 +753,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage> with TickerPr
     );
   }
 
-  void _showAddNozzleDialog(BuildContext context, String dispenserId, NozzleController nozzleController) {
+  void _showAddNozzleDialog(
+    BuildContext context,
+    String dispenserId,
+    NozzleController nozzleController,
+  ) {
     // Implementation for adding nozzle dialog
     // This would be similar to the existing implementation but with updated styling
   }

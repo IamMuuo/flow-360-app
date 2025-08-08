@@ -37,8 +37,8 @@ class _EditDispenserPageState extends State<EditDispenserPage> {
 
     // Pre-populate the form with existing data
     _nameController.text = _initialDispenser.name;
-    _serialNumberController.text = _initialDispenser.serialNumber;
-    _manufacturerController.text = _initialDispenser.manufacturer;
+    _serialNumberController.text = _initialDispenser.serialNumber ?? "";
+    _manufacturerController.text = _initialDispenser.manufacturer ?? "";
     _selectedInstalledDate = DateTime.tryParse(_initialDispenser.installedAt);
     _isActive = _initialDispenser.isActive;
   }

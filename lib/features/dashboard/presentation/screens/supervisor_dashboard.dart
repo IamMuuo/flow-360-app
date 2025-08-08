@@ -6,6 +6,7 @@ import 'package:flow_360/features/employees/repository/employee_repository.dart'
 import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/nozzle_repository.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:flow_360/core/failure.dart';
 import 'package:get_it/get_it.dart';
 
 class SupervisorDashboard extends StatefulWidget {
@@ -121,12 +122,18 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
         
         for (final dispenser in dispensers) {
           try {
+            debugPrint('Loading nozzles for dispenser: ${dispenser.id}');
             final nozzles = await _nozzleRepository.getNozzles(dispenserId: dispenser.id);
             totalNozzlesCount += nozzles.length;
             activeNozzlesCount += nozzles.where((nozzle) => nozzle.isActive == true).length;
+            debugPrint('Successfully loaded ${nozzles.length} nozzles for dispenser ${dispenser.id}');
           } catch (e) {
             // Skip dispensers with nozzle loading errors
             debugPrint('Error loading nozzles for dispenser ${dispenser.id}: $e');
+            debugPrint('Error type: ${e.runtimeType}');
+            if (e is Failure) {
+              debugPrint('Failure message: ${e.message}');
+            }
           }
         }
         
@@ -142,6 +149,10 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
     } catch (e) {
       // Handle errors silently for now
       debugPrint('Error loading dashboard data: $e');
+      debugPrint('Error type: ${e.runtimeType}');
+      if (e is Failure) {
+        debugPrint('Failure message: ${e.message}');
+      }
     } finally {
       isLoading.value = false;
     }

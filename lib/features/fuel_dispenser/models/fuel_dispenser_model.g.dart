@@ -19,8 +19,8 @@ class FuelDispenserModelAdapter extends TypeAdapter<FuelDispenserModel> {
     return FuelDispenserModel(
       id: fields[0] as String,
       name: fields[1] as String,
-      serialNumber: fields[2] as String,
-      manufacturer: fields[3] as String,
+      serialNumber: fields[2] as String?,
+      manufacturer: fields[3] as String?,
       installedAt: fields[4] as String,
       isActive: fields[5] as bool,
       createdAt: fields[6] as String,
@@ -69,8 +69,8 @@ FuelDispenserModel _$FuelDispenserModelFromJson(Map<String, dynamic> json) =>
     FuelDispenserModel(
       id: json['id'] as String,
       name: json['name'] as String,
-      serialNumber: json['serial_number'] as String,
-      manufacturer: json['manufacturer'] as String,
+      serialNumber: json['serial_number'] as String?,
+      manufacturer: json['manufacturer'] as String?,
       installedAt: json['installed_at'] as String,
       isActive: json['is_active'] as bool,
       createdAt: json['created_at'] as String,
