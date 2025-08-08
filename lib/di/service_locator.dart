@@ -9,6 +9,7 @@ import 'package:flow_360/core/network/dio_client.dart';
 import 'package:flow_360/features/auth/repository/auth_repository.dart';
 import 'package:flow_360/features/shift/repository/shift_repository.dart';
 import 'package:flow_360/features/sales/repository/sales_repository.dart';
+import 'package:flow_360/features/sales/repository/sales_report_repository.dart';
 
 final sl = GetIt.instance;
 
@@ -40,6 +41,9 @@ Future<void> setupLocator() async {
 
   sl.registerLazySingleton<SalesRepository>(
     () => SalesRepository(),
+  );
+  sl.registerLazySingleton<SalesReportRepository>(
+    () => SalesReportRepository(),
   );
 
   sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepository());

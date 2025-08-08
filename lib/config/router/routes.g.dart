@@ -11,6 +11,7 @@ List<RouteBase> get $appRoutes => [
       $dashboardRoute,
       $profileRoute,
       $fuelPricesRoute,
+      $salesReportRoute,
       $fuelDispensersPageRoute,
       $employeeManagementPageRoute,
       $shiftManagementRoute,
@@ -112,6 +113,34 @@ mixin _$FuelPricesRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/fuel',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $salesReportRoute => GoRouteData.$route(
+      path: '/sales-report',
+      factory: _$SalesReportRoute._fromState,
+    );
+
+mixin _$SalesReportRoute on GoRouteData {
+  static SalesReportRoute _fromState(GoRouterState state) =>
+      const SalesReportRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/sales-report',
       );
 
   @override

@@ -513,6 +513,22 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            // Third row - 1 card
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Sales Reports',
+                    'View detailed analytics',
+                    Icons.analytics,
+                    Colors.red,
+                    () => SalesReportRoute().push(context),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ],

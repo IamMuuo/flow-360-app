@@ -1,5 +1,9 @@
 export 'models/sale_model.dart';
+export 'models/sales_report_model.dart';
 export 'repository/sales_repository.dart';
+export 'repository/sales_report_repository.dart';
 export 'controllers/sales_controller.dart';
+export 'controllers/sales_report_controller.dart';
 export 'presentation/screens/employee_dashboard.dart';
 export 'presentation/screens/create_sale_screen.dart';
+export 'presentation/screens/sales_report_screen.dart';

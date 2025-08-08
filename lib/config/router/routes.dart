@@ -3,6 +3,7 @@ import 'package:flow_360/features/employees/presentation/presentation.dart';
 import 'package:flow_360/features/features.dart';
 import 'package:flow_360/features/fuel/fuel.dart';
 import 'package:flow_360/features/shift/shift.dart';
+import 'package:flow_360/features/sales/presentation/screens/sales_report_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -70,6 +71,15 @@ class FuelPricesRoute extends GoRouteData with _$FuelPricesRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return FuelPricesPage();
+  }
+}
+
+@TypedGoRoute<SalesReportRoute>(path: "/sales-report")
+class SalesReportRoute extends GoRouteData with _$SalesReportRoute {
+  const SalesReportRoute();
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return SalesReportScreen();
   }
 }
 
