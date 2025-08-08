@@ -33,6 +33,7 @@ class SalesRepository {
     String? kraPin,
     String? externalTransactionId,
   }) async {
+    print('here');
     try {
       final data = {
         'nozzle': nozzleId,
@@ -44,9 +45,18 @@ class SalesRepository {
         if (externalTransactionId != null) 'external_transaction_id': externalTransactionId,
       };
 
+      print('Creating sale with data: $data');
       final response = await _dioClient.dio.post('/sales/create/', data: data);
+      print('Sale creation response: ${response.data}');
+      print('Response status: ${response.statusCode}');
+      print('Response data type: ${response.data.runtimeType}');
+      print('Response data keys: ${response.data.keys}');
       return SaleModel.fromJson(response.data);
     } on dio.DioException catch (e) {
+      print('DioException in createSale: ${e.message}');
+      print('Response status: ${e.response?.statusCode}');
+      print('Response data: ${e.response?.data}');
+      
       String errorMessage;
       if (e.response?.data is Map) {
         errorMessage = e.response?.data['detail'] ?? 'Failed to create sale.';
@@ -55,6 +65,8 @@ class SalesRepository {
       }
       throw Failure(message: errorMessage);
     } catch (e) {
+      rethrow;
+      print('Unexpected error in createSale: $e');
       throw Failure(message: 'An unexpected error occurred.');
     }
   }
@@ -89,6 +101,7 @@ class SalesRepository {
         message: e.response?.data['detail'] ?? 'Failed to validate sale.',
       );
     } catch (e) {
+      rethrow;
       throw Failure(message: 'An unexpected error occurred.');
     }
   }

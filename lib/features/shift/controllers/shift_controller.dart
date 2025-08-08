@@ -98,6 +98,11 @@ class ShiftController extends GetxController {
 
   bool get hasActiveShift => currentShift.value != null;
   
+  /// Refresh shift status - called when app becomes active or after user actions
+  Future<void> refreshShiftStatus() async {
+    await checkCurrentShift();
+  }
+  
   String get shiftDuration {
     if (currentShift.value == null) return '';
     

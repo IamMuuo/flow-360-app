@@ -82,6 +82,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     
     // Load dispensers for the current user's station
     _loadDispensers();
+    
+    // Load available nozzles for the employee
+    _loadAvailableNozzles();
   }
   
   void _loadDispensers() {
@@ -89,6 +92,10 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     if (user?.user.station != null) {
       _dispenserController.fetchFuelDispensers(user!.user.station!);
     }
+  }
+  
+  void _loadAvailableNozzles() {
+    _salesController.fetchAvailableNozzles();
   }
 
   @override
@@ -132,6 +139,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: const Text('Create Sale'),
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -186,13 +194,15 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           ),
           // Step Content
           Expanded(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _buildCurrentStep(),
+            child: SingleChildScrollView(
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _buildCurrentStep(),
+                  ),
                 ),
               ),
             ),
@@ -326,9 +336,100 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         ),
         const SizedBox(height: 24),
         Obx(() {
-          if (_salesController.availableNozzles.isEmpty) {
+          if (_salesController.isLoading.value) {
             return const Center(
-              child: Text('No available nozzles'),
+              child: Column(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Loading available nozzles...'),
+                ],
+              ),
+            );
+          }
+          
+          if (_salesController.errorMessage.value.isNotEmpty) {
+            return Center(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.red,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error Loading Nozzles',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.red,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    _salesController.errorMessage.value,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      _salesController.clearError();
+                      _salesController.fetchAvailableNozzles();
+                    },
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Retry'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+          
+          if (_salesController.availableNozzles.isEmpty) {
+            return Center(
+              child: Column(
+                children: [
+                  const Icon(
+                    Icons.error_outline,
+                    size: 48,
+                    color: Colors.orange,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No Available Nozzles',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'You need to have an active shift to view available nozzles.\nPlease contact your supervisor to start your shift.',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Go Back'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             );
           }
           
@@ -506,7 +607,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   size: 24,
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               Text(
                 dispenser.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -874,6 +975,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     );
 
     try {
+      print('Creating sale with nozzleId: $selectedNozzleId, amount: $amount');
       await _salesController.createSale(
         nozzleId: selectedNozzleId!,
         totalAmount: amount,
@@ -886,6 +988,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       // Close loading dialog
       Navigator.of(context).pop();
       
+      // Check if there was an error
+      if (_salesController.errorMessage.value.isNotEmpty) {
+        print('Error in controller: ${_salesController.errorMessage.value}');
+        throw Exception(_salesController.errorMessage.value);
+      }
+      
+      print('Sale created successfully!');
       // Show success dialog
       showDialog(
         context: context,
@@ -914,6 +1023,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               onPressed: () {
                 Navigator.of(context).pop(); // Close success dialog
                 Navigator.of(context).pop(); // Go back to dashboard
+                // Refresh sales on dashboard
+                final salesController = Get.find<SalesController>();
+                salesController.loadSales();
               },
               child: const Text('OK'),
             ),
@@ -924,12 +1036,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       // Close loading dialog
       Navigator.of(context).pop();
       
+      print('Error creating sale: $e');
       // Show error dialog
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Error'),
-          content: Text('Failed to create sale: $e'),
+          content: Text('Failed to create sale: $e.message'),
           actions: [
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),

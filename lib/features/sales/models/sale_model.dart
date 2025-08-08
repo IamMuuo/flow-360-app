@@ -2,22 +2,41 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'sale_model.g.dart';
 
+double _parseDouble(dynamic value) {
+  if (value == null) return 0.0;
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is String) return double.tryParse(value) ?? 0.0;
+  return 0.0;
+}
+
 @JsonSerializable()
 class SaleModel {
   final String id;
-  final String employee;
+  final int employee;
   final String shift;
   final String nozzle;
+  @JsonKey(name: 'litres_sold', fromJson: _parseDouble)
   final double litresSold;
+  @JsonKey(name: 'price_per_litre', fromJson: _parseDouble)
   final double pricePerLitre;
+  @JsonKey(name: 'total_amount', fromJson: _parseDouble)
   final double totalAmount;
+  @JsonKey(name: 'payment_mode')
   final String paymentMode;
+  @JsonKey(name: 'sold_at')
   final DateTime soldAt;
+  @JsonKey(name: 'odometer_reading')
   final int? odometerReading;
+  @JsonKey(name: 'car_resistration_number')
   final String? carRegistrationNumber;
+  @JsonKey(name: 'kra_pin')
   final String? kraPin;
+  @JsonKey(name: 'external_transaction_id')
   final String? externalTransactionId;
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'modified_at')
   final DateTime modifiedAt;
 
   SaleModel({
@@ -68,9 +87,13 @@ class AvailableNozzleModel {
 
 @JsonSerializable()
 class SaleValidationModel {
+  @JsonKey(name: 'valid')
   final bool valid;
+  @JsonKey(name: 'litres_sold')
   final double litresSold;
+  @JsonKey(name: 'price_per_litre')
   final double pricePerLitre;
+  @JsonKey(name: 'nozzle_info')
   final NozzleInfoModel nozzleInfo;
 
   SaleValidationModel({
@@ -87,9 +110,13 @@ class SaleValidationModel {
 @JsonSerializable()
 class NozzleInfoModel {
   final String id;
+  @JsonKey(name: 'nozzle_number')
   final int nozzleNumber;
+  @JsonKey(name: 'fuel_type')
   final String fuelType;
+  @JsonKey(name: 'fuel_type_display')
   final String fuelTypeDisplay;
+  @JsonKey(name: 'dispenser_name')
   final String dispenserName;
 
   NozzleInfoModel({

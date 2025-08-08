@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
-import 'dart:async';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
@@ -15,7 +14,7 @@ class EmployeeDashboard extends StatefulWidget {
 }
 
 class _EmployeeDashboardState extends State<EmployeeDashboard>
-    with TickerProviderStateMixin {
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late AnimationController _pulseController;
@@ -24,7 +23,6 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
   late Animation<Offset> _slideAnimation;
   late Animation<double> _pulseAnimation;
   late Animation<double> _scaleAnimation;
-  Timer? _shiftCheckTimer;
 
   @override
   void initState() {
@@ -83,20 +81,47 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     _pulseController.repeat(reverse: true);
     _scaleController.forward();
     
-    // Start periodic shift status check
-    _startShiftStatusCheck();
+    // Initialize reactive shift status monitoring
+    _initializeReactiveShiftMonitoring();
   }
   
-  void _startShiftStatusCheck() {
-    _shiftCheckTimer = Timer.periodic(const Duration(seconds: 10), (timer) {
-      final shiftController = Get.find<ShiftController>();
-      shiftController.checkCurrentShift();
-    });
+  void _initializeReactiveShiftMonitoring() {
+    // Initialize controllers
+    final shiftController = Get.put(ShiftController());
+    final salesController = Get.put(SalesController());
+    
+    // Listen to app lifecycle changes for shift status updates
+    WidgetsBinding.instance.addObserver(this);
+    
+    // Initial shift check and sales load
+    shiftController.refreshShiftStatus();
+    salesController.loadSales();
+  }
+  
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // Update shift status and sales when app becomes active
+    if (state == AppLifecycleState.resumed) {
+      _refreshShiftStatus();
+      _refreshSales();
+    }
+  }
+  
+  void _refreshShiftStatus() {
+    final shiftController = Get.put(ShiftController());
+    shiftController.refreshShiftStatus();
+  }
+  
+  void _refreshSales() {
+    final salesController = Get.put(SalesController());
+    salesController.loadSales();
   }
 
   @override
   void dispose() {
-    _shiftCheckTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     _fadeController.dispose();
     _slideController.dispose();
     _pulseController.dispose();
@@ -119,144 +144,154 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          // Animated App Bar
-          SliverAppBar(
-            expandedHeight: 200,
-            floating: false,
-            pinned: true,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            actions: [
-              IconButton(
-                onPressed: () => context.go('/profile'),
-                icon: const Icon(Icons.person, color: Colors.white),
-                tooltip: 'Profile',
-              ),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              title: FadeTransition(
-                opacity: _fadeAnimation,
-                child: const Text(
-                  'Sales Dashboard',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final shiftController = Get.put(ShiftController());
+          final salesController = Get.put(SalesController());
+          await Future.wait([
+            shiftController.refreshShiftStatus(),
+            salesController.loadSales(),
+          ]);
+        },
+        child: CustomScrollView(
+          slivers: [
+            // Animated App Bar
+            SliverAppBar(
+              expandedHeight: 200,
+              floating: false,
+              pinned: true,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              actions: [
+                IconButton(
+                  onPressed: () => context.go('/profile'),
+                  icon: const Icon(Icons.person, color: Colors.white),
+                  tooltip: 'Profile',
+                ),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                title: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: const Text(
+                    'Sales Dashboard',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                background: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Theme.of(context).colorScheme.primary,
+                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                      ],
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      // Animated background elements
+                      Positioned(
+                        top: 20,
+                        right: 20,
+                        child: AnimatedBuilder(
+                          animation: _fadeAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _fadeAnimation.value,
+                              child: Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 20,
+                        left: 20,
+                        child: AnimatedBuilder(
+                          animation: _pulseAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale: _pulseAnimation.value,
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                child: Stack(
-                  children: [
-                    // Animated background elements
-                    Positioned(
-                      top: 20,
-                      right: 20,
-                      child: AnimatedBuilder(
-                        animation: _fadeAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _fadeAnimation.value,
-                            child: Container(
-                              width: 60,
-                              height: 60,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
+              ),
+            ),
+            // Dashboard Content
+            SliverToBoxAdapter(
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Obx(() {
+                      if (salesController.successMessage.value.isNotEmpty) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(salesController.successMessage.value),
+                              backgroundColor: Colors.green,
+                              behavior: SnackBarBehavior.floating,
                             ),
                           );
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 20,
-                      left: 20,
-                      child: AnimatedBuilder(
-                        animation: _pulseAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: _pulseAnimation.value,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.white.withValues(alpha: 0.1),
-                              ),
+                          salesController.clearSuccess();
+                        });
+                      }
+
+                      if (salesController.errorMessage.value.isNotEmpty) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(salesController.errorMessage.value),
+                              backgroundColor: Colors.red,
+                              behavior: SnackBarBehavior.floating,
                             ),
                           );
-                        },
-                      ),
-                    ),
-                  ],
+                          salesController.clearError();
+                        });
+                      }
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildWelcomeSection(context, user),
+                          const SizedBox(height: 24),
+                          _buildStatisticsSection(context, salesController),
+                          const SizedBox(height: 24),
+                          _buildAvailableNozzlesSection(context, salesController),
+                          const SizedBox(height: 24),
+                          _buildRecentSalesSection(context, salesController),
+                        ],
+                      );
+                    }),
+                  ),
                 ),
               ),
             ),
-          ),
-          // Dashboard Content
-          SliverToBoxAdapter(
-            child: SlideTransition(
-              position: _slideAnimation,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Obx(() {
-                    if (salesController.successMessage.value.isNotEmpty) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(salesController.successMessage.value),
-                            backgroundColor: Colors.green,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        salesController.clearSuccess();
-                      });
-                    }
-
-                    if (salesController.errorMessage.value.isNotEmpty) {
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(salesController.errorMessage.value),
-                            backgroundColor: Colors.red,
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                        salesController.clearError();
-                      });
-                    }
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildWelcomeSection(context, user),
-                        const SizedBox(height: 24),
-                        _buildStatisticsSection(context, salesController),
-                        const SizedBox(height: 24),
-                        _buildAvailableNozzlesSection(context, salesController),
-                        const SizedBox(height: 24),
-                        _buildRecentSalesSection(context, salesController),
-                      ],
-                    );
-                  }),
-                ),
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
       floatingActionButton: Obx(() {
         final hasActiveShift = shiftController.hasActiveShift;
@@ -268,11 +303,15 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               scale: _scaleAnimation.value,
               child: FloatingActionButton.extended(
                 onPressed: hasActiveShift 
-                    ? () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => const CreateSaleScreen(),
-                        ),
-                      )
+                    ? () async {
+                        await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const CreateSaleScreen(),
+                          ),
+                        );
+                        // Refresh shift status when returning from sale creation
+                        _refreshShiftStatus();
+                      }
                     : () => _showNoShiftDialog(context),
                 backgroundColor: hasActiveShift 
                     ? Theme.of(context).colorScheme.primary
@@ -293,7 +332,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
   }
 
   Widget _buildWelcomeSection(BuildContext context, dynamic user) {
-    final shiftController = Get.find<ShiftController>();
+    final shiftController = Get.put(ShiftController());
     
     return Obx(() {
       final hasActiveShift = shiftController.hasActiveShift;

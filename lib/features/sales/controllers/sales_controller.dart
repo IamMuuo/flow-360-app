@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/sales/repository/sales_repository.dart';
 import 'package:flow_360/features/sales/models/sale_model.dart';
 
@@ -29,10 +30,19 @@ class SalesController extends GetxController {
       final salesList = await _repository.getSales();
       sales.value = salesList;
     } catch (e) {
-      errorMessage.value = e.toString();
+      if (e is Failure) {
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = e.toString();
+      }
     } finally {
       isLoading.value = false;
     }
+  }
+  
+  /// Refresh sales data - used for pull-to-refresh
+  Future<void> loadSales() async {
+    await fetchSales();
   }
 
   Future<void> fetchAvailableNozzles() async {
@@ -42,7 +52,11 @@ class SalesController extends GetxController {
       shiftId.value = data['shift_id'] ?? '';
       stationName.value = data['station_name'] ?? '';
     } catch (e) {
-      errorMessage.value = e.toString();
+      if (e is Failure) {
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = e.toString();
+      }
     }
   }
 
@@ -61,15 +75,19 @@ class SalesController extends GetxController {
     
     try {
       // First validate the sale
+      print('Validating sale...');
       final validation = await _repository.validateSale(
         nozzleId: nozzleId,
         totalAmount: totalAmount,
       );
       
+      print('Validation result: ${validation.valid}');
+      
       if (!validation.valid) {
         throw Exception('Sale validation failed');
       }
       
+      print('Validation successful, creating sale...');
       // Create the sale
       final sale = await _repository.createSale(
         nozzleId: nozzleId,
@@ -87,7 +105,13 @@ class SalesController extends GetxController {
       // Refresh available nozzles
       await fetchAvailableNozzles();
     } catch (e) {
-      errorMessage.value = e.toString();
+      rethrow;
+      print('Error in createSale: $e');
+      if (e is Failure) {
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = e.toString();
+      }
     } finally {
       isLoading.value = false;
     }
@@ -103,7 +127,11 @@ class SalesController extends GetxController {
         totalAmount: totalAmount,
       );
     } catch (e) {
-      errorMessage.value = e.toString();
+      if (e is Failure) {
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = e.toString();
+      }
       return null;
     }
   }

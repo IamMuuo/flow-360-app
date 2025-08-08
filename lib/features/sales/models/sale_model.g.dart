@@ -8,20 +8,20 @@ part of 'sale_model.dart';
 
 SaleModel _$SaleModelFromJson(Map<String, dynamic> json) => SaleModel(
       id: json['id'] as String,
-      employee: json['employee'] as String,
+      employee: (json['employee'] as num).toInt(),
       shift: json['shift'] as String,
       nozzle: json['nozzle'] as String,
-      litresSold: (json['litresSold'] as num).toDouble(),
-      pricePerLitre: (json['pricePerLitre'] as num).toDouble(),
-      totalAmount: (json['totalAmount'] as num).toDouble(),
-      paymentMode: json['paymentMode'] as String,
-      soldAt: DateTime.parse(json['soldAt'] as String),
-      odometerReading: (json['odometerReading'] as num?)?.toInt(),
-      carRegistrationNumber: json['carRegistrationNumber'] as String?,
-      kraPin: json['kraPin'] as String?,
-      externalTransactionId: json['externalTransactionId'] as String?,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      modifiedAt: DateTime.parse(json['modifiedAt'] as String),
+      litresSold: _parseDouble(json['litres_sold']),
+      pricePerLitre: _parseDouble(json['price_per_litre']),
+      totalAmount: _parseDouble(json['total_amount']),
+      paymentMode: json['payment_mode'] as String,
+      soldAt: DateTime.parse(json['sold_at'] as String),
+      odometerReading: (json['odometer_reading'] as num?)?.toInt(),
+      carRegistrationNumber: json['car_resistration_number'] as String?,
+      kraPin: json['kra_pin'] as String?,
+      externalTransactionId: json['external_transaction_id'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      modifiedAt: DateTime.parse(json['modified_at'] as String),
     );
 
 Map<String, dynamic> _$SaleModelToJson(SaleModel instance) => <String, dynamic>{
@@ -29,17 +29,17 @@ Map<String, dynamic> _$SaleModelToJson(SaleModel instance) => <String, dynamic>{
       'employee': instance.employee,
       'shift': instance.shift,
       'nozzle': instance.nozzle,
-      'litresSold': instance.litresSold,
-      'pricePerLitre': instance.pricePerLitre,
-      'totalAmount': instance.totalAmount,
-      'paymentMode': instance.paymentMode,
-      'soldAt': instance.soldAt.toIso8601String(),
-      'odometerReading': instance.odometerReading,
-      'carRegistrationNumber': instance.carRegistrationNumber,
-      'kraPin': instance.kraPin,
-      'externalTransactionId': instance.externalTransactionId,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'modifiedAt': instance.modifiedAt.toIso8601String(),
+      'litres_sold': instance.litresSold,
+      'price_per_litre': instance.pricePerLitre,
+      'total_amount': instance.totalAmount,
+      'payment_mode': instance.paymentMode,
+      'sold_at': instance.soldAt.toIso8601String(),
+      'odometer_reading': instance.odometerReading,
+      'car_resistration_number': instance.carRegistrationNumber,
+      'kra_pin': instance.kraPin,
+      'external_transaction_id': instance.externalTransactionId,
+      'created_at': instance.createdAt.toIso8601String(),
+      'modified_at': instance.modifiedAt.toIso8601String(),
     };
 
 AvailableNozzleModel _$AvailableNozzleModelFromJson(
@@ -69,35 +69,35 @@ Map<String, dynamic> _$AvailableNozzleModelToJson(
 SaleValidationModel _$SaleValidationModelFromJson(Map<String, dynamic> json) =>
     SaleValidationModel(
       valid: json['valid'] as bool,
-      litresSold: (json['litresSold'] as num).toDouble(),
-      pricePerLitre: (json['pricePerLitre'] as num).toDouble(),
+      litresSold: (json['litres_sold'] as num).toDouble(),
+      pricePerLitre: (json['price_per_litre'] as num).toDouble(),
       nozzleInfo:
-          NozzleInfoModel.fromJson(json['nozzleInfo'] as Map<String, dynamic>),
+          NozzleInfoModel.fromJson(json['nozzle_info'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$SaleValidationModelToJson(
         SaleValidationModel instance) =>
     <String, dynamic>{
       'valid': instance.valid,
-      'litresSold': instance.litresSold,
-      'pricePerLitre': instance.pricePerLitre,
-      'nozzleInfo': instance.nozzleInfo,
+      'litres_sold': instance.litresSold,
+      'price_per_litre': instance.pricePerLitre,
+      'nozzle_info': instance.nozzleInfo,
     };
 
 NozzleInfoModel _$NozzleInfoModelFromJson(Map<String, dynamic> json) =>
     NozzleInfoModel(
       id: json['id'] as String,
-      nozzleNumber: (json['nozzleNumber'] as num).toInt(),
-      fuelType: json['fuelType'] as String,
-      fuelTypeDisplay: json['fuelTypeDisplay'] as String,
-      dispenserName: json['dispenserName'] as String,
+      nozzleNumber: (json['nozzle_number'] as num).toInt(),
+      fuelType: json['fuel_type'] as String,
+      fuelTypeDisplay: json['fuel_type_display'] as String,
+      dispenserName: json['dispenser_name'] as String,
     );
 
 Map<String, dynamic> _$NozzleInfoModelToJson(NozzleInfoModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'nozzleNumber': instance.nozzleNumber,
-      'fuelType': instance.fuelType,
-      'fuelTypeDisplay': instance.fuelTypeDisplay,
-      'dispenserName': instance.dispenserName,
+      'nozzle_number': instance.nozzleNumber,
+      'fuel_type': instance.fuelType,
+      'fuel_type_display': instance.fuelTypeDisplay,
+      'dispenser_name': instance.dispenserName,
     };
