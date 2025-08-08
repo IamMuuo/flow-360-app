@@ -300,7 +300,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+              childAspectRatio: 0.9,
             ),
             itemCount: _dispenserController.dispensers.length,
             itemBuilder: (context, index) {
@@ -470,7 +470,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+              childAspectRatio: 0.9,
             ),
             itemCount: filteredNozzles.length,
             itemBuilder: (context, index) {
@@ -493,6 +493,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
+        constraints: const BoxConstraints(minHeight: 140),
         decoration: BoxDecoration(
           color: isSelected 
               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
@@ -571,6 +572,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
+        constraints: const BoxConstraints(minHeight: 140),
         decoration: BoxDecoration(
           color: isSelected 
               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)

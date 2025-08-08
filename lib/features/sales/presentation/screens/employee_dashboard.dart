@@ -546,7 +546,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               crossAxisCount: 2,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
-              childAspectRatio: 1.2,
+              childAspectRatio: 0.9,
             ),
             itemCount: controller.availableNozzles.length,
             itemBuilder: (context, index) {
@@ -560,6 +560,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
 
   Widget _buildNozzleCard(BuildContext context, Map<String, dynamic> nozzle) {
     return Container(
+      constraints: const BoxConstraints(minHeight: 140),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),

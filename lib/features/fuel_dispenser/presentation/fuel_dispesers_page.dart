@@ -396,6 +396,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
           },
           child: Container(
             padding: const EdgeInsets.all(16),
+            constraints: const BoxConstraints(minHeight: 140),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
