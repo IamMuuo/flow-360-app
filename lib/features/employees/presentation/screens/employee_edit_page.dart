@@ -1,10 +1,12 @@
-import 'dart:io';
-import 'package:flow_360/core/failure.dart';
-import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/employees/controllers/employee_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:flow_360/core/failure.dart';
+import 'package:flow_360/features/auth/models/user_model.dart';
+
 
 class EmployeeEditPage extends StatefulWidget {
   final String employeeId;
@@ -317,7 +319,14 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> with TickerProvider
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  // Fallback navigation if can't pop
+                  context.go('/employees');
+                }
+              },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [

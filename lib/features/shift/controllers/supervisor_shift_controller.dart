@@ -7,6 +7,7 @@ import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/employees/repository/employee_repository.dart';
 import 'package:flow_360/core/failure.dart';
+import 'package:flutter/foundation.dart'; // Added for debugPrint
 
 class SupervisorShiftController extends GetxController {
   final ShiftRepository _shiftRepository = ShiftRepository();
@@ -58,6 +59,13 @@ class SupervisorShiftController extends GetxController {
       
       final shiftsList = await _shiftRepository.getEmployeeShifts();
       employeeShifts.assignAll(shiftsList);
+      
+      // Debug: Print shift information
+      debugPrint('Total shifts loaded: ${shiftsList.length}');
+      for (final shift in shiftsList) {
+        debugPrint('Shift ID: ${shift.id}, Active: ${shift.isActive}, Ended: ${shift.endedAt}, Employee: ${shift.employee}');
+      }
+      debugPrint('Active shifts count: ${activeEmployeeShifts.length}');
     } on Failure catch (e) {
       errorMessage.value = e.message;
     } catch (e) {
@@ -115,7 +123,10 @@ class SupervisorShiftController extends GetxController {
   }
 
   List<ShiftModel> get activeEmployeeShifts {
-    return employeeShifts.where((shift) => shift.isActive && shift.endedAt == null).toList();
+    return employeeShifts.where((shift) => 
+      shift.isActive == true && 
+      (shift.endedAt == null || shift.endedAt!.isEmpty)
+    ).toList();
   }
 
   List<ShiftModel> get todayEmployeeShifts {

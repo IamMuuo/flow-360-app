@@ -2,6 +2,7 @@ import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/employees/controllers/employee_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:go_router/go_router.dart';
 
 class EmployeeProfilePage extends StatefulWidget {
   final String employeeId;
@@ -109,6 +110,11 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage> with TickerPr
     if (employee == null) {
       return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
+        appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Colors.white,
+          title: const Text('Employee Not Found'),
+        ),
         body: Center(
           child: Container(
             padding: const EdgeInsets.all(24),
@@ -225,7 +231,14 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage> with TickerPr
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                } else {
+                  // Fallback navigation if can't pop
+                  context.go('/employees');
+                }
+              },
               icon: const Icon(Icons.arrow_back, color: Colors.white),
             ),
             actions: [

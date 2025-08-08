@@ -93,8 +93,16 @@ class ShiftRepository {
   Future<List<ShiftModel>> getEmployeeShifts() async {
     try {
       final response = await _dioClient.dio.get('/shift/list-employee/');
-      final List<dynamic> data = response.data;
-      return data.map((json) => ShiftModel.fromJson(json)).toList();
+      
+      // Handle paginated response
+      if (response.data is Map<String, dynamic> && response.data.containsKey('results')) {
+        final List<dynamic> data = response.data['results'];
+        return data.map((json) => ShiftModel.fromJson(json)).toList();
+      } else {
+        // Handle non-paginated response (fallback)
+        final List<dynamic> data = response.data;
+        return data.map((json) => ShiftModel.fromJson(json)).toList();
+      }
     } on DioException catch (e) {
       throw Failure(
         message: e.response?.data['detail'] ?? 'Failed to fetch employee shifts.',
