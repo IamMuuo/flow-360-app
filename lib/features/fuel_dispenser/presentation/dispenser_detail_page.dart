@@ -758,12 +758,252 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     String dispenserId,
     NozzleController nozzleController,
   ) {
-    // Implementation for adding nozzle dialog
-    // This would be similar to the existing implementation but with updated styling
+    final nozzleNumberController = TextEditingController();
+    bool isActive = true;
+    String selectedFuelType = 'PMS'; // Default value
+
+    // Available fuel types
+    final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.add_circle_outline,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              const Text('Add Nozzle'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Fuel Type Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedFuelType,
+                decoration: const InputDecoration(
+                  labelText: 'Fuel Type',
+                  border: OutlineInputBorder(),
+                ),
+                items: fuelTypes.map((String fuelType) {
+                  return DropdownMenuItem<String>(
+                    value: fuelType,
+                    child: Text(getFriendlyFuelTypeName(fuelType)),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedFuelType = newValue!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nozzleNumberController,
+                decoration: const InputDecoration(
+                  labelText: 'Nozzle Number',
+                  hintText: 'e.g., 1, 2, 3',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Checkbox(
+                    value: isActive,
+                    onChanged: (value) {
+                      setState(() {
+                        isActive = value ?? true;
+                      });
+                    },
+                  ),
+                  const Text('Active'),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nozzleNumberController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill in all fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                try {
+                  await nozzleController.createNozzle(
+                    dispenserId: dispenserId,
+                    fuelType: selectedFuelType,
+                    nozzleNumber: int.parse(nozzleNumberController.text),
+                    isActive: isActive,
+                  );
+                  
+                  if (context.mounted) {
+                    context.pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nozzle created successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error creating nozzle: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Create'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   void _showEditNozzleDialog(BuildContext context, NozzleModel nozzle) {
-    // Implementation for editing nozzle dialog
-    // This would be similar to the existing implementation but with updated styling
+    final nozzleNumberController = TextEditingController(text: nozzle.nozzleNumber.toString());
+    bool isActive = nozzle.isActive ?? true;
+    String selectedFuelType = nozzle.fuelType; // Current fuel type
+
+    // Available fuel types
+    final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.edit_outlined,
+                color: Theme.of(context).colorScheme.primary,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              const Text('Edit Nozzle'),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Fuel Type Dropdown
+              DropdownButtonFormField<String>(
+                value: selectedFuelType,
+                decoration: const InputDecoration(
+                  labelText: 'Fuel Type',
+                  border: OutlineInputBorder(),
+                ),
+                items: fuelTypes.map((String fuelType) {
+                  return DropdownMenuItem<String>(
+                    value: fuelType,
+                    child: Text(getFriendlyFuelTypeName(fuelType)),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    selectedFuelType = newValue!;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: nozzleNumberController,
+                decoration: const InputDecoration(
+                  labelText: 'Nozzle Number',
+                  hintText: 'e.g., 1, 2, 3',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Checkbox(
+                    value: isActive,
+                    onChanged: (value) {
+                      setState(() {
+                        isActive = value ?? true;
+                      });
+                    },
+                  ),
+                  const Text('Active'),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => context.pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (nozzleNumberController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please fill in all fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+
+                try {
+                  final nozzleController = Get.find<NozzleController>();
+                  await nozzleController.updateNozzle(
+                    dispenserId: nozzle.dispenser,
+                    nozzleId: nozzle.id,
+                    fuelType: selectedFuelType,
+                    nozzleNumber: int.parse(nozzleNumberController.text),
+                    isActive: isActive,
+                  );
+                  
+                  if (context.mounted) {
+                    context.pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Nozzle updated successfully'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error updating nozzle: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text('Update'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
