@@ -26,9 +26,13 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   late Animation<double> _pulseAnimation;
 
   // Controllers for data
-  final SupervisorShiftController _shiftController = Get.put(SupervisorShiftController());
-  final EmployeeRepository _employeeRepository = GetIt.instance<EmployeeRepository>();
-  final FuelDispenserRepository _dispenserRepository = GetIt.instance<FuelDispenserRepository>();
+  final SupervisorShiftController _shiftController = Get.put(
+    SupervisorShiftController(),
+  );
+  final EmployeeRepository _employeeRepository =
+      GetIt.instance<EmployeeRepository>();
+  final FuelDispenserRepository _dispenserRepository =
+      GetIt.instance<FuelDispenserRepository>();
   final NozzleRepository _nozzleRepository = GetIt.instance<NozzleRepository>();
 
   // Observable data
@@ -45,47 +49,36 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   @override
   void initState() {
     super.initState();
-    
+
     // Initialize controllers
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
 
     // Initialize animations
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
     // Start animations
     _fadeController.forward();
@@ -107,36 +100,52 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
 
       if (stationId != null) {
         // Load employees
-        final employees = await _employeeRepository.getEmployees(stationId: stationId);
+        final employees = await _employeeRepository.getEmployees(
+          stationId: stationId,
+        );
         totalEmployees.value = employees.length;
-        activeEmployees.value = employees.where((emp) => emp.isActive == true).length;
+        activeEmployees.value = employees
+            .where((emp) => emp.isActive == true)
+            .length;
 
         // Load dispensers for the station
-        final dispensers = await _dispenserRepository.getFuelDispensers(stationId: stationId);
+        final dispensers = await _dispenserRepository.getFuelDispensers(
+          stationId: stationId,
+        );
         totalDispensers.value = dispensers.length;
-        activeDispensers.value = dispensers.where((disp) => disp.isActive == true).length;
+        activeDispensers.value = dispensers
+            .where((disp) => disp.isActive == true)
+            .length;
 
         // Load nozzles from all dispensers
         int totalNozzlesCount = 0;
         int activeNozzlesCount = 0;
-        
+
         for (final dispenser in dispensers) {
           try {
             debugPrint('Loading nozzles for dispenser: ${dispenser.id}');
-            final nozzles = await _nozzleRepository.getNozzles(dispenserId: dispenser.id);
+            final nozzles = await _nozzleRepository.getNozzles(
+              dispenserId: dispenser.id,
+            );
             totalNozzlesCount += nozzles.length;
-            activeNozzlesCount += nozzles.where((nozzle) => nozzle.isActive == true).length;
-            debugPrint('Successfully loaded ${nozzles.length} nozzles for dispenser ${dispenser.id}');
+            activeNozzlesCount += nozzles
+                .where((nozzle) => nozzle.isActive == true)
+                .length;
+            debugPrint(
+              'Successfully loaded ${nozzles.length} nozzles for dispenser ${dispenser.id}',
+            );
           } catch (e) {
             // Skip dispensers with nozzle loading errors
-            debugPrint('Error loading nozzles for dispenser ${dispenser.id}: $e');
+            debugPrint(
+              'Error loading nozzles for dispenser ${dispenser.id}: $e',
+            );
             debugPrint('Error type: ${e.runtimeType}');
             if (e is Failure) {
               debugPrint('Failure message: ${e.message}');
             }
           }
         }
-        
+
         totalNozzles.value = totalNozzlesCount;
         activeNozzles.value = activeNozzlesCount;
       }
@@ -145,7 +154,6 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
       await _shiftController.loadEmployeeShifts();
       totalShifts.value = _shiftController.employeeShifts.length;
       activeShifts.value = _shiftController.activeEmployeeShifts.length;
-
     } catch (e) {
       // Handle errors silently for now
       debugPrint('Error loading dashboard data: $e');
@@ -198,7 +206,9 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       end: Alignment.bottomRight,
                       colors: [
                         Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.8),
                       ],
                     ),
                   ),
@@ -253,7 +263,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                 ),
               ],
             ),
-            
+
             // Statistics Section
             SliverToBoxAdapter(
               child: SlideTransition(
@@ -267,10 +277,11 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       children: [
                         Text(
                           'Station Overview',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
+                          style: Theme.of(context).textTheme.headlineSmall
+                              ?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         _buildStatisticsGrid(context),
@@ -385,7 +396,9 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
           ),
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.shadow.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -404,15 +417,14 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       color: backgroundColor,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 20,
-                    ),
+                    child: Icon(icon, color: color, size: 20),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -450,7 +462,9 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                 subtitle,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -537,7 +551,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Sales Reports',
                     'View detailed analytics',
                     Icons.analytics,
-                    Colors.red,
+                    Colors.teal,
                     () => SalesReportRoute().push(context),
                   ),
                 ),
@@ -577,9 +591,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: color.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -592,11 +604,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                       color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 20,
-                    ),
+                    child: Icon(icon, color: color, size: 20),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -612,7 +620,9 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     subtitle,
                     style: TextStyle(
                       fontSize: 10,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const Spacer(),
@@ -627,11 +637,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                         ),
                       ),
                       const Spacer(),
-                      Icon(
-                        Icons.arrow_forward_ios,
-                        size: 10,
-                        color: color,
-                      ),
+                      Icon(Icons.arrow_forward_ios, size: 10, color: color),
                     ],
                   ),
                 ],
@@ -643,5 +649,3 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
     );
   }
 }
-
-
