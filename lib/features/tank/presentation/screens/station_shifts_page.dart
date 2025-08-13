@@ -13,6 +13,11 @@ class StationShiftsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<StationShiftController>();
 
+    // Load shifts when page is displayed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.loadShiftsIfUserAvailable();
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Station Shifts'),

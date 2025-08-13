@@ -25,7 +25,27 @@ class TankController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadTanks();
+    // Wait for user data to be available before loading tanks
+    _waitForUserAndLoadTanks();
+  }
+
+  Future<void> _waitForUserAndLoadTanks() async {
+    // Wait a bit for AuthController to initialize
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Check if user is available, if not wait and retry
+    if (_authController.currentUser.value?.user.station == null) {
+      // Wait for user data to be loaded
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // If still no user data, don't load tanks yet
+      if (_authController.currentUser.value?.user.station == null) {
+        return;
+      }
+    }
+    
+    // Now load tanks
+    await loadTanks();
   }
 
   Future<void> loadTanks() async {
@@ -35,7 +55,7 @@ class TankController extends GetxController {
 
       final currentUser = _authController.currentUser.value;
       if (currentUser?.user.station == null) {
-        errorMessage.value = 'No station assigned to user';
+        errorMessage.value = 'No station assigned to user. Please contact your administrator.';
         return;
       }
 
@@ -57,7 +77,6 @@ class TankController extends GetxController {
       
       tanks.value = networkTanks;
     } catch (e) {
-      rethrow;
       errorMessage.value = 'Failed to load tanks: ${e.toString()}';
     } finally {
       isLoading.value = false;
@@ -70,6 +89,14 @@ class TankController extends GetxController {
       await loadTanks();
     } finally {
       isRefreshing.value = false;
+    }
+  }
+
+  // Method to load tanks when user data becomes available
+  Future<void> loadTanksIfUserAvailable() async {
+    final currentUser = _authController.currentUser.value;
+    if (currentUser?.user.station != null) {
+      await loadTanks();
     }
   }
 

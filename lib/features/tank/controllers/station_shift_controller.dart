@@ -31,7 +31,27 @@ class StationShiftController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    loadStationShifts();
+    // Wait for user data to be available before loading shifts
+    _waitForUserAndLoadShifts();
+  }
+
+  Future<void> _waitForUserAndLoadShifts() async {
+    // Wait a bit for AuthController to initialize
+    await Future.delayed(const Duration(milliseconds: 100));
+    
+    // Check if user is available, if not wait and retry
+    if (_authController.currentUser.value?.user.station == null) {
+      // Wait for user data to be loaded
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      // If still no user data, don't load shifts yet
+      if (_authController.currentUser.value?.user.station == null) {
+        return;
+      }
+    }
+    
+    // Now load shifts
+    await loadStationShifts();
   }
 
   // Computed properties
@@ -61,7 +81,7 @@ class StationShiftController extends GetxController {
       
       final stationId = _currentStationId;
       if (stationId == null) {
-        errorMessage.value = 'No station assigned to user';
+        errorMessage.value = 'No station assigned to user. Please contact your administrator.';
         return;
       }
       
@@ -78,6 +98,14 @@ class StationShiftController extends GetxController {
   // Refresh station shifts
   Future<void> refreshStationShifts() async {
     await loadStationShifts();
+  }
+
+  // Method to load shifts when user data becomes available
+  Future<void> loadShiftsIfUserAvailable() async {
+    final currentUser = _authController.currentUser.value;
+    if (currentUser?.user.station != null) {
+      await loadStationShifts();
+    }
   }
 
   // Create station shift

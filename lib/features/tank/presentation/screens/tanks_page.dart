@@ -13,6 +13,11 @@ class TanksPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final TankController controller = Get.find<TankController>();
 
+    // Load tanks when page is displayed
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.loadTanksIfUserAvailable();
+    });
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
