@@ -18,6 +18,8 @@ class NozzleModel extends HiveObject {
   final bool isActive;
   @HiveField(4)
   final String dispenser;
+  @HiveField(5)
+  final String? tank;
 
   NozzleModel({
     required this.id,
@@ -25,6 +27,7 @@ class NozzleModel extends HiveObject {
     required this.nozzleNumber,
     required this.isActive,
     required this.dispenser,
+    this.tank,
   });
 
   factory NozzleModel.fromJson(Map<String, dynamic> json) =>
@@ -38,6 +41,7 @@ class NozzleModel extends HiveObject {
     int? nozzleNumber,
     bool? isActive,
     String? dispenser,
+    String? tank,
   }) {
     return NozzleModel(
       id: id ?? this.id,
@@ -45,6 +49,7 @@ class NozzleModel extends HiveObject {
       nozzleNumber: nozzleNumber ?? this.nozzleNumber,
       isActive: isActive ?? this.isActive,
       dispenser: dispenser ?? this.dispenser,
+      tank: tank ?? this.tank,
     );
   }
 }

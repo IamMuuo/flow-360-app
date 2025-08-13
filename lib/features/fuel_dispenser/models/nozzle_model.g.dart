@@ -22,13 +22,14 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
       nozzleNumber: fields[2] as int,
       isActive: fields[3] as bool,
       dispenser: fields[4] as String,
+      tank: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NozzleModel obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
       ..writeByte(3)
       ..write(obj.isActive)
       ..writeByte(4)
-      ..write(obj.dispenser);
+      ..write(obj.dispenser)
+      ..writeByte(5)
+      ..write(obj.tank);
   }
 
   @override
@@ -62,6 +65,7 @@ NozzleModel _$NozzleModelFromJson(Map<String, dynamic> json) => NozzleModel(
       nozzleNumber: (json['nozzle_number'] as num).toInt(),
       isActive: json['is_active'] as bool,
       dispenser: json['dispenser'] as String,
+      tank: json['tank'] as String?,
     );
 
 Map<String, dynamic> _$NozzleModelToJson(NozzleModel instance) =>
@@ -71,4 +75,5 @@ Map<String, dynamic> _$NozzleModelToJson(NozzleModel instance) =>
       'nozzle_number': instance.nozzleNumber,
       'is_active': instance.isActive,
       'dispenser': instance.dispenser,
+      'tank': instance.tank,
     };

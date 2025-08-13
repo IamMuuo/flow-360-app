@@ -6,6 +6,7 @@ import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_contr
 import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
 import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
+import 'package:flow_360/features/tank/controllers/tank_controller.dart';
 
 const Map<String, String> _fuelTypeNames = {
   'PMS': 'Petrol',
@@ -761,9 +762,13 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     final nozzleNumberController = TextEditingController();
     bool isActive = true;
     String selectedFuelType = 'PMS'; // Default value
+    String? selectedTankId;
 
     // Available fuel types
     final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+
+    // Get tank controller for tank selection
+    final tankController = Get.find<TankController>();
 
     showDialog(
       context: context,
@@ -799,9 +804,57 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedFuelType = newValue!;
+                    // Reset tank selection when fuel type changes
+                    selectedTankId = null;
                   });
                 },
               ),
+              const SizedBox(height: 16),
+              
+              // Tank Selection Dropdown
+              Obx(() {
+                final tanks = tankController.tanks.where((tank) => tank.fuelType == selectedFuelType).toList();
+                
+                if (tanks.isEmpty) {
+                  return const Card(
+                    color: Colors.orange,
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        'No tanks available for this fuel type',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
+                
+                return DropdownButtonFormField<String>(
+                  value: selectedTankId,
+                  decoration: const InputDecoration(
+                    labelText: 'Select Tank (Optional)',
+                    hintText: 'Choose a tank to supply fuel',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('No tank assigned'),
+                    ),
+                    ...tanks.map((tank) {
+                      return DropdownMenuItem<String>(
+                        value: tank.id,
+                        child: Text('${tank.name} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
+                      );
+                    }).toList(),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedTankId = newValue;
+                    });
+                  },
+                );
+              }),
+              
               const SizedBox(height: 16),
               TextField(
                 controller: nozzleNumberController,
@@ -851,6 +904,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     fuelType: selectedFuelType,
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
+                    tankId: selectedTankId,
                   );
                   
                   if (context.mounted) {
@@ -885,9 +939,13 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     final nozzleNumberController = TextEditingController(text: nozzle.nozzleNumber.toString());
     bool isActive = nozzle.isActive ?? true;
     String selectedFuelType = nozzle.fuelType; // Current fuel type
+    String? selectedTankId = nozzle.tank; // Current tank
 
     // Available fuel types
     final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+
+    // Get tank controller for tank selection
+    final tankController = Get.find<TankController>();
 
     showDialog(
       context: context,
@@ -923,9 +981,57 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 onChanged: (String? newValue) {
                   setState(() {
                     selectedFuelType = newValue!;
+                    // Reset tank selection when fuel type changes
+                    selectedTankId = null;
                   });
                 },
               ),
+              const SizedBox(height: 16),
+              
+              // Tank Selection Dropdown
+              Obx(() {
+                final tanks = tankController.tanks.where((tank) => tank.fuelType == selectedFuelType).toList();
+                
+                if (tanks.isEmpty) {
+                  return const Card(
+                    color: Colors.orange,
+                    child: Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        'No tanks available for this fuel type',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                }
+                
+                return DropdownButtonFormField<String>(
+                  value: selectedTankId,
+                  decoration: const InputDecoration(
+                    labelText: 'Select Tank (Optional)',
+                    hintText: 'Choose a tank to supply fuel',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
+                      child: Text('No tank assigned'),
+                    ),
+                    ...tanks.map((tank) {
+                      return DropdownMenuItem<String>(
+                        value: tank.id,
+                        child: Text('${tank.name} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
+                      );
+                    }).toList(),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedTankId = newValue;
+                    });
+                  },
+                );
+              }),
+              
               const SizedBox(height: 16),
               TextField(
                 controller: nozzleNumberController,
@@ -977,6 +1083,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     fuelType: selectedFuelType,
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
+                    tankId: selectedTankId,
                   );
                   
                   if (context.mounted) {

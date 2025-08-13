@@ -37,6 +37,7 @@ class NozzleController extends GetxController {
     required String fuelType,
     required int nozzleNumber,
     required bool isActive,
+    String? tankId,
   }) async {
     try {
       final Map<String, dynamic> data = {
@@ -45,6 +46,11 @@ class NozzleController extends GetxController {
         "is_active": isActive,
         "dispenser": dispenserId,
       };
+
+      // Add tank if provided
+      if (tankId != null && tankId.isNotEmpty) {
+        data["tank"] = tankId;
+      }
 
       final newNozzle = await _repository.createNozzle(
         dispenserId: dispenserId,
@@ -64,6 +70,7 @@ class NozzleController extends GetxController {
     required String fuelType,
     required int nozzleNumber,
     required bool isActive,
+    String? tankId,
   }) async {
     try {
       final Map<String, dynamic> data = {
@@ -72,6 +79,11 @@ class NozzleController extends GetxController {
         "is_active": isActive,
         "dispenser": dispenserId,
       };
+
+      // Add tank if provided
+      if (tankId != null && tankId.isNotEmpty) {
+        data["tank"] = tankId;
+      }
 
       await _repository.updateNozzle(
         dispenserId: dispenserId,
@@ -86,6 +98,7 @@ class NozzleController extends GetxController {
           fuelType: fuelType,
           nozzleNumber: nozzleNumber,
           isActive: isActive,
+          tank: tankId,
         );
       }
     } on Failure {
