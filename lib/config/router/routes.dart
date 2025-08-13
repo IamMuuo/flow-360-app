@@ -5,6 +5,10 @@ import 'package:flow_360/features/fuel/fuel.dart';
 import 'package:flow_360/features/shift/shift.dart';
 import 'package:flow_360/features/sales/presentation/screens/sales_report_screen.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
+import 'package:flow_360/features/tank/presentation/screens/station_shifts_page.dart';
+import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
+import 'package:flow_360/features/tank/models/station_shift_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 part 'routes.g.dart';
@@ -195,8 +199,11 @@ class ShiftManagementRoute extends GoRouteData with _$ShiftManagementRoute {
   }
 }
 
-@TypedGoRoute<SupervisorShiftManagementRoute>(path: "/supervisor-shift-management")
-class SupervisorShiftManagementRoute extends GoRouteData with _$SupervisorShiftManagementRoute {
+@TypedGoRoute<SupervisorShiftManagementRoute>(
+  path: "/supervisor-shift-management",
+)
+class SupervisorShiftManagementRoute extends GoRouteData
+    with _$SupervisorShiftManagementRoute {
   const SupervisorShiftManagementRoute();
 
   @override
@@ -222,5 +229,49 @@ class CreateSaleRoute extends GoRouteData with _$CreateSaleRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const CreateSaleScreen();
+  }
+}
+
+@TypedGoRoute<TanksPageRoute>(path: "/tanks")
+class TanksPageRoute extends GoRouteData with _$TanksPageRoute {
+  const TanksPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return TanksPage();
+  }
+}
+
+@TypedGoRoute<TankDetailsPageRoute>(path: "/tanks/:tankId")
+class TankDetailsPageRoute extends GoRouteData with _$TankDetailsPageRoute {
+  const TankDetailsPageRoute({required this.tankId});
+  final String tankId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    final tank = state.extra as dynamic;
+    return TankDetailsPage(tank: tank);
+  }
+}
+
+@TypedGoRoute<StationShiftsPageRoute>(path: "/station-shifts")
+class StationShiftsPageRoute extends GoRouteData with _$StationShiftsPageRoute {
+  const StationShiftsPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const StationShiftsPage();
+  }
+}
+
+@TypedGoRoute<TankReadingsPageRoute>(path: "/station-shifts/:shiftId/readings")
+class TankReadingsPageRoute extends GoRouteData with _$TankReadingsPageRoute {
+  const TankReadingsPageRoute({required this.shiftId});
+  final String shiftId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    final shift = state.extra as StationShiftModel;
+    return TankReadingsPage(shift: shift);
   }
 }

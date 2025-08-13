@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/config/router/routes.dart';
+import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
 import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
 import 'package:flow_360/features/employees/repository/employee_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/nozzle_repository.dart';
+import 'package:flow_360/features/tank/repository/tank_repository.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/core/failure.dart';
 import 'package:get_it/get_it.dart';
@@ -34,6 +36,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   final FuelDispenserRepository _dispenserRepository =
       GetIt.instance<FuelDispenserRepository>();
   final NozzleRepository _nozzleRepository = GetIt.instance<NozzleRepository>();
+  final TankRepository _tankRepository = GetIt.instance<TankRepository>();
 
   // Observable data
   final RxInt totalEmployees = 0.obs;
@@ -44,6 +47,9 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
   final RxInt activeNozzles = 0.obs;
   final RxInt totalShifts = 0.obs;
   final RxInt activeShifts = 0.obs;
+  final RxInt totalTanks = 0.obs;
+  final RxInt activeTanks = 0.obs;
+  final RxInt lowFuelTanks = 0.obs;
   final RxBool isLoading = true.obs;
 
   @override
@@ -148,6 +154,26 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
 
         totalNozzles.value = totalNozzlesCount;
         activeNozzles.value = activeNozzlesCount;
+
+        // Load tanks for the station
+        try {
+          final tanks = await _tankRepository.getTanks(
+            stationId: stationId,
+          );
+          totalTanks.value = tanks.length;
+          activeTanks.value = tanks
+              .where((tank) => tank.isActive == true)
+              .length;
+          lowFuelTanks.value = tanks
+              .where((tank) => tank.usagePercentage < 10)
+              .length;
+        } catch (e) {
+          debugPrint('Error loading tanks: $e');
+          // Set default values if tanks can't be loaded
+          totalTanks.value = 0;
+          activeTanks.value = 0;
+          lowFuelTanks.value = 0;
+        }
       }
 
       // Load shifts
@@ -359,6 +385,23 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
               Expanded(
                 child: _buildStatCard(
                   context,
+                  'Tanks',
+                  totalTanks.value.toString(),
+                  '${lowFuelTanks.value} Low Fuel',
+                  Icons.storage,
+                  Colors.indigo,
+                  Colors.indigo.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          // Third row - 1 card
+          Row(
+            children: [
+              Expanded(
+                child: _buildStatCard(
+                  context,
                   'Active Shifts',
                   totalShifts.value.toString(),
                   '${activeShifts.value} Active',
@@ -542,7 +585,34 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
               ],
             ),
             const SizedBox(height: 12),
-            // Third row - 1 card
+            // Third row - 2 cards
+            Row(
+              children: [
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Tank Management',
+                    'Monitor fuel levels',
+                    Icons.storage,
+                    Colors.indigo,
+                    () => TanksPageRoute().push(context),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionCard(
+                    context,
+                    'Station Shifts',
+                    'Manage tank readings & shifts',
+                    Icons.science,
+                    Colors.red,
+                    () => StationShiftsPageRoute().push(context),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Fourth row - 1 card
             Row(
               children: [
                 Expanded(

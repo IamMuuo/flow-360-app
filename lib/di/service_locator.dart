@@ -4,6 +4,9 @@ import 'package:flow_360/features/employees/employees.dart';
 import 'package:flow_360/features/fuel/repository/fuel_price_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/nozzle_repository.dart';
+import 'package:flow_360/features/tank/repository/tank_repository.dart';
+import 'package:flow_360/features/tank/repository/station_shift_repository.dart';
+import 'package:flow_360/features/tank/controllers/tank_controller.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flow_360/core/network/dio_client.dart';
 import 'package:flow_360/features/auth/repository/auth_repository.dart';
@@ -49,4 +52,14 @@ Future<void> setupLocator() async {
   sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepository());
   
   sl.registerLazySingleton<ShiftRepository>(() => ShiftRepository());
+
+  // Tank Management
+  sl.registerLazySingleton<TankRepository>(
+    () => TankRepository(dioClient: sl(), hiveService: sl()),
+  );
+  
+  // Station Shift Management
+  sl.registerLazySingleton<StationShiftRepository>(
+    () => StationShiftRepository(dioClient: sl(), hiveService: sl()),
+  );
 }

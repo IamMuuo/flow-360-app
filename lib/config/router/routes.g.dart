@@ -18,6 +18,10 @@ List<RouteBase> get $appRoutes => [
       $supervisorShiftManagementRoute,
       $employeeDashboardRoute,
       $createSaleRoute,
+      $tanksPageRoute,
+      $tankDetailsPageRoute,
+      $stationShiftsPageRoute,
+      $tankReadingsPageRoute,
     ];
 
 RouteBase get $authRoute => GoRouteData.$route(
@@ -500,6 +504,126 @@ mixin _$CreateSaleRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/create-sale',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $tanksPageRoute => GoRouteData.$route(
+      path: '/tanks',
+      factory: _$TanksPageRoute._fromState,
+    );
+
+mixin _$TanksPageRoute on GoRouteData {
+  static TanksPageRoute _fromState(GoRouterState state) =>
+      const TanksPageRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/tanks',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $tankDetailsPageRoute => GoRouteData.$route(
+      path: '/tanks/:tankId',
+      factory: _$TankDetailsPageRoute._fromState,
+    );
+
+mixin _$TankDetailsPageRoute on GoRouteData {
+  static TankDetailsPageRoute _fromState(GoRouterState state) =>
+      TankDetailsPageRoute(
+        tankId: state.pathParameters['tankId']!,
+      );
+
+  TankDetailsPageRoute get _self => this as TankDetailsPageRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/tanks/${Uri.encodeComponent(_self.tankId)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $stationShiftsPageRoute => GoRouteData.$route(
+      path: '/station-shifts',
+      factory: _$StationShiftsPageRoute._fromState,
+    );
+
+mixin _$StationShiftsPageRoute on GoRouteData {
+  static StationShiftsPageRoute _fromState(GoRouterState state) =>
+      const StationShiftsPageRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/station-shifts',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $tankReadingsPageRoute => GoRouteData.$route(
+      path: '/station-shifts/:shiftId/readings',
+      factory: _$TankReadingsPageRoute._fromState,
+    );
+
+mixin _$TankReadingsPageRoute on GoRouteData {
+  static TankReadingsPageRoute _fromState(GoRouterState state) =>
+      TankReadingsPageRoute(
+        shiftId: state.pathParameters['shiftId']!,
+      );
+
+  TankReadingsPageRoute get _self => this as TankReadingsPageRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/station-shifts/${Uri.encodeComponent(_self.shiftId)}/readings',
       );
 
   @override

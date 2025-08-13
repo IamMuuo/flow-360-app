@@ -3,6 +3,7 @@ import 'package:get_it/get_it.dart';
 import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/sales/repository/sales_repository.dart';
 import 'package:flow_360/features/sales/models/sale_model.dart';
+import 'package:flow_360/features/tank/controllers/tank_controller.dart';
 
 class SalesController extends GetxController {
   final SalesRepository _repository = GetIt.instance<SalesRepository>();
@@ -104,6 +105,15 @@ class SalesController extends GetxController {
       
       // Refresh available nozzles
       await fetchAvailableNozzles();
+      
+      // Refresh tank data to reflect the fuel consumption
+      try {
+        final tankController = Get.find<TankController>();
+        await tankController.refreshTanks();
+        print('Tank data refreshed after sale');
+      } catch (e) {
+        print('Could not refresh tank data: $e');
+      }
     } catch (e) {
       rethrow;
       print('Error in createSale: $e');
