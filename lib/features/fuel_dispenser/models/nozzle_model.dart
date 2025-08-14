@@ -20,6 +20,12 @@ class NozzleModel extends HiveObject {
   final String dispenser;
   @HiveField(5)
   final String? tank;
+  @HiveField(6)
+  @JsonKey(fromJson: _parseDouble, toJson: _doubleToString)
+  final double? initialReading;
+  @HiveField(7)
+  @JsonKey(fromJson: _parseDouble, toJson: _doubleToString)
+  final double? currentReading;
 
   NozzleModel({
     required this.id,
@@ -28,6 +34,8 @@ class NozzleModel extends HiveObject {
     required this.isActive,
     required this.dispenser,
     this.tank,
+    this.initialReading,
+    this.currentReading,
   });
 
   factory NozzleModel.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +50,8 @@ class NozzleModel extends HiveObject {
     bool? isActive,
     String? dispenser,
     String? tank,
+    double? initialReading,
+    double? currentReading,
   }) {
     return NozzleModel(
       id: id ?? this.id,
@@ -50,6 +60,27 @@ class NozzleModel extends HiveObject {
       isActive: isActive ?? this.isActive,
       dispenser: dispenser ?? this.dispenser,
       tank: tank ?? this.tank,
+      initialReading: initialReading ?? this.initialReading,
+      currentReading: currentReading ?? this.currentReading,
     );
+  }
+
+  // Helper getters to provide default values
+  double get initialReadingValue => initialReading ?? 0.0;
+  double get currentReadingValue => currentReading ?? 0.0;
+  double get totalDispensed => currentReadingValue - initialReadingValue;
+
+  // Helper methods for parsing string to double
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
+  }
+
+  static String? _doubleToString(double? value) {
+    if (value == null) return null;
+    return value.toString();
   }
 }

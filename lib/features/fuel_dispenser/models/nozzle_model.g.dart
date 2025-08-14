@@ -23,13 +23,15 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
       isActive: fields[3] as bool,
       dispenser: fields[4] as String,
       tank: fields[5] as String?,
+      initialReading: fields[6] as double?,
+      currentReading: fields[7] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, NozzleModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
       ..writeByte(4)
       ..write(obj.dispenser)
       ..writeByte(5)
-      ..write(obj.tank);
+      ..write(obj.tank)
+      ..writeByte(6)
+      ..write(obj.initialReading)
+      ..writeByte(7)
+      ..write(obj.currentReading);
   }
 
   @override
@@ -66,6 +72,8 @@ NozzleModel _$NozzleModelFromJson(Map<String, dynamic> json) => NozzleModel(
       isActive: json['is_active'] as bool,
       dispenser: json['dispenser'] as String,
       tank: json['tank'] as String?,
+      initialReading: NozzleModel._parseDouble(json['initial_reading']),
+      currentReading: NozzleModel._parseDouble(json['current_reading']),
     );
 
 Map<String, dynamic> _$NozzleModelToJson(NozzleModel instance) =>
@@ -76,4 +84,6 @@ Map<String, dynamic> _$NozzleModelToJson(NozzleModel instance) =>
       'is_active': instance.isActive,
       'dispenser': instance.dispenser,
       'tank': instance.tank,
+      'initial_reading': NozzleModel._doubleToString(instance.initialReading),
+      'current_reading': NozzleModel._doubleToString(instance.currentReading),
     };

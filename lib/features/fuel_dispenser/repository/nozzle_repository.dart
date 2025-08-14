@@ -60,6 +60,7 @@ class NozzleRepository {
       );
       return nozzles;
     } on DioException catch (e) {
+      print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
       String errorMessage;
       if (e.response?.data is Map) {
         errorMessage = e.response?.data['detail'] ?? 'Failed to fetch nozzles.';
@@ -68,7 +69,8 @@ class NozzleRepository {
       }
       throw Failure(message: errorMessage);
     } catch (e) {
-      throw Failure(message: 'An unexpected error occurred.');
+      rethrow;
+      // throw Failure(message: 'An unexpected error occurred.');
     }
   }
 

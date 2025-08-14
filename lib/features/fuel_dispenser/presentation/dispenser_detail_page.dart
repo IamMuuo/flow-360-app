@@ -760,6 +760,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     NozzleController nozzleController,
   ) {
     final nozzleNumberController = TextEditingController();
+    final initialReadingController = TextEditingController();
     bool isActive = true;
     String selectedFuelType = 'PMS'; // Default value
     String? selectedTankId;
@@ -866,6 +867,16 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 keyboardType: TextInputType.number,
               ),
               const SizedBox(height: 16),
+              TextField(
+                controller: initialReadingController,
+                decoration: const InputDecoration(
+                  labelText: 'Initial Reading (Litres) - Optional',
+                  hintText: 'e.g., 0.00 (defaults to 0 if empty)',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
+              const SizedBox(height: 16),
               Row(
                 children: [
                   Checkbox(
@@ -891,11 +902,36 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 if (nozzleNumberController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please fill in all fields'),
+                      content: Text('Please fill in the nozzle number'),
                       backgroundColor: Colors.red,
                     ),
                   );
                   return;
+                }
+
+                // Validate initial reading if provided
+                double? initialReading;
+                if (initialReadingController.text.isNotEmpty) {
+                  try {
+                    initialReading = double.parse(initialReadingController.text);
+                    if (initialReading < 0) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Initial reading must be a positive number'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                      return;
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Please enter a valid initial reading'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
                 }
 
                 try {
@@ -904,6 +940,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     fuelType: selectedFuelType,
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
+                    initialReading: initialReading,
                     tankId: selectedTankId,
                   );
                   

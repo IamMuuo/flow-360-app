@@ -260,7 +260,18 @@ class StationShiftsPageRoute extends GoRouteData with _$StationShiftsPageRoute {
 
   @override
   Widget build(BuildContext context, GoRouterState state) {
-    return const StationShiftsPage();
+    // Redirect to the new shift readings screen
+    return const ShiftReadingsScreen();
+  }
+}
+
+@TypedGoRoute<ShiftReadingsPageRoute>(path: "/shift-readings")
+class ShiftReadingsPageRoute extends GoRouteData with _$ShiftReadingsPageRoute {
+  const ShiftReadingsPageRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return const ShiftReadingsScreen();
   }
 }
 

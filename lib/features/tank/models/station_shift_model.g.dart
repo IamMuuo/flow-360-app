@@ -97,8 +97,10 @@ StationShiftModel _$StationShiftModelFromJson(Map<String, dynamic> json) =>
       updatedAt: json['updated_at'] as String?,
       stationName: json['station_name'] as String,
       supervisorName: json['supervisor_name'] as String,
-      tankReadingsCount: (json['tank_readings_count'] as num).toInt(),
-      durationMinutes: (json['duration_minutes'] as num?)?.toInt(),
+      tankReadingsCount:
+          StationShiftModel._parseInt(json['tank_readings_count']),
+      durationMinutes:
+          StationShiftModel._parseIntNullable(json['duration_minutes']),
     );
 
 Map<String, dynamic> _$StationShiftModelToJson(StationShiftModel instance) =>

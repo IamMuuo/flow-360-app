@@ -21,6 +21,7 @@ List<RouteBase> get $appRoutes => [
       $tanksPageRoute,
       $tankDetailsPageRoute,
       $stationShiftsPageRoute,
+      $shiftReadingsPageRoute,
       $tankReadingsPageRoute,
     ];
 
@@ -592,6 +593,34 @@ mixin _$StationShiftsPageRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/station-shifts',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $shiftReadingsPageRoute => GoRouteData.$route(
+      path: '/shift-readings',
+      factory: _$ShiftReadingsPageRoute._fromState,
+    );
+
+mixin _$ShiftReadingsPageRoute on GoRouteData {
+  static ShiftReadingsPageRoute _fromState(GoRouterState state) =>
+      const ShiftReadingsPageRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/shift-readings',
       );
 
   @override

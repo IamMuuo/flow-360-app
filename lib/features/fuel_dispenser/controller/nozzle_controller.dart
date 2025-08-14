@@ -20,6 +20,7 @@ class NozzleController extends GetxController {
   Future<void> fetchNozzles(String dispenserId) async {
     isLoading(true);
     errorMessage('');
+
     try {
       final fetchedNozzles = await _repository.getNozzles(
         dispenserId: dispenserId,
@@ -27,6 +28,8 @@ class NozzleController extends GetxController {
       nozzles.assignAll(fetchedNozzles);
     } on Failure catch (e) {
       errorMessage(e.message);
+    } catch (e) {
+      errorMessage(e.toString());
     } finally {
       isLoading(false);
     }
@@ -37,6 +40,7 @@ class NozzleController extends GetxController {
     required String fuelType,
     required int nozzleNumber,
     required bool isActive,
+    double? initialReading,
     String? tankId,
   }) async {
     try {
@@ -45,6 +49,7 @@ class NozzleController extends GetxController {
         "nozzle_number": nozzleNumber,
         "is_active": isActive,
         "dispenser": dispenserId,
+        "initial_reading": initialReading ?? 0.0,
       };
 
       // Add tank if provided

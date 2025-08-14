@@ -602,11 +602,11 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                 Expanded(
                   child: _buildActionCard(
                     context,
-                    'Station Shifts',
-                    'Manage tank readings & shifts',
+                    'Shift Readings',
+                    'Record tank & nozzle readings',
                     Icons.science,
-                    Colors.red,
-                    () => StationShiftsPageRoute().push(context),
+                    Colors.orange,
+                    () => ShiftReadingsPageRoute().push(context),
                   ),
                 ),
               ],

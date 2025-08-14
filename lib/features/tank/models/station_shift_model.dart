@@ -54,11 +54,11 @@ class StationShiftModel extends HiveObject {
   final String supervisorName;
 
   @HiveField(12)
-  @JsonKey(name: 'tank_readings_count')
+  @JsonKey(name: 'tank_readings_count', fromJson: _parseInt)
   final int tankReadingsCount;
 
   @HiveField(13)
-  @JsonKey(name: 'duration_minutes')
+  @JsonKey(name: 'duration_minutes', fromJson: _parseIntNullable)
   final int? durationMinutes;
 
   StationShiftModel({
@@ -143,7 +143,23 @@ class StationShiftModel extends HiveObject {
     }
   }
 
-  // Helper methods
+  // Helper methods for parsing JSON values safely
+  static int _parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+
+  static int? _parseIntNullable(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
   String _formatTime(String time) {
     final parts = time.split(':');
     if (parts.length != 2) return time;
