@@ -5,6 +5,7 @@ import 'package:flow_360/features/tank/controllers/station_shift_controller.dart
 import 'package:flow_360/features/tank/models/station_shift_model.dart';
 import 'package:flow_360/features/tank/presentation/widgets/create_station_shift_dialog.dart';
 import 'package:flow_360/features/tank/presentation/widgets/station_shift_card.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 
 class StationShiftsPage extends StatelessWidget {
   const StationShiftsPage({super.key});
@@ -111,44 +112,102 @@ class StationShiftsPage extends StatelessWidget {
           ),
         );
       }),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateShiftDialog(context),
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: Obx(() {
+        final canCreate = controller.canCreateShiftToday;
+        final todayCount = controller.todayShiftCount;
+        final authController = Get.find<AuthController>();
+        final isAdmin = authController.currentUser.value?.user.isStaff ?? false;
+        
+        return FloatingActionButton(
+          onPressed: canCreate ? () => _showCreateShiftDialog(context) : null,
+          backgroundColor: canCreate ? Colors.blue[600] : Colors.grey[400],
+          foregroundColor: Colors.white,
+          child: const Icon(Icons.add),
+          tooltip: canCreate 
+            ? 'Create New Shift' 
+            : isAdmin 
+              ? 'No more shifts allowed today' 
+              : 'Maximum 3 shifts per day reached',
+        );
+      }),
     );
   }
 
   Widget _buildStatisticsCards(StationShiftController controller) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: _buildStatCard(
-            'Active Shifts',
-            controller.activeShifts.length.toString(),
-            Icons.play_circle_outline,
-            Colors.green,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                'Active Shifts',
+                controller.activeShifts.length.toString(),
+                Icons.play_circle_outline,
+                Colors.green,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Completed',
+                controller.completedShifts.length.toString(),
+                Icons.check_circle_outline,
+                Colors.blue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                'Total',
+                controller.stationShifts.length.toString(),
+                Icons.schedule,
+                Colors.orange,
+              ),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Completed',
-            controller.completedShifts.length.toString(),
-            Icons.check_circle_outline,
-            Colors.blue,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Total',
-            controller.stationShifts.length.toString(),
-            Icons.schedule,
-            Colors.orange,
-          ),
-        ),
+        const SizedBox(height: 16),
+        // Today's shift count and limit
+        Obx(() {
+          final todayCount = controller.todayShiftCount;
+          final authController = Get.find<AuthController>();
+          final isAdmin = authController.currentUser.value?.user.isStaff ?? false;
+          final maxShifts = isAdmin ? '∞' : '3';
+          final canCreate = controller.canCreateShiftToday;
+          
+          return Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: canCreate ? Colors.green[50] : Colors.orange[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: canCreate ? Colors.green[200]! : Colors.orange[200]!,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  canCreate ? Icons.check_circle : Icons.warning,
+                  color: canCreate ? Colors.green[600] : Colors.orange[600],
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    isAdmin 
+                      ? 'Today: $todayCount shifts created (Unlimited allowed)'
+                      : 'Today: $todayCount/$maxShifts shifts created',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: canCreate ? Colors.green[700] : Colors.orange[700],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }),
       ],
     );
   }

@@ -67,6 +67,37 @@ class StationShiftController extends GetxController {
   List<TankReadingModel> get readingsNeedingReconciliation => 
       tankReadings.where((reading) => reading.needsReconciliation).toList();
 
+  // Check if user can create more shifts today
+  bool get canCreateShiftToday {
+    final currentUser = _authController.currentUser.value;
+    if (currentUser == null) return false;
+    
+    // Admin users can create unlimited shifts
+    if (currentUser.user.isStaff) return true;
+    
+    // Regular users are limited to 3 shifts per day
+    final today = DateTime.now();
+    final todayShifts = stationShifts.where((shift) {
+      final shiftDate = DateTime.parse(shift.shiftDate);
+      return shiftDate.year == today.year &&
+             shiftDate.month == today.month &&
+             shiftDate.day == today.day;
+    }).length;
+    
+    return todayShifts < 3;
+  }
+
+  // Get today's shift count
+  int get todayShiftCount {
+    final today = DateTime.now();
+    return stationShifts.where((shift) {
+      final shiftDate = DateTime.parse(shift.shiftDate);
+      return shiftDate.year == today.year &&
+             shiftDate.month == today.month &&
+             shiftDate.day == today.day;
+    }).length;
+  }
+
   // Get current user's station ID
   String? get _currentStationId {
     final currentUser = _authController.currentUser.value;

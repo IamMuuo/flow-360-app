@@ -47,6 +47,10 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   final registrationController = TextEditingController();
   final kraPinController = TextEditingController();
   final customerNameController = TextEditingController();
+  
+  // Sale creation state
+  bool _isCreatingSale = false;
+  bool _saleCreated = false;
 
   @override
   void initState() {
@@ -1171,6 +1175,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   }
 
   bool _canProceed() {
+    // Prevent proceeding if sale is being created or has been created
+    if (_isCreatingSale || _saleCreated) return false;
+    
     switch (_currentStep) {
       case 0:
         return selectedDispenserId != null;
@@ -1207,9 +1214,17 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
 
   void _createSale() async {
     if (!_canProceed()) return;
+    
+    // Prevent multiple sales from being created
+    if (_isCreatingSale || _saleCreated) return;
 
     final amount = double.tryParse(totalAmountController.text);
     if (amount == null || amount <= 0) return;
+
+    // Set creating flag
+    setState(() {
+      _isCreatingSale = true;
+    });
 
     // Show animated timer dialog
     showDialog(
@@ -1257,12 +1272,24 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       final createdSale = _salesController.sales.last;
       print('Created sale ID: ${createdSale.id}');
       
+      // Set sale created flag
+      setState(() {
+        _saleCreated = true;
+        _isCreatingSale = false;
+      });
+      
       // Close timer dialog
       context.pop();
       
       // Handle receipt based on selected option
       await _handleReceiptAfterSale(createdSale.id);
     } catch (e) {
+      // Reset flags on error
+      setState(() {
+        _isCreatingSale = false;
+        _saleCreated = false;
+      });
+      
       // Close timer dialog
       context.pop();
       
@@ -1358,6 +1385,8 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               setState(() {
                 _currentStep = 0;
                 _selectedReceiptOption = null;
+                _saleCreated = false; // Reset sale created flag
+                _isCreatingSale = false; // Reset creating flag
                 // Clear form data
                 selectedDispenserId = null;
                 selectedNozzleId = null;
@@ -1465,6 +1494,8 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                         setState(() {
                           _currentStep = 0;
                           _selectedReceiptOption = null;
+                          _saleCreated = false; // Reset sale created flag
+                          _isCreatingSale = false; // Reset creating flag
                           // Clear form data
                           selectedDispenserId = null;
                           selectedNozzleId = null;

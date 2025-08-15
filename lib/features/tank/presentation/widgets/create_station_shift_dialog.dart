@@ -55,6 +55,12 @@ class _CreateStationShiftDialogState extends State<CreateStationShiftDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<StationShiftController>();
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.currentUser.value?.user.isStaff ?? false;
+    final canCreate = controller.canCreateShiftToday;
+    final todayCount = controller.todayShiftCount;
+    
     return AlertDialog(
       title: Text(isEditing ? 'Edit Station Shift' : 'Create Station Shift'),
       content: Form(
@@ -63,6 +69,39 @@ class _CreateStationShiftDialogState extends State<CreateStationShiftDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              // Show shift limit warning for new shifts
+              if (!isEditing && !canCreate) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.orange[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.warning,
+                        color: Colors.orange[600],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          isAdmin 
+                            ? 'No more shifts allowed today'
+                            : 'Maximum 3 shifts per day reached ($todayCount/3)',
+                          style: TextStyle(
+                            color: Colors.orange[700],
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               // Shift Date
               TextFormField(
                 controller: _shiftDateController,
@@ -182,7 +221,7 @@ class _CreateStationShiftDialogState extends State<CreateStationShiftDialog> {
           child: const Text('Cancel'),
         ),
         ElevatedButton(
-          onPressed: _submitForm,
+          onPressed: (!isEditing && !canCreate) ? null : _submitForm,
           child: Text(isEditing ? 'Update' : 'Create'),
         ),
       ],
@@ -203,6 +242,22 @@ class _CreateStationShiftDialogState extends State<CreateStationShiftDialog> {
           const SnackBar(
             content: Text('No station assigned to user'),
             backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      // Check if user can create more shifts today (only for new shifts)
+      if (!isEditing && !controller.canCreateShiftToday) {
+        final isAdmin = currentUser?.user.isStaff ?? false;
+        final message = isAdmin 
+          ? 'No more shifts allowed today'
+          : 'Maximum 3 shifts per day reached. Please contact your administrator if you need more shifts.';
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(message),
+            backgroundColor: Colors.orange,
           ),
         );
         return;
