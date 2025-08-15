@@ -152,16 +152,53 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final newLevel = double.parse(_levelController.text);
       final reason = _reasonController.text;
       
-      _tankController.adjustTankLevel(
-        widget.tank.id,
-        newLevel,
-        reason,
-      );
+      try {
+        await _tankController.adjustTankLevel(
+          widget.tank.id,
+          newLevel,
+          reason,
+        );
+        
+        // Show success snackbar and close dialog
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.tune, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text('Tank level adjusted successfully'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        // Show error snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Failed to adjust tank level: ${e.toString()}'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
   }
 }

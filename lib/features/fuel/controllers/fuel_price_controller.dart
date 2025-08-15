@@ -37,12 +37,7 @@ class FuelPriceController extends GetxController
         // Only show an error if there was no cached data to display
         change(null, status: RxStatus.error(e.message));
       } else {
-        // Show a snackbar to inform the user of the network error while displaying cached data
-        Get.snackbar(
-          'Network Error',
-          'Failed to fetch latest prices. Displaying cached data.',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        // Network error - UI will handle showing snackbar
       }
     }
   }

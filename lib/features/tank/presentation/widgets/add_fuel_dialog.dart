@@ -152,16 +152,53 @@ class _AddFuelDialogState extends State<AddFuelDialog> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final litres = double.parse(_litresController.text);
       final reason = _reasonController.text;
       
-      _tankController.addFuelToTank(
-        widget.tank.id,
-        litres,
-        reason,
-      );
+      try {
+        await _tankController.addFuelToTank(
+          widget.tank.id,
+          litres,
+          reason,
+        );
+        
+        // Show success snackbar and close dialog
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.add_circle, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text('Fuel added successfully'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        // Show error snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Failed to add fuel: ${e.toString()}'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
   }
 }

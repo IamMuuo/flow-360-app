@@ -170,7 +170,7 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final AuthController authController = Get.find<AuthController>();
 
@@ -183,7 +183,44 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
         'station': authController.currentUser.value!.user.station,
       };
 
-      _tankController.createTank(tankData);
+      try {
+        await _tankController.createTank(tankData);
+        
+        // Show success snackbar and close dialog
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text('Tank created successfully'),
+                ],
+              ),
+              backgroundColor: Colors.green,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      } catch (e) {
+        // Show error snackbar
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.white),
+                  const SizedBox(width: 8),
+                  Text('Failed to create tank: ${e.toString()}'),
+                ],
+              ),
+              backgroundColor: Colors.red,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     }
   }
 }

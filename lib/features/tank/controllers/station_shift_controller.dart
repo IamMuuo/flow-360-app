@@ -120,7 +120,7 @@ class StationShiftController extends GetxController {
       stationShifts.assignAll(shifts);
     } catch (e) {
       errorMessage.value = 'Failed to load station shifts: ${e.toString()}';
-      _showSnackBar('Error', errorMessage.value, isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }
@@ -147,10 +147,9 @@ class StationShiftController extends GetxController {
       final shift = await _repository.createStationShift(data: data);
       stationShifts.add(shift);
       
-      _showSnackBar('Success', 'Station shift created successfully');
-      _closeDialog();
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
-      _showSnackBar('Error', 'Failed to create station shift: ${e.toString()}', isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isCreatingShift.value = false;
     }
@@ -171,10 +170,9 @@ class StationShiftController extends GetxController {
         stationShifts[index] = updatedShift;
       }
       
-      _showSnackBar('Success', 'Station shift updated successfully');
-      _closeDialog();
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
-      _showSnackBar('Error', 'Failed to update station shift: ${e.toString()}', isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isUpdatingShift.value = false;
     }
@@ -191,7 +189,7 @@ class StationShiftController extends GetxController {
     } catch (e) {
       rethrow;
       errorMessage.value = 'Failed to load tank readings: ${e.toString()}';
-      _showSnackBar('Error', errorMessage.value, isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }
@@ -213,11 +211,10 @@ class StationShiftController extends GetxController {
       
       print('DEBUG: Refreshed readings list. Total readings: ${tankReadings.length}');
       
-      _showSnackBar('Success', 'Tank reading created successfully');
-      _closeDialog();
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
       print('DEBUG: Error creating tank reading: $e');
-      _showSnackBar('Error', 'Failed to create tank reading: ${e.toString()}', isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isCreatingReading.value = false;
     }
@@ -238,10 +235,9 @@ class StationShiftController extends GetxController {
         tankReadings[index] = reconciledReading;
       }
       
-      _showSnackBar('Success', 'Tank reading reconciled successfully');
-      _closeDialog();
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
-      _showSnackBar('Error', 'Failed to reconcile tank reading: ${e.toString()}', isError: true);
+      // Error - UI will handle showing snackbar
     } finally {
       isReconciling.value = false;
     }
@@ -259,52 +255,21 @@ class StationShiftController extends GetxController {
     tankReadings.clear();
   }
 
-  // Navigation methods using GoRouter
+  // Navigation methods - UI will handle navigation
   void navigateToReadings(StationShiftModel shift) {
-    final context = Get.context;
-    if (context != null) {
-      context.push('/station-shifts/${shift.id}/readings', extra: shift);
-    }
+    // UI will handle navigation
   }
 
   void navigateToStationShifts() {
-    final context = Get.context;
-    if (context != null) {
-      context.push('/station-shifts');
-    }
+    // UI will handle navigation
   }
 
-  // Helper methods
+  // Helper methods - UI will handle these operations
   void _showSnackBar(String title, String message, {bool isError = false}) {
-    final context = Get.context;
-    if (context != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              Icon(
-                isError ? Icons.error : Icons.check_circle,
-                color: Colors.white,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(message),
-              ),
-            ],
-          ),
-          backgroundColor: isError ? Colors.red : Colors.green,
-          duration: const Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-    }
+    // UI will handle showing snackbar
   }
 
   void _closeDialog() {
-    final context = Get.context;
-    if (context != null && Navigator.canPop(context)) {
-      Navigator.of(context).pop();
-    }
+    // UI will handle closing dialog
   }
 }

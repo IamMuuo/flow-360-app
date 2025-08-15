@@ -108,35 +108,10 @@ class TankController extends GetxController {
       final newTank = await _tankRepository.createTank(data: tankData);
       tanks.add(newTank);
       
-      Get.back(); // Close the create tank dialog
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Tank created successfully'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
       errorMessage.value = 'Failed to create tank: ${e.toString()}';
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Failed to create tank'),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }
@@ -157,35 +132,10 @@ class TankController extends GetxController {
         tanks[index] = updatedTank;
       }
       
-      Get.back(); // Close the update tank dialog
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Tank updated successfully'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
       errorMessage.value = 'Failed to update tank: ${e.toString()}';
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Failed to update tank'),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }
@@ -210,35 +160,10 @@ class TankController extends GetxController {
         tankAuditTrail.insert(0, auditEntry);
       }
       
-      Get.back(); // Close the add fuel dialog
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.add_circle, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Fuel added successfully'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
       errorMessage.value = 'Failed to add fuel: ${e.toString()}';
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Failed to add fuel'),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }
@@ -263,35 +188,10 @@ class TankController extends GetxController {
         tankAuditTrail.insert(0, auditEntry);
       }
       
-      Get.back(); // Close the adjust level dialog
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.tune, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Tank level adjusted successfully'),
-            ],
-          ),
-          backgroundColor: Colors.green,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
       errorMessage.value = 'Failed to adjust tank level: ${e.toString()}';
-      ScaffoldMessenger.of(Get.context!).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.error, color: Colors.white),
-              const SizedBox(width: 8),
-              const Text('Failed to adjust tank level'),
-            ],
-          ),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading.value = false;
     }

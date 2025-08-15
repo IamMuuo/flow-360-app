@@ -76,9 +76,9 @@ class EmployeeController extends GetxController {
       if (index != -1) {
         employees[index] = updatedEmployee;
       }
-      Get.snackbar('Success', 'Profile picture updated successfully!');
+      // Success - UI will handle showing snackbar
     } on Failure catch (e) {
-      Get.snackbar('Error', e.message);
+      // Error - UI will handle showing snackbar
     } finally {
       isLoading(false);
     }
