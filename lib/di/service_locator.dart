@@ -14,6 +14,7 @@ import 'package:flow_360/features/shift/repository/shift_repository.dart';
 import 'package:flow_360/features/shift/repository/shift_readings_repository.dart';
 import 'package:flow_360/features/sales/repository/sales_repository.dart';
 import 'package:flow_360/features/sales/repository/sales_report_repository.dart';
+import 'package:flow_360/features/sales/repository/receipt_repository.dart';
 
 final sl = GetIt.instance;
 
@@ -48,6 +49,9 @@ Future<void> setupLocator() async {
   );
   sl.registerLazySingleton<SalesReportRepository>(
     () => SalesReportRepository(),
+  );
+  sl.registerLazySingleton<ReceiptRepository>(
+    () => ReceiptRepository(),
   );
 
   sl.registerLazySingleton<EmployeeRepository>(() => EmployeeRepository());

@@ -32,6 +32,10 @@ class SaleModel {
   final String? carRegistrationNumber;
   @JsonKey(name: 'kra_pin')
   final String? kraPin;
+  @JsonKey(name: 'customer_name')
+  final String? customerName;
+  @JsonKey(name: 'receipt_number')
+  final String? receiptNumber;
   @JsonKey(name: 'external_transaction_id')
   final String? externalTransactionId;
   @JsonKey(name: 'created_at')
@@ -52,6 +56,8 @@ class SaleModel {
     this.odometerReading,
     this.carRegistrationNumber,
     this.kraPin,
+    this.customerName,
+    this.receiptNumber,
     this.externalTransactionId,
     required this.createdAt,
     required this.modifiedAt,

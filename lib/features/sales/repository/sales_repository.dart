@@ -31,6 +31,7 @@ class SalesRepository {
     int? odometerReading,
     String? carRegistrationNumber,
     String? kraPin,
+    String? customerName,
     String? externalTransactionId,
   }) async {
     print('here');
@@ -42,6 +43,7 @@ class SalesRepository {
         if (odometerReading != null) 'odometer_reading': odometerReading,
         if (carRegistrationNumber != null) 'car_resistration_number': carRegistrationNumber,
         if (kraPin != null) 'kra_pin': kraPin,
+        if (customerName != null) 'customer_name': customerName,
         if (externalTransactionId != null) 'external_transaction_id': externalTransactionId,
       };
 

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
+import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
 
 class EmployeeDashboard extends StatefulWidget {
   const EmployeeDashboard({super.key});
@@ -713,11 +715,55 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               ],
             ),
           ),
-          Text(
-            _formatDateTime(sale.soldAt),
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-            ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _formatDateTime(sale.soldAt),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Print Receipt Icon
+                  GestureDetector(
+                    onTap: () => _printReceipt(sale.id),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.print,
+                        color: Colors.blue,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // QR Code Icon
+                  GestureDetector(
+                    onTap: () => _showQrCode(sale.id),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.qr_code,
+                        color: Colors.orange,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
         ],
       ),
@@ -737,6 +783,191 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     } else {
       return '${difference.inDays}d ago';
     }
+  }
+
+  void _printReceipt(String saleId) {
+    final receiptController = Get.put(ReceiptController());
+    
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Text('Printing receipt...'),
+          ],
+        ),
+      ),
+    );
+    
+    // Print the receipt
+    receiptController.printReceipt(
+      saleId: saleId,
+      printerType: 'thermal_58mm',
+    ).then((_) {
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Receipt printed successfully!'),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }).catchError((error) {
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to print receipt: $error'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    });
+  }
+
+  void _showQrCode(String saleId) {
+    final receiptController = Get.put(ReceiptController());
+    
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AlertDialog(
+        content: Row(
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Text('Generating QR code...'),
+          ],
+        ),
+      ),
+    );
+    
+    // Generate QR code
+    receiptController.generateQrCodeForReceipt(saleId).then((_) {
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Show QR code dialog
+      _showQrCodeDialog(saleId);
+    }).catchError((error) {
+      // Close loading dialog
+      Navigator.of(context).pop();
+      
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to generate QR code: $error'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    });
+  }
+
+  void _showQrCodeDialog(String saleId) {
+    final receiptController = Get.find<ReceiptController>();
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.qr_code,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'QR Code Generated',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'QR code has been generated successfully. Customer can scan it to download the receipt.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              Obx(() {
+                final qrData = receiptController.qrCodeData.value;
+                if (qrData != null) {
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: QrImageView(
+                          data: receiptController.pdfUrl.value ?? '',
+                          version: QrVersions.auto,
+                          size: 150.0,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Receipt: ${qrData['receipt_number'] ?? 'N/A'}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  );
+                }
+                return const CircularProgressIndicator();
+              }),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => context.pop(),
+                      child: const Text('Close'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.pop();
+                        // Navigate to receipt screen
+                        context.push('/receipt/$saleId');
+                      },
+                      child: const Text('View Receipt'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _showNoShiftDialog(BuildContext context) {
@@ -821,4 +1052,5 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
       ),
     );
   }
+
 }

@@ -10,6 +10,10 @@ import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
+import 'package:flow_360/features/sales/presentation/widgets/receipt_success_dialog.dart';
+import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
+import 'package:flow_360/features/sales/presentation/widgets/animated_timer_widget.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 class CreateSaleScreen extends StatefulWidget {
   const CreateSaleScreen({super.key});
@@ -32,7 +36,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   final AuthController _authController = Get.find<AuthController>();
   
   int _currentStep = 0;
-  final int _totalSteps = 5;
+  final int _totalSteps = 6;
   
   // Form data
   String? selectedDispenserId;
@@ -42,6 +46,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   final odometerController = TextEditingController();
   final registrationController = TextEditingController();
   final kraPinController = TextEditingController();
+  final customerNameController = TextEditingController();
 
   @override
   void initState() {
@@ -114,6 +119,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     odometerController.dispose();
     registrationController.dispose();
     kraPinController.dispose();
+    customerNameController.dispose();
     super.dispose();
   }
 
@@ -267,6 +273,8 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         return _buildPaymentStep();
       case 4:
         return _buildOptionalDetailsStep();
+      case 5:
+        return _buildReceiptOptionsStep();
       default:
         return const Center(child: Text('Unknown step'));
     }
@@ -877,6 +885,14 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           child: Column(
             children: [
               TextField(
+                controller: customerNameController,
+                decoration: const InputDecoration(
+                  labelText: 'Customer Name (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
                 controller: odometerController,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(
@@ -904,6 +920,231 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildReceiptOptionsStep() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Receipt Options',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Choose how you want to handle the receipt after sale',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+          ),
+        ),
+        const SizedBox(height: 24),
+        
+        // Receipt Options Grid
+        GridView.count(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 1.2,
+          children: [
+            // Print Receipt Option
+            _buildReceiptOptionCard(
+              icon: Icons.print,
+              title: 'Print Receipt',
+              subtitle: 'Print on thermal printer',
+              color: Colors.blue,
+              onTap: () => _handleReceiptOption('print'),
+            ),
+            
+            // View Receipt Option
+            _buildReceiptOptionCard(
+              icon: Icons.receipt,
+              title: 'View Receipt',
+              subtitle: 'View on screen',
+              color: Colors.green,
+              onTap: () => _handleReceiptOption('view'),
+            ),
+            
+            // QR Code Option
+            _buildReceiptOptionCard(
+              icon: Icons.qr_code,
+              title: 'QR Code',
+              subtitle: 'Generate QR for customer',
+              color: Colors.orange,
+              onTap: () => _handleReceiptOption('qr'),
+            ),
+            
+            // Skip Option
+            _buildReceiptOptionCard(
+              icon: Icons.skip_next,
+              title: 'Skip Receipt',
+              subtitle: 'No receipt needed',
+              color: Colors.grey,
+              onTap: () => _handleReceiptOption('skip'),
+            ),
+          ],
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // Preview of sale details
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sale Preview',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildSalePreviewRow('Amount:', 'KES ${totalAmountController.text.isEmpty ? '0.00' : totalAmountController.text}'),
+              _buildSalePreviewRow('Payment:', selectedPaymentMode),
+              _buildSalePreviewRow('Litres:', _getEstimatedLitres()),
+              if (customerNameController.text.isNotEmpty)
+                _buildSalePreviewRow('Customer:', customerNameController.text),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReceiptOptionCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: color.withValues(alpha: 0.3),
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 32,
+              color: color,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+                fontSize: 14,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              subtitle,
+              style: TextStyle(
+                color: color.withValues(alpha: 0.7),
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSalePreviewRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              fontSize: 14,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String? _selectedReceiptOption;
+
+  void _handleReceiptOption(String option) {
+    setState(() {
+      _selectedReceiptOption = option;
+    });
+    
+    // Proceed to create the sale
+    _createSale();
+  }
+
+  void _showSimpleSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Sale Created Successfully!',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              context.pop(); // Close success dialog
+              context.pop(); // Go back to dashboard
+              // Refresh sales on dashboard
+              final salesController = Get.find<SalesController>();
+              salesController.loadSales();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -942,6 +1183,8 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         return selectedPaymentMode.isNotEmpty;
       case 4:
         return true; // Optional step
+      case 5:
+        return true; // Receipt options step
       default:
         return false;
     }
@@ -968,22 +1211,29 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     final amount = double.tryParse(totalAmountController.text);
     if (amount == null || amount <= 0) return;
 
-    // Show loading dialog
+    // Show animated timer dialog
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
-        content: Row(
-          children: [
-            CircularProgressIndicator(),
-            SizedBox(width: 16),
-            Text('Creating sale...'),
-          ],
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: AnimatedTimerWidget(
+          durationSeconds: 3,
+          message: 'Processing Sale & Generating Receipt',
+          onComplete: () async {
+            // Timer completed, now create the sale
+            await _processSaleCreation();
+          },
         ),
       ),
     );
+  }
 
+  Future<void> _processSaleCreation() async {
     try {
+      final amount = double.tryParse(totalAmountController.text);
+      if (amount == null || amount <= 0) return;
+
       print('Creating sale with nozzleId: $selectedNozzleId, amount: $amount');
       await _salesController.createSale(
         nozzleId: selectedNozzleId!,
@@ -992,11 +1242,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         odometerReading: int.tryParse(odometerController.text),
         carRegistrationNumber: registrationController.text.isNotEmpty ? registrationController.text : null,
         kraPin: kraPinController.text.isNotEmpty ? kraPinController.text : null,
+        customerName: customerNameController.text.isNotEmpty ? customerNameController.text : null,
       );
 
-      // Close loading dialog
-      context.pop();
-      
       // Check if there was an error
       if (_salesController.errorMessage.value.isNotEmpty) {
         print('Error in controller: ${_salesController.errorMessage.value}');
@@ -1004,45 +1252,18 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       }
       
       print('Sale created successfully!');
-      // Show success dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.check_circle,
-                color: Colors.green,
-                size: 64,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Sale Created Successfully!',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                context.pop(); // Close success dialog
-                context.pop(); // Go back to dashboard
-                // Refresh sales on dashboard
-                final salesController = Get.find<SalesController>();
-                salesController.loadSales();
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
+      
+      // Get the created sale
+      final createdSale = _salesController.sales.last;
+      print('Created sale ID: ${createdSale.id}');
+      
+      // Close timer dialog
+      context.pop();
+      
+      // Handle receipt based on selected option
+      await _handleReceiptAfterSale(createdSale.id);
     } catch (e) {
-      // Close loading dialog
+      // Close timer dialog
       context.pop();
       
       print('Error creating sale: $e');
@@ -1051,7 +1272,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Error'),
-          content: Text('Failed to create sale: $e.message'),
+          content: Text('Failed to create sale: $e'),
           actions: [
             ElevatedButton(
               onPressed: () => context.pop(),
@@ -1061,6 +1282,224 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         ),
       );
     }
+  }
+
+  Future<void> _handleReceiptAfterSale(String saleId) async {
+    final receiptController = Get.put(ReceiptController());
+    
+    switch (_selectedReceiptOption) {
+      case 'print':
+        // Print receipt
+        await receiptController.printReceipt(
+          saleId: saleId,
+          printerType: 'thermal_58mm',
+        );
+        _showReceiptCompletionDialog('Receipt printed successfully!', saleId);
+        break;
+        
+      case 'view':
+        // Navigate to receipt screen
+        context.pop(); // Close sale creation screen
+        context.push('/receipt/$saleId');
+        break;
+        
+      case 'qr':
+        // Generate QR code
+        await receiptController.generateQrCodeForReceipt(saleId);
+        _showQrCodeDialog(saleId);
+        break;
+        
+      case 'skip':
+      default:
+        // Just show success and stay in flow
+        _showReceiptCompletionDialog('Sale completed successfully!', saleId);
+        break;
+    }
+  }
+
+  void _showReceiptCompletionDialog(String message, String saleId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.check_circle,
+              color: Colors.green,
+              size: 64,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              message,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'What would you like to do next?',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+          OutlinedButton(
+            onPressed: () {
+              context.pop(); // Close dialog
+              // Stay in sale creation flow - reset to first step
+              setState(() {
+                _currentStep = 0;
+                _selectedReceiptOption = null;
+                // Clear form data
+                selectedDispenserId = null;
+                selectedNozzleId = null;
+                totalAmountController.clear();
+                selectedPaymentMode = 'CASH';
+                odometerController.clear();
+                registrationController.clear();
+                kraPinController.clear();
+                customerNameController.clear();
+              });
+              _updateProgress();
+            },
+            child: const Text('Create Another Sale'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.pop(); // Close dialog
+              context.pop(); // Go back to dashboard
+              // Refresh sales on dashboard
+              final salesController = Get.find<SalesController>();
+              salesController.loadSales();
+            },
+            child: const Text('Go to Dashboard'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showQrCodeDialog(String saleId) {
+    final receiptController = Get.find<ReceiptController>();
+    
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.qr_code,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 28,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'QR Code Generated',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'QR code has been generated successfully. Customer can scan it to download the receipt.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey),
+              ),
+              const SizedBox(height: 24),
+              Obx(() {
+                final qrData = receiptController.qrCodeData.value;
+                if (qrData != null) {
+                  return Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        child: QrImageView(
+                          data: receiptController.pdfUrl.value ?? '',
+                          version: QrVersions.auto,
+                          size: 150.0,
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Receipt: ${qrData['receipt_number'] ?? 'N/A'}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  );
+                }
+                return const CircularProgressIndicator();
+              }),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        context.pop(); // Close QR dialog
+                        // Stay in sale creation flow - reset to first step
+                        setState(() {
+                          _currentStep = 0;
+                          _selectedReceiptOption = null;
+                          // Clear form data
+                          selectedDispenserId = null;
+                          selectedNozzleId = null;
+                          totalAmountController.clear();
+                          selectedPaymentMode = 'CASH';
+                          odometerController.clear();
+                          registrationController.clear();
+                          kraPinController.clear();
+                          customerNameController.clear();
+                        });
+                        _updateProgress();
+                      },
+                      child: const Text('Create Another'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.pop(); // Close QR dialog
+                        context.pop(); // Go back to dashboard
+                        // Refresh sales on dashboard
+                        final salesController = Get.find<SalesController>();
+                        salesController.loadSales();
+                      },
+                      child: const Text('Go to Dashboard'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

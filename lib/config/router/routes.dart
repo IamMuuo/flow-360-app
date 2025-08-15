@@ -5,6 +5,7 @@ import 'package:flow_360/features/fuel/fuel.dart';
 import 'package:flow_360/features/shift/shift.dart';
 import 'package:flow_360/features/sales/presentation/screens/sales_report_screen.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
+import 'package:flow_360/features/sales/presentation/screens/receipt_screen.dart';
 import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/station_shifts_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
@@ -229,6 +230,38 @@ class CreateSaleRoute extends GoRouteData with _$CreateSaleRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) {
     return const CreateSaleScreen();
+  }
+}
+
+@TypedGoRoute<ReceiptRoute>(path: "/receipt/:saleId")
+class ReceiptRoute extends GoRouteData with _$ReceiptRoute {
+  const ReceiptRoute({required this.saleId});
+  final String saleId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    return ReceiptScreen(saleId: saleId);
+  }
+}
+
+@TypedGoRoute<QrCodeScanRoute>(path: "/qr-scan")
+class QrCodeScanRoute extends GoRouteData with _$QrCodeScanRoute {
+  const QrCodeScanRoute();
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) {
+    // Extract sale ID from query parameters or URL
+    final saleId = state.uri.queryParameters['sale_id'] ?? '';
+    if (saleId.isNotEmpty) {
+      return ReceiptScreen(saleId: saleId);
+    }
+    // If no sale ID, show error or redirect
+    return Scaffold(
+      appBar: AppBar(title: const Text('QR Code Scan')),
+      body: const Center(
+        child: Text('Invalid QR code or missing sale information'),
+      ),
+    );
   }
 }
 

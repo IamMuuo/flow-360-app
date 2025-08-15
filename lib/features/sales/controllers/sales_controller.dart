@@ -68,6 +68,7 @@ class SalesController extends GetxController {
     int? odometerReading,
     String? carRegistrationNumber,
     String? kraPin,
+    String? customerName,
     String? externalTransactionId,
   }) async {
     isLoading.value = true;
@@ -97,6 +98,7 @@ class SalesController extends GetxController {
         odometerReading: odometerReading,
         carRegistrationNumber: carRegistrationNumber,
         kraPin: kraPin,
+        customerName: customerName,
         externalTransactionId: externalTransactionId,
       );
       

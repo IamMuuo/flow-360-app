@@ -18,6 +18,8 @@ List<RouteBase> get $appRoutes => [
       $supervisorShiftManagementRoute,
       $employeeDashboardRoute,
       $createSaleRoute,
+      $receiptRoute,
+      $qrCodeScanRoute,
       $tanksPageRoute,
       $tankDetailsPageRoute,
       $stationShiftsPageRoute,
@@ -505,6 +507,65 @@ mixin _$CreateSaleRoute on GoRouteData {
   @override
   String get location => GoRouteData.$location(
         '/create-sale',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $receiptRoute => GoRouteData.$route(
+      path: '/receipt/:saleId',
+      factory: _$ReceiptRoute._fromState,
+    );
+
+mixin _$ReceiptRoute on GoRouteData {
+  static ReceiptRoute _fromState(GoRouterState state) => ReceiptRoute(
+        saleId: state.pathParameters['saleId']!,
+      );
+
+  ReceiptRoute get _self => this as ReceiptRoute;
+
+  @override
+  String get location => GoRouteData.$location(
+        '/receipt/${Uri.encodeComponent(_self.saleId)}',
+      );
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $qrCodeScanRoute => GoRouteData.$route(
+      path: '/qr-scan',
+      factory: _$QrCodeScanRoute._fromState,
+    );
+
+mixin _$QrCodeScanRoute on GoRouteData {
+  static QrCodeScanRoute _fromState(GoRouterState state) =>
+      const QrCodeScanRoute();
+
+  @override
+  String get location => GoRouteData.$location(
+        '/qr-scan',
       );
 
   @override
