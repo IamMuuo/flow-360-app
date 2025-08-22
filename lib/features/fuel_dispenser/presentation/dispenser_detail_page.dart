@@ -237,7 +237,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
             actions: [
               IconButton(
                 onPressed: () {
-                  EditDispenserRoute(dispenserId: dispenser.id).push(context);
+                  context.push('/fuel-dispenser/${dispenser.id}/edit');
                 },
                 icon: const Icon(Icons.edit, color: Colors.white),
               ),

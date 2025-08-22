@@ -1,321 +1,203 @@
-import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/employees/presentation/presentation.dart';
 import 'package:flow_360/features/features.dart';
 import 'package:flow_360/features/fuel/fuel.dart';
-import 'package:flow_360/features/shift/shift.dart';
 import 'package:flow_360/features/sales/presentation/screens/sales_report_screen.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:flow_360/features/sales/presentation/screens/receipt_screen.dart';
 import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/station_shifts_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
-import 'package:flow_360/features/tank/models/station_shift_model.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-part 'routes.g.dart';
 
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 
-@TypedGoRoute<AuthRoute>(path: "/auth")
-class AuthRoute extends GoRouteData with _$AuthRoute {
-  const AuthRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return LoginScreen();
-  }
-}
-
-// Main pages
-// @TypedShellRoute<MainLayoutShellRoute>(
-//   routes: <TypedRoute<RouteData>>[
-//     TypedGoRoute<DashboardRoute>(path: "/dashboard"),
-//     TypedGoRoute<StationsRoute>(path: "/stations"),
-//     TypedGoRoute<ProfileRoute>(path: "/profile"),
-//   ],
-// )
-// class MainLayoutShellRoute extends ShellRouteData {
-//   const MainLayoutShellRoute();
-//
-//   static final GlobalKey<NavigatorState> $navigatorKey = shellNavigatorKey;
-//
-//   @override
-//   Widget builder(BuildContext context, GoRouterState state, Widget navigator) {
-//     // In the navigator, we get the current tab widget.
-//     return DashboardShell(navigator: navigator);
-//   }
-// }
-
-@TypedGoRoute<DashboardRoute>(path: "/")
-class DashboardRoute extends GoRouteData with _$DashboardRoute {
-  const DashboardRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return DashboardPage();
-  }
-}
-
-// class StationsRoute extends GoRouteData with _$StationsRoute {
-//   const StationsRoute();
-//   @override
-//   Widget build(BuildContext context, GoRouterState state) {
-//     return StationsPage();
-//   }
-// }
-
-@TypedGoRoute<ProfileRoute>(path: "/profile")
-class ProfileRoute extends GoRouteData with _$ProfileRoute {
-  const ProfileRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return ProfilePage();
-  }
-}
-
-@TypedGoRoute<FuelPricesRoute>(path: "/fuel")
-class FuelPricesRoute extends GoRouteData with _$FuelPricesRoute {
-  const FuelPricesRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return FuelPricesPage();
-  }
-}
-
-@TypedGoRoute<SalesReportRoute>(path: "/sales-report")
-class SalesReportRoute extends GoRouteData with _$SalesReportRoute {
-  const SalesReportRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return SalesReportScreen();
-  }
-}
-
-@TypedGoRoute<FuelDispensersPageRoute>(
-  path: "/fuel-dispenser",
+final GoRouter appRouter = GoRouter(
+  navigatorKey: shellNavigatorKey,
+  initialLocation: '/',
   routes: [
-    TypedGoRoute<CreateFuelDispenserRoute>(path: "create/:stationId"),
-    TypedGoRoute<DispenserDetailsRoute>(
-      path: ":dispenserId",
-      routes: [TypedGoRoute<EditDispenserRoute>(path: "edit")],
+    // Auth
+    GoRoute(
+      path: '/auth',
+      builder: (context, state) => LoginScreen(),
+    ),
+    
+    // Main Dashboard
+    GoRoute(
+      path: '/',
+      builder: (context, state) => DashboardPage(),
+    ),
+    
+    // Profile
+    GoRoute(
+      path: '/profile',
+      builder: (context, state) => ProfilePage(),
+    ),
+    
+    // Fuel Prices
+    GoRoute(
+      path: '/fuel',
+      builder: (context, state) => FuelPricesPage(),
+    ),
+    
+    // Sales Report
+    GoRoute(
+      path: '/sales-report',
+      builder: (context, state) => SalesReportScreen(),
+    ),
+    
+    // Fuel Dispensers
+    GoRoute(
+      path: '/fuel-dispenser',
+      builder: (context, state) => FuelDispensersPage(),
+      routes: [
+        GoRoute(
+          path: 'create/:stationId',
+          builder: (context, state) {
+            final stationId = state.pathParameters['stationId']!;
+            return CreateFuelDispenserPage(stationId: stationId);
+          },
+        ),
+        GoRoute(
+          path: ':dispenserId',
+          builder: (context, state) {
+            final dispenserId = state.pathParameters['dispenserId']!;
+            return DispenserDetailPage(dispenserId: dispenserId);
+          },
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (context, state) {
+                final dispenserId = state.pathParameters['dispenserId']!;
+                return EditDispenserPage(dispenserId: dispenserId);
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+    
+    // Employee Management
+    GoRoute(
+      path: '/employees',
+      builder: (context, state) => EmployeeManagementPage(),
+      routes: [
+        GoRoute(
+          path: 'create',
+          builder: (context, state) => EmployeeCreationPage(),
+        ),
+        GoRoute(
+          path: ':employeeId',
+          builder: (context, state) {
+            final employeeId = state.pathParameters['employeeId']!;
+            return EmployeeProfilePage(employeeId: employeeId);
+          },
+          routes: [
+            GoRoute(
+              path: 'edit',
+              builder: (context, state) {
+                final employeeId = state.pathParameters['employeeId']!;
+                return EmployeeEditPage(employeeId: employeeId);
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+    
+    // Shift Management
+    GoRoute(
+      path: '/shifts',
+      builder: (context, state) => ShiftManagementScreen(),
+    ),
+    
+    // Supervisor Shift Management
+    GoRoute(
+      path: '/supervisor-shifts',
+      builder: (context, state) => SupervisorShiftManagementScreen(),
+    ),
+    
+    // Employee Dashboard
+    GoRoute(
+      path: '/employee-dashboard',
+      builder: (context, state) => EmployeeDashboard(),
+    ),
+    
+    // Create Sale
+    GoRoute(
+      path: '/create-sale',
+      builder: (context, state) => CreateSaleScreen(),
+    ),
+    
+    // Receipt
+    GoRoute(
+      path: '/receipt/:saleId',
+      builder: (context, state) {
+        final saleId = state.pathParameters['saleId']!;
+        return ReceiptScreen(saleId: saleId);
+      },
+    ),
+    
+    // QR Code Scan
+    GoRoute(
+      path: '/qr-scan',
+      builder: (context, state) {
+        // Extract sale ID from query parameters or URL
+        final saleId = state.uri.queryParameters['sale_id'] ?? '';
+        if (saleId.isNotEmpty) {
+          return ReceiptScreen(saleId: saleId);
+        }
+        // If no sale ID, show error or redirect
+        return Scaffold(
+          appBar: AppBar(title: const Text('QR Code Scan')),
+          body: const Center(
+            child: Text('Invalid QR code or missing sale information'),
+          ),
+        );
+      },
+    ),
+    
+    // Tanks
+    GoRoute(
+      path: '/tanks',
+      builder: (context, state) => TanksPage(),
+      routes: [
+        GoRoute(
+          path: ':tankId',
+          builder: (context, state) {
+            final tankId = state.pathParameters['tankId']!;
+            // Get the tank from the controller or pass it via extra
+            final tank = state.extra as dynamic;
+            return TankDetailsPage(tank: tank);
+          },
+        ),
+      ],
+    ),
+    
+    // Station Shifts
+    GoRoute(
+      path: '/station-shifts',
+      builder: (context, state) => StationShiftsPage(),
+      routes: [
+        GoRoute(
+          path: ':shiftId/readings',
+          builder: (context, state) {
+            final shiftId = state.pathParameters['shiftId']!;
+            final shift = state.extra as dynamic;
+            return ShiftReadingsScreen();
+          },
+        ),
+      ],
+    ),
+    
+    // Tank Readings
+    GoRoute(
+      path: '/tank-readings/:shiftId',
+      builder: (context, state) {
+        final shiftId = state.pathParameters['shiftId']!;
+        final shift = state.extra as dynamic;
+        return TankReadingsPage(shift: shift);
+      },
     ),
   ],
-)
-class FuelDispensersPageRoute extends GoRouteData
-    with _$FuelDispensersPageRoute {
-  const FuelDispensersPageRoute();
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return FuelDispensersPage();
-  }
-}
-
-class CreateFuelDispenserRoute extends GoRouteData
-    with _$CreateFuelDispenserRoute {
-  final String stationId;
-  const CreateFuelDispenserRoute({required this.stationId});
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return CreateFuelDispenserPage(stationId: stationId);
-  }
-}
-
-class DispenserDetailsRoute extends GoRouteData with _$DispenserDetailsRoute {
-  final String dispenserId;
-  const DispenserDetailsRoute({required this.dispenserId});
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return DispenserDetailPage(dispenserId: dispenserId);
-  }
-}
-
-class EditDispenserRoute extends GoRouteData with _$EditDispenserRoute {
-  final String dispenserId;
-  const EditDispenserRoute({required this.dispenserId});
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return EditDispenserPage(dispenserId: dispenserId);
-  }
-}
-
-@TypedGoRoute<EmployeeManagementPageRoute>(
-  path: "/employees",
-  routes: [
-    TypedGoRoute<EmployeeCreatePageRoute>(path: "create"),
-    TypedGoRoute<EmployeeDetailsPageRoute>(
-      path: ":employeeId",
-      routes: [TypedGoRoute<EmployeeEditPageRoute>(path: "edit")],
-    ),
-  ],
-)
-class EmployeeManagementPageRoute extends GoRouteData
-    with _$EmployeeManagementPageRoute {
-  const EmployeeManagementPageRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return EmployeeManagementPage();
-  }
-}
-
-class EmployeeCreatePageRoute extends GoRouteData
-    with _$EmployeeCreatePageRoute {
-  const EmployeeCreatePageRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const EmployeeCreationPage();
-  }
-}
-
-class EmployeeDetailsPageRoute extends GoRouteData
-    with _$EmployeeDetailsPageRoute {
-  const EmployeeDetailsPageRoute({required this.employeeId});
-  final String employeeId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return EmployeeProfilePage(employeeId: employeeId);
-  }
-}
-
-class EmployeeEditPageRoute extends GoRouteData with _$EmployeeEditPageRoute {
-  const EmployeeEditPageRoute({required this.employeeId});
-  final String employeeId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return EmployeeEditPage(employeeId: employeeId);
-  }
-}
-
-@TypedGoRoute<ShiftManagementRoute>(path: "/shift-management")
-class ShiftManagementRoute extends GoRouteData with _$ShiftManagementRoute {
-  const ShiftManagementRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const ShiftManagementScreen();
-  }
-}
-
-@TypedGoRoute<SupervisorShiftManagementRoute>(
-  path: "/supervisor-shift-management",
-)
-class SupervisorShiftManagementRoute extends GoRouteData
-    with _$SupervisorShiftManagementRoute {
-  const SupervisorShiftManagementRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const SupervisorShiftManagementScreen();
-  }
-}
-
-@TypedGoRoute<EmployeeDashboardRoute>(path: "/employee-dashboard")
-class EmployeeDashboardRoute extends GoRouteData with _$EmployeeDashboardRoute {
-  const EmployeeDashboardRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const EmployeeDashboard();
-  }
-}
-
-@TypedGoRoute<CreateSaleRoute>(path: "/create-sale")
-class CreateSaleRoute extends GoRouteData with _$CreateSaleRoute {
-  const CreateSaleRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const CreateSaleScreen();
-  }
-}
-
-@TypedGoRoute<ReceiptRoute>(path: "/receipt/:saleId")
-class ReceiptRoute extends GoRouteData with _$ReceiptRoute {
-  const ReceiptRoute({required this.saleId});
-  final String saleId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return ReceiptScreen(saleId: saleId);
-  }
-}
-
-@TypedGoRoute<QrCodeScanRoute>(path: "/qr-scan")
-class QrCodeScanRoute extends GoRouteData with _$QrCodeScanRoute {
-  const QrCodeScanRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    // Extract sale ID from query parameters or URL
-    final saleId = state.uri.queryParameters['sale_id'] ?? '';
-    if (saleId.isNotEmpty) {
-      return ReceiptScreen(saleId: saleId);
-    }
-    // If no sale ID, show error or redirect
-    return Scaffold(
-      appBar: AppBar(title: const Text('QR Code Scan')),
-      body: const Center(
-        child: Text('Invalid QR code or missing sale information'),
-      ),
-    );
-  }
-}
-
-@TypedGoRoute<TanksPageRoute>(path: "/tanks")
-class TanksPageRoute extends GoRouteData with _$TanksPageRoute {
-  const TanksPageRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return TanksPage();
-  }
-}
-
-@TypedGoRoute<TankDetailsPageRoute>(path: "/tanks/:tankId")
-class TankDetailsPageRoute extends GoRouteData with _$TankDetailsPageRoute {
-  const TankDetailsPageRoute({required this.tankId});
-  final String tankId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    final tank = state.extra as dynamic;
-    return TankDetailsPage(tank: tank);
-  }
-}
-
-@TypedGoRoute<StationShiftsPageRoute>(path: "/station-shifts")
-class StationShiftsPageRoute extends GoRouteData with _$StationShiftsPageRoute {
-  const StationShiftsPageRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    // Redirect to the new shift readings screen
-    return const ShiftReadingsScreen();
-  }
-}
-
-@TypedGoRoute<ShiftReadingsPageRoute>(path: "/shift-readings")
-class ShiftReadingsPageRoute extends GoRouteData with _$ShiftReadingsPageRoute {
-  const ShiftReadingsPageRoute();
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    return const ShiftReadingsScreen();
-  }
-}
-
-@TypedGoRoute<TankReadingsPageRoute>(path: "/station-shifts/:shiftId/readings")
-class TankReadingsPageRoute extends GoRouteData with _$TankReadingsPageRoute {
-  const TankReadingsPageRoute({required this.shiftId});
-  final String shiftId;
-
-  @override
-  Widget build(BuildContext context, GoRouterState state) {
-    final shift = state.extra as StationShiftModel;
-    return TankReadingsPage(shift: shift);
-  }
-}
+);

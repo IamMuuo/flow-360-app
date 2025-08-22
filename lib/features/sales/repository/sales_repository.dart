@@ -41,7 +41,7 @@ class SalesRepository {
         'total_amount': totalAmount,
         'payment_mode': paymentMode,
         if (odometerReading != null) 'odometer_reading': odometerReading,
-        if (carRegistrationNumber != null) 'car_resistration_number': carRegistrationNumber,
+        if (carRegistrationNumber != null) 'car_registration_number': carRegistrationNumber,
         if (kraPin != null) 'kra_pin': kraPin,
         if (customerName != null) 'customer_name': customerName,
         if (externalTransactionId != null) 'external_transaction_id': externalTransactionId,
@@ -67,7 +67,6 @@ class SalesRepository {
       }
       throw Failure(message: errorMessage);
     } catch (e) {
-      rethrow;
       print('Unexpected error in createSale: $e');
       throw Failure(message: 'An unexpected error occurred.');
     }
@@ -103,7 +102,6 @@ class SalesRepository {
         message: e.response?.data['detail'] ?? 'Failed to validate sale.',
       );
     } catch (e) {
-      rethrow;
       throw Failure(message: 'An unexpected error occurred.');
     }
   }

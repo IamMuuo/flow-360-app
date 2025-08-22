@@ -236,7 +236,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
               IconButton(
                 onPressed: () {
                   if (stationId != null) {
-                    CreateFuelDispenserRoute(stationId: stationId).push(context);
+                    context.push('/fuel-dispenser/create/$stationId');
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
@@ -287,7 +287,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
             child: FloatingActionButton.extended(
               onPressed: () {
                 if (stationId != null) {
-                  CreateFuelDispenserRoute(stationId: stationId).push(context);
+                  context.push('/fuel-dispenser/create/$stationId');
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
@@ -393,7 +393,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            DispenserDetailsRoute(dispenserId: dispenser.id).push(context);
+            context.push('/fuel-dispenser/${dispenser.id}');
           },
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -668,7 +668,7 @@ class _FuelDispensersPageState extends State<FuelDispensersPage> with TickerProv
                 final authController = Get.find<AuthController>();
                 final stationId = authController.currentUser.value?.user.station;
                 if (stationId != null) {
-                  CreateFuelDispenserRoute(stationId: stationId).push(context);
+                  context.push('/fuel-dispenser/create/$stationId');
                 }
               },
             ),

@@ -282,67 +282,67 @@ class ReceiptService {
 
   static Future<String> generateReceiptText(ReceiptModel receipt) {
     final text = '''
-# OFFICIAL E-TAX INVOICE
+# NORMAL INVOICE
 
 **${receipt.organizationName}**
 ${receipt.organizationAddress}
 
-*PIN:* ${receipt.kraPin}
-*VRN:* ${receipt.registrationNumber}
-*Invoice No:* ${receipt.receiptNumber}
-*Date:* ${receipt.date}
-*T.R.N:* ${receipt.kraTrn}
+PIN: ${receipt.kraPin}
+TAX INVOICE
+
+Welcome to our shop
+
+Buyer PIN: ${receipt.customerKraPin.isNotEmpty ? receipt.customerKraPin : 'A000000000Z'}
 
 ---
 **Item Description**
 ---
-*${receipt.fuelTypeDisplay}*
-*Nozzle:* ${receipt.nozzleNumber}
-*Unit Price:* ${receipt.unitPrice.toStringAsFixed(2)}
-*Litres:* ${receipt.litresSold.toStringAsFixed(2)}
-*Total:* ${receipt.totalAmount.toStringAsFixed(2)}
+${receipt.fuelTypeDisplay}
+${receipt.litresSold.toStringAsFixed(2)}x ${receipt.currencySymbol} ${receipt.unitPrice.toStringAsFixed(2)} = ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}B
 
 ---
 **Summary**
 ---
-**TOTAL (${receipt.currency}):** ${receipt.totalAmount.toStringAsFixed(2)}
+TOTAL BEFORE DISCOUNT: ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}
+TOTAL DISCOUNT AWARDED: (0.00)
+SUB TOTAL: ${receipt.currencySymbol} ${receipt.taxableAmount.toStringAsFixed(2)}
+VAT: ${receipt.currencySymbol} ${receipt.vatAmount.toStringAsFixed(2)}
+TOTAL: ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}
 
-**VAT Breakdown**
-*Taxable Amount (${receipt.vatRate.toInt()}%):* ${receipt.taxableAmount.toStringAsFixed(2)}
-*VAT Amount:* ${receipt.vatAmount.toStringAsFixed(2)}
-
----
-*Customer Details*
----
-*Name:* ${receipt.customerName}
-*PIN:* ${receipt.customerKraPin}
-*Car Registration:* ${receipt.carRegistration}
-*Odometer:* ${receipt.odometerReading}
+CASH: ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}
+ITEMS NUMBER: 1
 
 ---
-*Payment Details*
+**Tax Components Breakdown**
 ---
-*Mode:* ${receipt.paymentModeDisplay}
-*Reference:* ${receipt.externalTransactionId}
+Rate    Taxable Amount    VAT
+EX      ${receipt.currencySymbol} 0.00        ${receipt.currencySymbol} 0.00    (Goods exempted from VAT)
+16%     ${receipt.currencySymbol} ${receipt.taxableAmount.toStringAsFixed(2)}    ${receipt.currencySymbol} ${receipt.vatAmount.toStringAsFixed(2)}    (VAT at 16%)
+0%      ${receipt.currencySymbol} 0.00        ${receipt.currencySymbol} 0.00    (Zero rated goods)
+Non-VAT ${receipt.currencySymbol} 0.00        ${receipt.currencySymbol} 0.00    (Non Vatable goods)
+8%      ${receipt.currencySymbol} 0.00        ${receipt.currencySymbol} 0.00    (VAT at 8%)
 
 ---
-**KRA Details**
+**SCU (Sales Control Unit) Information**
 ---
-*E-Invoice No.:* ${receipt.kraInvoiceNumber}
-*TIN:* ${receipt.kraPin}
-*S/N:* ${receipt.kraDeviceSerial}
-*Date:* ${receipt.date}
-*C.Name:* ${receipt.organizationName}
-*V.R.N:* ${receipt.registrationNumber}
-*B.I.D:* ${receipt.kraBranchId}
-*C.I.D:* ${receipt.kraTrn}
+Date: ${receipt.date}
+Time: ${receipt.time}
+SCU ID: ${receipt.sdcId.isNotEmpty ? receipt.sdcId : 'KRACU0100000001'}
+CU INVOICE NO.: ${receipt.sdcId.isNotEmpty ? receipt.sdcId : 'KRACU0100000001'}/${receipt.receiptNo.isNotEmpty ? receipt.receiptNo : receipt.receiptNumber}
+Internal Data: ${receipt.internalData.isNotEmpty ? receipt.internalData : 'TE68-SLA2-34J5-EAV3-N569-88LJ-Q7'}
+Receipt Signature: ${receipt.receiptSignature.isNotEmpty ? receipt.receiptSignature : 'V249-J39C-FJ48-HE2W'}
+QR Code: https://etims.kra.go.ke/etims/validate?KRA-PIN=${receipt.kraPin}&BHF-ID=${receipt.kraBranchId}&RcpSignature=${receipt.receiptSignature.isNotEmpty ? receipt.receiptSignature : 'V249-J39C-FJ48-HE2W'}
 
 ---
-*Served by:* ${receipt.employeeName}
-*Shift:* ${receipt.shiftStartedAt}
+**TIS (Tax Invoice System) Information**
+---
+RECEIPT NUMBER: ${receipt.receiptNo.isNotEmpty ? receipt.receiptNo : receipt.receiptNumber}
+DATE: ${receipt.date}
+TIME: ${receipt.time}
 
 ---
-Thank you for your business.
+THANK YOU
+WE LOOK FORWARD TO EARNING YOUR BUSINESS
 ''';
     return Future.value(text);
   }

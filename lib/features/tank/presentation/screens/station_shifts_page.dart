@@ -284,6 +284,6 @@ class StationShiftsPage extends StatelessWidget {
   }
 
   void _navigateToReadings(BuildContext context, StationShiftModel shift) {
-    context.push('/station-shifts/${shift.id}/readings', extra: shift);
+    context.push('/tank-readings/${shift.id}', extra: shift);
   }
 }

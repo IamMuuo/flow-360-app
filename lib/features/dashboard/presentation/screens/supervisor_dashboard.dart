@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flow_360/config/router/routes.dart';
-import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
 import 'package:flow_360/features/employees/repository/employee_repository.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
@@ -283,7 +282,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
               actions: [
                 IconButton(
                   onPressed: () {
-                    ProfileRoute().push(context);
+                    context.push('/profile');
                   },
                   icon: const Icon(Icons.person, color: Colors.white),
                 ),
@@ -541,7 +540,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Create, edit, and monitor employees',
                     Icons.people_alt,
                     Colors.blue,
-                    () => EmployeeManagementPageRoute().push(context),
+                    () => context.push('/employees'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -552,7 +551,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Monitor pumps and nozzles',
                     Icons.local_gas_station,
                     Colors.green,
-                    () => FuelDispensersPageRoute().push(context),
+                    () => context.push('/fuel-dispenser'),
                   ),
                 ),
               ],
@@ -568,7 +567,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Set and manage pricing',
                     Icons.attach_money,
                     Colors.orange,
-                    () => FuelPricesRoute().push(context),
+                    () => context.push('/fuel'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -579,7 +578,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Manage work schedules',
                     Icons.schedule,
                     Colors.purple,
-                    () => SupervisorShiftManagementRoute().push(context),
+                    () => context.push('/supervisor-shifts'),
                   ),
                 ),
               ],
@@ -595,7 +594,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Monitor fuel levels',
                     Icons.storage,
                     Colors.indigo,
-                    () => TanksPageRoute().push(context),
+                    () => context.push('/tanks'),
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -606,7 +605,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Record tank & nozzle readings',
                     Icons.science,
                     Colors.orange,
-                    () => ShiftReadingsPageRoute().push(context),
+                    () => context.push('/station-shifts'),
                   ),
                 ),
               ],
@@ -622,7 +621,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'View detailed analytics',
                     Icons.analytics,
                     Colors.teal,
-                    () => SalesReportRoute().push(context),
+                    () => context.push('/sales-report'),
                   ),
                 ),
               ],

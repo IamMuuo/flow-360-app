@@ -245,7 +245,7 @@ class _EmployeeProfilePageState extends State<EmployeeProfilePage> with TickerPr
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.white),
                 onPressed: () {
-                  EmployeeEditPageRoute(employeeId: widget.employeeId).push(context);
+                  context.push('/employees/${widget.employeeId}/edit');
                 },
               ),
             ],

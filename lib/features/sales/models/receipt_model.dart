@@ -134,6 +134,22 @@ class ReceiptModel {
   @JsonKey(name: 'kra_branch_id')
   final String kraBranchId;
   
+  // VSCU Response Data (from KRA)
+  @JsonKey(name: 'mrc_no')
+  final String mrcNo;
+  @JsonKey(name: 'sdc_id')
+  final String sdcId;
+  @JsonKey(name: 'receipt_no')
+  final String receiptNo;
+  @JsonKey(name: 'receipt_signature')
+  final String receiptSignature;
+  @JsonKey(name: 'internal_data')
+  final String internalData;
+  @JsonKey(name: 'total_receipt_no')
+  final String totalReceiptNo;
+  @JsonKey(name: 'vsdc_receipt_pbct_date')
+  final String vsdcReceiptPbctDate;
+  
   // Receipt Formatting
   final String currency;
   @JsonKey(name: 'currency_symbol')
@@ -179,6 +195,13 @@ class ReceiptModel {
     required this.kraTrn,
     required this.kraDeviceSerial,
     required this.kraBranchId,
+    required this.mrcNo,
+    required this.sdcId,
+    required this.receiptNo,
+    required this.receiptSignature,
+    required this.internalData,
+    required this.totalReceiptNo,
+    required this.vsdcReceiptPbctDate,
     required this.currency,
     required this.currencySymbol,
   });

@@ -1,5 +1,5 @@
-import 'package:flow_360/config/router/routes.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,7 +22,7 @@ class ManagerDashboard extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-                ProfileRoute().push(context);
+                context.push('/profile');
               },
               icon: Icon(Icons.person),
             ),
@@ -56,7 +56,7 @@ class ManagerDashboard extends StatelessWidget {
                     await controller.logoutCurrentUser();
 
                     if (!context.mounted) return;
-                    AuthRoute().go(context);
+                    context.go('/auth');
                   },
                   child: Text("Logout"),
                 ),

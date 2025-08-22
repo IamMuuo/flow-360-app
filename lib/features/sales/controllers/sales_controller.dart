@@ -117,7 +117,6 @@ class SalesController extends GetxController {
         print('Could not refresh tank data: $e');
       }
     } catch (e) {
-      rethrow;
       print('Error in createSale: $e');
       if (e is Failure) {
         errorMessage.value = e.message;

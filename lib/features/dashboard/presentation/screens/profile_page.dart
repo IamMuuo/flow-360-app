@@ -1,9 +1,7 @@
-import 'package:flow_360/config/router/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
-import 'package:flow_360/features/auth/models/auth_model.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -452,7 +450,7 @@ class _ProfilePageState extends State<ProfilePage> with TickerProviderStateMixin
           borderRadius: BorderRadius.circular(16),
           onTap: () async {
             await authController.logoutCurrentUser();
-            if (context.mounted) AuthRoute().go(context);
+            if (context.mounted) context.go('/auth');
           },
           child: Container(
             height: 56,

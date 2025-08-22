@@ -192,7 +192,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> with Ti
             actions: [
               IconButton(
                 onPressed: () {
-                  EmployeeCreatePageRoute().push(context);
+                  context.push('/employees/create');
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
                 tooltip: 'Add Employee',
@@ -296,7 +296,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> with Ti
                                 context,
                                 'Add Employee',
                                 Icons.add,
-                                () => EmployeeCreatePageRoute().push(context),
+                                () => context.push('/employees/create'),
                               ),
                             ],
                           ),
@@ -331,7 +331,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> with Ti
             scale: _scaleAnimation.value,
             child: FloatingActionButton.extended(
               onPressed: () {
-                EmployeeCreatePageRoute().push(context);
+                context.push('/employees/create');
               },
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Colors.white,
@@ -419,9 +419,7 @@ class _EmployeeManagementPageState extends State<EmployeeManagementPage> with Ti
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: () {
-            EmployeeDetailsPageRoute(
-              employeeId: employee.id.toString(),
-            ).push(context);
+            context.push('/employees/${employee.id}');
           },
           child: Container(
             padding: const EdgeInsets.all(16),
