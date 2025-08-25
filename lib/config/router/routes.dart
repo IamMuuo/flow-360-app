@@ -7,6 +7,7 @@ import 'package:flow_360/features/sales/presentation/screens/receipt_screen.dart
 import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/station_shifts_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
+import 'package:flow_360/features/shift/presentation/screens/shift_readings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -188,6 +189,12 @@ final GoRouter appRouter = GoRouter(
           },
         ),
       ],
+    ),
+    
+    // Shift Readings (newer interface)
+    GoRoute(
+      path: '/shift-readings',
+      builder: (context, state) => ShiftReadingsScreen(),
     ),
     
     // Tank Readings

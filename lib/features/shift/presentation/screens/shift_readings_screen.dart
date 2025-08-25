@@ -1,11 +1,11 @@
 // lib/features/shift/presentation/screens/shift_readings_screen.dart
 
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flow_360/features/shift/controllers/shift_readings_controller.dart';
 import 'package:flow_360/features/tank/models/station_shift_model.dart';
-import 'package:flow_360/features/tank/models/tank_model.dart';
 import 'package:flow_360/features/shift/presentation/screens/tank_readings_screen.dart';
 import 'package:flow_360/features/shift/presentation/screens/nozzle_readings_screen.dart';
 
@@ -105,6 +105,12 @@ class ShiftReadingsScreen extends StatelessWidget {
 
   Widget _buildShiftStatusCard(BuildContext context, ShiftReadingsController controller) {
     final currentShift = controller.currentShift.value;
+    final todayShifts = controller.getTodayShifts();
+    final canCreate = controller.canCreateShiftToday;
+    final todayCount = todayShifts.length;
+    final authController = Get.find<AuthController>();
+    final isAdmin = authController.currentUser.value?.user.isStaff ?? false;
+    final maxShifts = isAdmin ? '∞' : '3';
     
     return Container(
       width: double.infinity,
@@ -142,7 +148,7 @@ class ShiftReadingsScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  currentShift?.isActive == true ? 'Active Shift' : 'No Active Shift',
+                  currentShift?.isActive == true ? 'Active Shift' : 'Today\'s Shifts',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -170,6 +176,40 @@ class ShiftReadingsScreen extends StatelessWidget {
                 ),
             ],
           ),
+          
+          // Today's shift count
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: canCreate ? Colors.green[50] : Colors.orange[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: canCreate ? Colors.green[200]! : Colors.orange[200]!,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  canCreate ? Icons.check_circle : Icons.warning,
+                  color: canCreate ? Colors.green[600] : Colors.orange[600],
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  isAdmin 
+                    ? 'Today: $todayCount shifts created (Unlimited allowed)'
+                    : 'Today: $todayCount/$maxShifts shifts created',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: canCreate ? Colors.green[700] : Colors.orange[700],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
           if (currentShift != null) ...[
             const SizedBox(height: 16),
             _buildShiftInfoRow(context, 'Date', currentShift.shiftDate),
@@ -190,28 +230,73 @@ class ShiftReadingsScreen extends StatelessWidget {
             ],
           ] else ...[
             const SizedBox(height: 16),
+            if (todayShifts.isNotEmpty) ...[
+              Text(
+                'Today\'s Shifts:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...todayShifts.map((shift) => Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      shift.isActive ? Icons.play_circle_filled : Icons.stop_circle,
+                      color: shift.isActive 
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        '${shift.startTime}${shift.endTime != null ? ' - ${shift.endTime}' : ''} (${shift.status})',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )).toList(),
+              const SizedBox(height: 12),
+            ],
             Text(
-              'No active shift found. Create a new shift to start recording readings.',
+              canCreate 
+                ? 'Create a new shift to start recording readings.'
+                : 'Maximum shifts reached for today.',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
               ),
             ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () => _showCreateShiftDialog(context, controller),
-                icon: const Icon(Icons.add),
-                label: const Text('Create New Shift'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            if (canCreate) ...[
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () => _showCreateShiftDialog(context, controller),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Create New Shift'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                 ),
               ),
-            ),
+            ],
           ],
         ],
       ),

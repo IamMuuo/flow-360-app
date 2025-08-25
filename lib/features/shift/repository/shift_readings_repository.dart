@@ -57,6 +57,7 @@ class ShiftReadingsRepository {
         'status': 'COMPLETED',
         'notes': notes,
       });
+      
       return StationShiftModel.fromJson(response.data);
     } on DioException catch (e) {
       throw Failure(message: _handleDioError(e));
@@ -229,6 +230,17 @@ class ShiftReadingsRepository {
       throw Failure(message: _handleDioError(e));
     } catch (e) {
       throw Failure(message: 'Failed to get shift summary: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> getVarianceSummary(String shiftId) async {
+    try {
+      final response = await _dioClient.dio.get('/station/shifts/$shiftId/variance-summary/');
+      return response.data;
+    } on DioException catch (e) {
+      throw Failure(message: _handleDioError(e));
+    } catch (e) {
+      throw Failure(message: 'Failed to get variance summary: $e');
     }
   }
 

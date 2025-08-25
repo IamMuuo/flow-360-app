@@ -605,7 +605,7 @@ class _SupervisorDashboardState extends State<SupervisorDashboard>
                     'Record tank & nozzle readings',
                     Icons.science,
                     Colors.orange,
-                    () => context.push('/station-shifts'),
+                    () => context.push('/shift-readings'),
                   ),
                 ),
               ],

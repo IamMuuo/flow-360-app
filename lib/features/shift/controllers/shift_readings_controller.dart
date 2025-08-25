@@ -109,6 +109,19 @@ class ShiftReadingsController extends GetxController {
     }
   }
 
+  Future<Map<String, dynamic>?> loadVarianceSummary(String shiftId) async {
+    try {
+      final summary = await _repository.getVarianceSummary(shiftId);
+      return summary;
+    } on Failure catch (e) {
+      errorMessage.value = e.message;
+      return null;
+    } catch (e) {
+      errorMessage.value = 'Failed to load variance summary';
+      return null;
+    }
+  }
+
   Future<void> createStationShift({
     required String shiftDate,
     required String startTime,
@@ -124,27 +137,25 @@ class ShiftReadingsController extends GetxController {
         throw Failure(message: 'No station assigned to current user');
       }
 
-      // Check for existing shifts for the same date
-      final existingShift = stationShifts.where((shift) => 
-        shift.shiftDate == shiftDate
+      // Check for existing active shifts for the same date
+      final existingActiveShift = stationShifts.where((shift) => 
+        shift.shiftDate == shiftDate && shift.status == 'ACTIVE'
       ).firstOrNull;
 
-      if (existingShift != null) {
-        String statusMessage = '';
-        switch (existingShift.status) {
-          case 'ACTIVE':
-            statusMessage = 'You already have an active shift for this date.';
-            break;
-          case 'COMPLETED':
-            statusMessage = 'You already have a completed shift for this date. You cannot create multiple shifts for the same date.';
-            break;
-          case 'CANCELLED':
-            statusMessage = 'You already have a cancelled shift for this date. You cannot create multiple shifts for the same date.';
-            break;
-          default:
-            statusMessage = 'You already have a shift for this date.';
+      if (existingActiveShift != null) {
+        throw Failure(message: 'You already have an active shift for this date. Please end the current shift before creating a new one.');
+      }
+
+      // Check shift limit per day (3 shifts per day for regular users, unlimited for staff)
+      final isStaff = currentUser?.user.isStaff ?? false;
+      if (!isStaff) {
+        final existingShiftsCount = stationShifts.where((shift) => 
+          shift.shiftDate == shiftDate
+        ).length;
+        
+        if (existingShiftsCount >= 3) {
+          throw Failure(message: 'Maximum 3 shifts per day allowed. You have already created 3 shifts for this date.');
         }
-        throw Failure(message: statusMessage);
       }
 
       final newShift = await _repository.createStationShift(
@@ -193,6 +204,7 @@ class ShiftReadingsController extends GetxController {
         currentShift.value = null;
       }
 
+      // Handle variance invoicing silently - user doesn't need to know about it
       successMessage.value = 'Station shift ended successfully!';
     } on Failure catch (e) {
       errorMessage.value = e.message;
@@ -407,6 +419,30 @@ class ShiftReadingsController extends GetxController {
            currentShift.value!.isActive &&
            hasOpeningReadings() &&
            hasClosingReadings();
+  }
+
+  // Get today's shifts
+  List<StationShiftModel> getTodayShifts() {
+    final today = DateTime.now();
+    return stationShifts.where((shift) {
+      final shiftDate = DateTime.parse(shift.shiftDate);
+      return shiftDate.year == today.year &&
+             shiftDate.month == today.month &&
+             shiftDate.day == today.day;
+    }).toList();
+  }
+
+  // Check if user can create more shifts today
+  bool get canCreateShiftToday {
+    final currentUser = Get.find<AuthController>().currentUser.value;
+    if (currentUser == null) return false;
+    
+    // Admin users can create unlimited shifts
+    if (currentUser.user.isStaff) return true;
+    
+    // Regular users are limited to 3 shifts per day
+    final todayShifts = getTodayShifts();
+    return todayShifts.length < 3;
   }
 
   void clearError() {
