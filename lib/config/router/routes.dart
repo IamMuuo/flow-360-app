@@ -8,25 +8,48 @@ import 'package:flow_360/features/tank/presentation/screens/tanks_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/station_shifts_page.dart';
 import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
 import 'package:flow_360/features/shift/presentation/screens/shift_readings_screen.dart';
+import 'package:flow_360/features/auth/presentation/widgets/auth_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
+import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 
 final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
+
+// Authentication redirect function
+String? _authRedirect(BuildContext context, GoRouterState state) {
+  final authController = Get.find<AuthController>();
+  final isLoggedIn = authController.isLoggedIn;
+  final isAuthRoute = state.matchedLocation == '/auth';
+  
+  // If user is not logged in and trying to access protected route, redirect to auth
+  if (!isLoggedIn && !isAuthRoute) {
+    return '/auth';
+  }
+  
+  // If user is logged in and trying to access auth route, redirect to dashboard
+  if (isLoggedIn && isAuthRoute) {
+    return '/';
+  }
+  
+  return null;
+}
 
 final GoRouter appRouter = GoRouter(
   navigatorKey: shellNavigatorKey,
   initialLocation: '/',
+  redirect: _authRedirect,
   routes: [
-    // Auth
+    // Auth (public route)
     GoRoute(
       path: '/auth',
-      builder: (context, state) => LoginScreen(),
+      builder: (context, state) => const LoginScreen(),
     ),
     
-    // Main Dashboard
+    // Main Dashboard (protected by AuthWrapper)
     GoRoute(
       path: '/',
-      builder: (context, state) => DashboardPage(),
+      builder: (context, state) => const AuthWrapper(),
     ),
     
     // Profile
