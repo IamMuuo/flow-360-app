@@ -3,3 +3,4 @@ export 'dashboard/dashboard.dart';
 export 'fuel_dispenser/fuel_dispenser.dart';
 export 'tank/tank.dart';
 export 'shift/shift.dart';
+export 'shared/models/fuel_type_model.dart';

@@ -2,6 +2,7 @@
 
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
 part 'fuel_price_model.g.dart';
 
@@ -15,41 +16,35 @@ class FuelPriceModel extends HiveObject {
   final String station;
 
   @HiveField(2)
-  @JsonKey(name: 'fuel_type')
-  final String fuelType;
+  final FuelTypeModel? fuelType;
 
   @HiveField(3)
-  @JsonKey(name: 'fuel_name')
-  final String fuelName;
-
-  @HiveField(4)
   @JsonKey(name: 'price_per_litre')
   final String pricePerLitre;
 
-  @HiveField(5)
+  @HiveField(4)
   @JsonKey(name: 'effective_from')
   final String effectiveFrom;
 
-  @HiveField(6)
-  @JsonKey(name: 'color_hex')
-  final String colorHex;
-
-  @HiveField(7)
+  @HiveField(5)
   @JsonKey(name: 'created_at')
   final String createdAt;
 
   FuelPriceModel({
     required this.id,
     required this.station,
-    required this.fuelType,
-    required this.fuelName,
+    this.fuelType,
     required this.pricePerLitre,
     required this.effectiveFrom,
-    required this.colorHex,
     required this.createdAt,
   });
 
   factory FuelPriceModel.fromJson(Map<String, dynamic> json) =>
       _$FuelPriceModelFromJson(json);
   Map<String, dynamic> toJson() => _$FuelPriceModelToJson(this);
+
+  // Helper getters
+  String get fuelTypeName => fuelType?.name ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
 }

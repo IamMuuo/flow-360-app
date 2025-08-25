@@ -142,13 +142,28 @@ class StationShiftRepository {
   Future<List<TankReadingModel>?> getCachedTankReadings({
     required String shiftId,
   }) async {
-    final cachedData = _hiveService.getCache<List<dynamic>>(
-      _getTankReadingsCacheKey(shiftId),
-    );
-    if (cachedData == null) {
+    try {
+      final cachedData = _hiveService.getCache<List<dynamic>>(
+        _getTankReadingsCacheKey(shiftId),
+      );
+      if (cachedData == null) {
+        return null;
+      }
+      
+      // Validate that cached data contains valid TankReadingModel objects
+      final readings = <TankReadingModel>[];
+      for (final item in cachedData) {
+        if (item is TankReadingModel) {
+          readings.add(item);
+        }
+      }
+      
+      return readings.isNotEmpty ? readings : null;
+    } catch (e) {
+      // If there's any error with cached data, return null to force fresh fetch
+      print('Error reading cached tank readings: $e');
       return null;
     }
-    return cachedData.cast<TankReadingModel>();
   }
 
   // Create new tank reading

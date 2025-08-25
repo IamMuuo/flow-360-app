@@ -238,7 +238,7 @@ class _TankReadingsScreenState extends State<TankReadingsScreen> {
                       ),
                     ),
                     Text(
-                      tank.fuelType,
+                      tank.fuelTypeName,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,

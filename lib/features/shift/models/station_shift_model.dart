@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
 part 'station_shift_model.g.dart';
 
@@ -118,8 +119,7 @@ class ShiftNozzleModel extends HiveObject {
   final String? tank;
   
   @HiveField(3)
-  @JsonKey(name: 'fuel_type')
-  final String fuelType;
+  final FuelTypeModel? fuelType;
   
   @HiveField(4)
   @JsonKey(name: 'nozzle_number')
@@ -145,7 +145,7 @@ class ShiftNozzleModel extends HiveObject {
     required this.id,
     required this.dispenser,
     this.tank,
-    required this.fuelType,
+    this.fuelType,
     required this.nozzleNumber,
     required this.isActive,
     required this.initialReading,
@@ -168,4 +168,11 @@ class ShiftNozzleModel extends HiveObject {
   }
 
   double get totalDispensed => currentReading - initialReading;
+  
+  // Helper getters for fuel type
+  String get fuelTypeName => fuelType?.name ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
 }
+
+

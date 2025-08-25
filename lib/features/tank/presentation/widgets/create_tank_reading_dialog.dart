@@ -117,7 +117,7 @@ class _CreateTankReadingDialogState extends State<CreateTankReadingDialog> {
                   items: tankController.tanks.map((tank) {
                     return DropdownMenuItem(
                       value: tank.id,
-                      child: Text('${tank.name} (${tank.fuelType})'),
+                      child: Text('${tank.name} (${tank.fuelTypeName})'),
                     );
                   }).toList(),
                   validator: (value) {
@@ -207,7 +207,7 @@ class _CreateTankReadingDialogState extends State<CreateTankReadingDialog> {
                         ),
                         const SizedBox(height: 8),
                         _buildInfoRow('Name', selectedTank!.name),
-                        _buildInfoRow('Fuel Type', selectedTank!.fuelType),
+                        _buildInfoRow('Fuel Type', selectedTank!.fuelTypeName),
                         _buildInfoRow('Capacity', '${selectedTank!.capacityLitresDouble.toStringAsFixed(2)}L'),
                         _buildInfoRow('Current Level', '${selectedTank!.currentLevelLitresDouble.toStringAsFixed(2)}L'),
                         _buildInfoRow('Usage', '${selectedTank!.usagePercentage.toStringAsFixed(1)}%'),

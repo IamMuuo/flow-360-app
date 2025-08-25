@@ -51,11 +51,11 @@ AvailableNozzleModel _$AvailableNozzleModelFromJson(
     AvailableNozzleModel(
       id: json['id'] as String,
       nozzleNumber: (json['nozzleNumber'] as num).toInt(),
-      fuelType: json['fuelType'] as String,
-      fuelTypeDisplay: json['fuelTypeDisplay'] as String,
+      fuelType: json['fuelType'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
       dispenserName: json['dispenserName'] as String,
       pricePerLitre: (json['pricePerLitre'] as num).toDouble(),
-      colorHex: json['colorHex'] as String,
     );
 
 Map<String, dynamic> _$AvailableNozzleModelToJson(
@@ -64,10 +64,8 @@ Map<String, dynamic> _$AvailableNozzleModelToJson(
       'id': instance.id,
       'nozzleNumber': instance.nozzleNumber,
       'fuelType': instance.fuelType,
-      'fuelTypeDisplay': instance.fuelTypeDisplay,
       'dispenserName': instance.dispenserName,
       'pricePerLitre': instance.pricePerLitre,
-      'colorHex': instance.colorHex,
     };
 
 SaleValidationModel _$SaleValidationModelFromJson(Map<String, dynamic> json) =>
@@ -92,8 +90,9 @@ NozzleInfoModel _$NozzleInfoModelFromJson(Map<String, dynamic> json) =>
     NozzleInfoModel(
       id: json['id'] as String,
       nozzleNumber: (json['nozzle_number'] as num).toInt(),
-      fuelType: json['fuel_type'] as String,
-      fuelTypeDisplay: json['fuel_type_display'] as String,
+      fuelType: json['fuelType'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
       dispenserName: json['dispenser_name'] as String,
     );
 
@@ -101,7 +100,6 @@ Map<String, dynamic> _$NozzleInfoModelToJson(NozzleInfoModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'nozzle_number': instance.nozzleNumber,
-      'fuel_type': instance.fuelType,
-      'fuel_type_display': instance.fuelTypeDisplay,
+      'fuelType': instance.fuelType,
       'dispenser_name': instance.dispenserName,
     };

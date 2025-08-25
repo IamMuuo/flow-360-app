@@ -99,8 +99,9 @@ class NozzleController extends GetxController {
       // Optimistically update the local list, which triggers a UI rebuild
       final index = nozzles.indexWhere((n) => n.id == nozzleId);
       if (index != -1) {
+        // For now, we'll just update the other fields since fuelType is now an object
+        // TODO: Create a proper FuelTypeModel from the fuelType string when backend is updated
         nozzles[index] = nozzles[index].copyWith(
-          fuelType: fuelType,
           nozzleNumber: nozzleNumber,
           isActive: isActive,
           tank: tankId,

@@ -87,7 +87,7 @@ class ShiftNozzleModelAdapter extends TypeAdapter<ShiftNozzleModel> {
       id: fields[0] as String,
       dispenser: fields[1] as String,
       tank: fields[2] as String?,
-      fuelType: fields[3] as String,
+      fuelType: fields[3] as FuelTypeModel?,
       nozzleNumber: fields[4] as int,
       isActive: fields[5] as bool,
       initialReading: fields[6] as double,
@@ -174,7 +174,9 @@ ShiftNozzleModel _$ShiftNozzleModelFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       dispenser: json['dispenser'] as String,
       tank: json['tank'] as String?,
-      fuelType: json['fuel_type'] as String,
+      fuelType: json['fuelType'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
       nozzleNumber: (json['nozzle_number'] as num).toInt(),
       isActive: json['is_active'] as bool,
       initialReading: ShiftNozzleModel._parseDouble(json['initial_reading']),
@@ -187,7 +189,7 @@ Map<String, dynamic> _$ShiftNozzleModelToJson(ShiftNozzleModel instance) =>
       'id': instance.id,
       'dispenser': instance.dispenser,
       'tank': instance.tank,
-      'fuel_type': instance.fuelType,
+      'fuelType': instance.fuelType,
       'nozzle_number': instance.nozzleNumber,
       'is_active': instance.isActive,
       'initial_reading': instance.initialReading,

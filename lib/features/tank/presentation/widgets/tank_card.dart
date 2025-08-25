@@ -53,7 +53,7 @@ class TankCard extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          tank.fuelType,
+                          tank.fuelTypeName,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),

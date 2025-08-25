@@ -126,7 +126,7 @@ class TankDetailsPage extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      tank.fuelType,
+                      tank.fuelTypeName,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Colors.grey[600],
                       ),

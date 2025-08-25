@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
 part 'sale_model.g.dart';
 
@@ -71,24 +72,25 @@ class SaleModel {
 class AvailableNozzleModel {
   final String id;
   final int nozzleNumber;
-  final String fuelType;
-  final String fuelTypeDisplay;
+  final FuelTypeModel? fuelType;
   final String dispenserName;
   final double pricePerLitre;
-  final String colorHex;
 
   AvailableNozzleModel({
     required this.id,
     required this.nozzleNumber,
-    required this.fuelType,
-    required this.fuelTypeDisplay,
+    this.fuelType,
     required this.dispenserName,
     required this.pricePerLitre,
-    required this.colorHex,
   });
 
   factory AvailableNozzleModel.fromJson(Map<String, dynamic> json) => _$AvailableNozzleModelFromJson(json);
   Map<String, dynamic> toJson() => _$AvailableNozzleModelToJson(this);
+  
+  // Helper getters
+  String get fuelTypeName => fuelType?.name ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
 }
 
 @JsonSerializable()
@@ -118,22 +120,25 @@ class NozzleInfoModel {
   final String id;
   @JsonKey(name: 'nozzle_number')
   final int nozzleNumber;
-  @JsonKey(name: 'fuel_type')
-  final String fuelType;
-  @JsonKey(name: 'fuel_type_display')
-  final String fuelTypeDisplay;
+  final FuelTypeModel? fuelType;
   @JsonKey(name: 'dispenser_name')
   final String dispenserName;
 
   NozzleInfoModel({
     required this.id,
     required this.nozzleNumber,
-    required this.fuelType,
-    required this.fuelTypeDisplay,
+    this.fuelType,
     required this.dispenserName,
   });
 
   factory NozzleInfoModel.fromJson(Map<String, dynamic> json) => _$NozzleInfoModelFromJson(json);
   Map<String, dynamic> toJson() => _$NozzleInfoModelToJson(this);
+  
+  // Helper getters
+  String get fuelTypeName => fuelType?.name ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
 }
+
+
 

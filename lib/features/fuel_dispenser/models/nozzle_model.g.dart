@@ -18,7 +18,7 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
     };
     return NozzleModel(
       id: fields[0] as String,
-      fuelType: fields[1] as String,
+      fuelType: fields[1] as FuelTypeModel?,
       nozzleNumber: fields[2] as int,
       isActive: fields[3] as bool,
       dispenser: fields[4] as String,
@@ -67,7 +67,9 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
 
 NozzleModel _$NozzleModelFromJson(Map<String, dynamic> json) => NozzleModel(
       id: json['id'] as String,
-      fuelType: json['fuel_type'] as String,
+      fuelType: json['fuel_type'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuel_type'] as Map<String, dynamic>),
       nozzleNumber: (json['nozzle_number'] as num).toInt(),
       isActive: json['is_active'] as bool,
       dispenser: json['dispenser'] as String,

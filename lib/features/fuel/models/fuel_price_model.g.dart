@@ -19,19 +19,17 @@ class FuelPriceModelAdapter extends TypeAdapter<FuelPriceModel> {
     return FuelPriceModel(
       id: fields[0] as int,
       station: fields[1] as String,
-      fuelType: fields[2] as String,
-      fuelName: fields[3] as String,
-      pricePerLitre: fields[4] as String,
-      effectiveFrom: fields[5] as String,
-      colorHex: fields[6] as String,
-      createdAt: fields[7] as String,
+      fuelType: fields[2] as FuelTypeModel?,
+      pricePerLitre: fields[3] as String,
+      effectiveFrom: fields[4] as String,
+      createdAt: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, FuelPriceModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -39,14 +37,10 @@ class FuelPriceModelAdapter extends TypeAdapter<FuelPriceModel> {
       ..writeByte(2)
       ..write(obj.fuelType)
       ..writeByte(3)
-      ..write(obj.fuelName)
-      ..writeByte(4)
       ..write(obj.pricePerLitre)
-      ..writeByte(5)
+      ..writeByte(4)
       ..write(obj.effectiveFrom)
-      ..writeByte(6)
-      ..write(obj.colorHex)
-      ..writeByte(7)
+      ..writeByte(5)
       ..write(obj.createdAt);
   }
 
@@ -69,11 +63,11 @@ FuelPriceModel _$FuelPriceModelFromJson(Map<String, dynamic> json) =>
     FuelPriceModel(
       id: (json['id'] as num).toInt(),
       station: json['station'] as String,
-      fuelType: json['fuel_type'] as String,
-      fuelName: json['fuel_name'] as String,
+      fuelType: json['fuelType'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
       pricePerLitre: json['price_per_litre'] as String,
       effectiveFrom: json['effective_from'] as String,
-      colorHex: json['color_hex'] as String,
       createdAt: json['created_at'] as String,
     );
 
@@ -81,10 +75,8 @@ Map<String, dynamic> _$FuelPriceModelToJson(FuelPriceModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'station': instance.station,
-      'fuel_type': instance.fuelType,
-      'fuel_name': instance.fuelName,
+      'fuelType': instance.fuelType,
       'price_per_litre': instance.pricePerLitre,
       'effective_from': instance.effectiveFrom,
-      'color_hex': instance.colorHex,
       'created_at': instance.createdAt,
     };

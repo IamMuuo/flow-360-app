@@ -2,6 +2,7 @@
 
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
 part 'nozzle_model.g.dart';
 
@@ -11,7 +12,7 @@ class NozzleModel extends HiveObject {
   @HiveField(0)
   final String id;
   @HiveField(1)
-  final String fuelType;
+  final FuelTypeModel? fuelType;
   @HiveField(2)
   final int nozzleNumber;
   @HiveField(3)
@@ -29,7 +30,7 @@ class NozzleModel extends HiveObject {
 
   NozzleModel({
     required this.id,
-    required this.fuelType,
+    this.fuelType,
     required this.nozzleNumber,
     required this.isActive,
     required this.dispenser,
@@ -45,7 +46,7 @@ class NozzleModel extends HiveObject {
 
   NozzleModel copyWith({
     String? id,
-    String? fuelType,
+    FuelTypeModel? fuelType,
     int? nozzleNumber,
     bool? isActive,
     String? dispenser,
@@ -70,6 +71,11 @@ class NozzleModel extends HiveObject {
   double get currentReadingValue => currentReading ?? 0.0;
   double get totalDispensed => currentReadingValue - initialReadingValue;
 
+  // Helper getters for fuel type
+  String get fuelTypeName => fuelType?.name ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+
   // Helper methods for parsing string to double
   static double? _parseDouble(dynamic value) {
     if (value == null) return null;
@@ -79,8 +85,7 @@ class NozzleModel extends HiveObject {
     return null;
   }
 
-  static String? _doubleToString(double? value) {
-    if (value == null) return null;
-    return value.toString();
+  static String _doubleToString(double? value) {
+    return value?.toString() ?? '0.0';
   }
 }

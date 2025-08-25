@@ -8,11 +8,14 @@ import 'package:flow_360/features/fuel/models/fuel_price_model.dart';
 import 'package:flow_360/features/tank/models/station_shift_model.dart';
 import 'package:flow_360/features/tank/models/tank_reading_model.dart';
 import 'package:flow_360/features/shift/models/station_shift_model.dart';
+import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
 class HiveService {
   static const String _cacheBoxName = 'app_cache';
   static const String _authBoxName = 'authBox';
   static const String _metaBoxName = 'metaBox';
+  static const String _versionKey = 'hive_version';
+  static const int _currentVersion = 2; // Increment when schema changes
 
   Future<HiveService> init() async {
     // Initialize Hive
@@ -23,6 +26,7 @@ class HiveService {
     Hive.registerAdapter(FuelPriceModelAdapter());
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(FuelDispenserModelAdapter());
+    Hive.registerAdapter(FuelTypeModelAdapter());
     Hive.registerAdapter(NozzleModelAdapter());
     Hive.registerAdapter(TankModelAdapter());
     Hive.registerAdapter(TankAuditModelAdapter());
@@ -31,14 +35,41 @@ class HiveService {
     Hive.registerAdapter(NozzleReadingModelAdapter());
     Hive.registerAdapter(ShiftNozzleModelAdapter());
 
-    // Open the generic cache box once as Box<dynamic>
-    await Hive.openBox<dynamic>(_cacheBoxName);
+    // Open all boxes first
+    final cacheBox = await Hive.openBox<dynamic>(_cacheBoxName);
+    final authBox = await openBox<AuthModel>(_authBoxName);
+    final metaBox = await openBox<String>(_metaBoxName);
 
-    // Open other specific boxes
-    await openBox<AuthModel>(_authBoxName);
-    await openBox<String>(_metaBoxName);
+    // Check if we need to migrate data
+    await _checkAndMigrateData(cacheBox, authBox, metaBox);
 
     return this;
+  }
+
+  Future<void> _checkAndMigrateData(
+    Box<dynamic> cacheBox,
+    Box<AuthModel> authBox,
+    Box<String> metaBox,
+  ) async {
+    try {
+      final storedVersion = metaBox.get(_versionKey);
+      
+      if (storedVersion == null || int.tryParse(storedVersion) != _currentVersion) {
+        // Clear all data and update version
+        await cacheBox.clear();
+        await authBox.clear();
+        await metaBox.clear();
+        await metaBox.put(_versionKey, _currentVersion.toString());
+        print('Hive data migrated to version $_currentVersion');
+      }
+    } catch (e) {
+      // If migration fails, clear all data as fallback
+      print('Migration failed, clearing all data: $e');
+      await cacheBox.clear();
+      await authBox.clear();
+      await metaBox.clear();
+      await metaBox.put(_versionKey, _currentVersion.toString());
+    }
   }
 
   // Dedicated methods for the generic 'app_cache' box
@@ -76,6 +107,8 @@ class HiveService {
     final box = Hive.box(boxName);
     await box.clear();
   }
+
+
 
   // Helper methods
   Future<Box<T>> openBox<T>(String boxName) async {

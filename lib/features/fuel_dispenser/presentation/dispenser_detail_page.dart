@@ -8,16 +8,8 @@ import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dar
 import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flow_360/features/tank/controllers/tank_controller.dart';
 
-const Map<String, String> _fuelTypeNames = {
-  'PMS': 'Petrol',
-  'AGO': 'Diesel',
-  'IK': 'Kerosene',
-  'VPOWER': 'Vpower',
-};
-
-String getFriendlyFuelTypeName(String fuelType) {
-  return _fuelTypeNames[fuelType] ?? fuelType;
-}
+// This function is no longer needed as we now have proper fuel type objects
+// The fuel type name is now available directly from the fuel type object
 
 class DispenserDetailPage extends StatefulWidget {
   final String dispenserId;
@@ -710,7 +702,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Fuel Type: ${getFriendlyFuelTypeName(nozzle.fuelType)}',
+                        'Fuel Type: ${nozzle.fuelTypeName}',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(
                             context,
@@ -762,11 +754,17 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     final nozzleNumberController = TextEditingController();
     final initialReadingController = TextEditingController();
     bool isActive = true;
-    String selectedFuelType = 'PMS'; // Default value
+    String? selectedFuelTypeId; // Now we need to select by ID
     String? selectedTankId;
 
-    // Available fuel types
-    final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+    // For now, we'll use a simple list until we have a fuel type service
+    // TODO: Create a fuel type service to fetch available fuel types
+    final List<Map<String, String>> fuelTypes = [
+      {'id': 'temp-pms', 'name': 'Petrol', 'kra_code': 'PMS'},
+      {'id': 'temp-ago', 'name': 'Diesel', 'kra_code': 'AGO'},
+      {'id': 'temp-ik', 'name': 'Kerosene', 'kra_code': 'IK'},
+      {'id': 'temp-vpower', 'name': 'Vpower', 'kra_code': 'VPOWER'},
+    ];
 
     // Get tank controller for tank selection
     final tankController = Get.find<TankController>();
@@ -791,20 +789,20 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
             children: [
               // Fuel Type Dropdown
               DropdownButtonFormField<String>(
-                value: selectedFuelType,
+                value: selectedFuelTypeId,
                 decoration: const InputDecoration(
                   labelText: 'Fuel Type',
                   border: OutlineInputBorder(),
                 ),
-                items: fuelTypes.map((String fuelType) {
+                items: fuelTypes.map((Map<String, String> fuelType) {
                   return DropdownMenuItem<String>(
-                    value: fuelType,
-                    child: Text(getFriendlyFuelTypeName(fuelType)),
+                    value: fuelType['id'],
+                    child: Text(fuelType['name']!),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
                   setState(() {
-                    selectedFuelType = newValue!;
+                    selectedFuelTypeId = newValue;
                     // Reset tank selection when fuel type changes
                     selectedTankId = null;
                   });
@@ -814,7 +812,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               
               // Tank Selection Dropdown
               Obx(() {
-                final tanks = tankController.tanks.where((tank) => tank.fuelType == selectedFuelType).toList();
+                final selectedFuelTypeKraCode = fuelTypes.firstWhere(
+                  (ft) => ft['id'] == selectedFuelTypeId,
+                  orElse: () => {'kra_code': ''},
+                )['kra_code'];
+                final tanks = tankController.tanks.where((tank) => tank.fuelTypeKraCode == selectedFuelTypeKraCode).toList();
                 
                 if (tanks.isEmpty) {
                   return const Card(
@@ -935,9 +937,15 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 }
 
                 try {
+                  // Get the selected fuel type KRA code
+                  final selectedFuelTypeKraCode = fuelTypes.firstWhere(
+                    (ft) => ft['id'] == selectedFuelTypeId,
+                    orElse: () => {'kra_code': 'PMS'},
+                  )['kra_code'];
+                  
                   await nozzleController.createNozzle(
                     dispenserId: dispenserId,
-                    fuelType: selectedFuelType,
+                    fuelType: selectedFuelTypeKraCode ?? 'PMS', // For now, send KRA code until backend is updated
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
                     initialReading: initialReading,
@@ -975,11 +983,24 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
   void _showEditNozzleDialog(BuildContext context, NozzleModel nozzle) {
     final nozzleNumberController = TextEditingController(text: nozzle.nozzleNumber.toString());
     bool isActive = nozzle.isActive ?? true;
-    String selectedFuelType = nozzle.fuelType; // Current fuel type
+    String? selectedFuelTypeId; // Current fuel type ID
     String? selectedTankId = nozzle.tank; // Current tank
 
-    // Available fuel types
-    final List<String> fuelTypes = ['PMS', 'AGO', 'IK', 'VPOWER'];
+    // For now, we'll use a simple list until we have a fuel type service
+    // TODO: Create a fuel type service to fetch available fuel types
+    final List<Map<String, String>> fuelTypes = [
+      {'id': 'temp-pms', 'name': 'Petrol', 'kra_code': 'PMS'},
+      {'id': 'temp-ago', 'name': 'Diesel', 'kra_code': 'AGO'},
+      {'id': 'temp-ik', 'name': 'Kerosene', 'kra_code': 'IK'},
+      {'id': 'temp-vpower', 'name': 'Vpower', 'kra_code': 'VPOWER'},
+    ];
+    
+    // Set the current fuel type ID based on the nozzle's fuel type
+    final currentFuelType = fuelTypes.firstWhere(
+      (ft) => ft['kra_code'] == nozzle.fuelTypeKraCode,
+      orElse: () => {'id': 'temp-pms'},
+    );
+    selectedFuelTypeId = currentFuelType['id'];
 
     // Get tank controller for tank selection
     final tankController = Get.find<TankController>();
@@ -1004,20 +1025,20 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
             children: [
               // Fuel Type Dropdown
               DropdownButtonFormField<String>(
-                value: selectedFuelType,
+                value: selectedFuelTypeId,
                 decoration: const InputDecoration(
                   labelText: 'Fuel Type',
                   border: OutlineInputBorder(),
                 ),
-                items: fuelTypes.map((String fuelType) {
+                items: fuelTypes.map((Map<String, String> fuelType) {
                   return DropdownMenuItem<String>(
-                    value: fuelType,
-                    child: Text(getFriendlyFuelTypeName(fuelType)),
+                    value: fuelType['id'],
+                    child: Text(fuelType['name']!),
                   );
                 }).toList(),
                 onChanged: (String? newValue) {
                   setState(() {
-                    selectedFuelType = newValue!;
+                    selectedFuelTypeId = newValue;
                     // Reset tank selection when fuel type changes
                     selectedTankId = null;
                   });
@@ -1027,7 +1048,11 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               
               // Tank Selection Dropdown
               Obx(() {
-                final tanks = tankController.tanks.where((tank) => tank.fuelType == selectedFuelType).toList();
+                final selectedFuelTypeKraCode = fuelTypes.firstWhere(
+                  (ft) => ft['id'] == selectedFuelTypeId,
+                  orElse: () => {'kra_code': ''},
+                )['kra_code'];
+                final tanks = tankController.tanks.where((tank) => tank.fuelTypeKraCode == selectedFuelTypeKraCode).toList();
                 
                 if (tanks.isEmpty) {
                   return const Card(
@@ -1114,10 +1139,17 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
 
                 try {
                   final nozzleController = Get.find<NozzleController>();
+                  
+                  // Get the selected fuel type KRA code
+                  final selectedFuelTypeKraCode = fuelTypes.firstWhere(
+                    (ft) => ft['id'] == selectedFuelTypeId,
+                    orElse: () => {'kra_code': 'PMS'},
+                  )['kra_code'];
+                  
                   await nozzleController.updateNozzle(
                     dispenserId: nozzle.dispenser,
                     nozzleId: nozzle.id,
-                    fuelType: selectedFuelType,
+                    fuelType: selectedFuelTypeKraCode ?? 'PMS', // For now, send KRA code until backend is updated
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
                     tankId: selectedTankId,

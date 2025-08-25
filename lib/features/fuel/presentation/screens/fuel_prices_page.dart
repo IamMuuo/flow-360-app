@@ -367,7 +367,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
     // Safely parse the created_at string to a DateTime
     final lastUpdated = DateTime.tryParse(price.createdAt) ?? DateTime.now();
     final Color cardColor = Color(
-      int.parse(price.colorHex.substring(1), radix: 16),
+      int.parse(price.fuelTypeColorHex.substring(1), radix: 16),
     ).withAlpha(50);
 
     return AnimatedContainer(
@@ -420,7 +420,7 @@ class _FuelPricesPageState extends State<FuelPricesPage> with TickerProviderStat
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        price.fuelName,
+                        price.fuelTypeName,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Theme.of(context).colorScheme.onSurface,

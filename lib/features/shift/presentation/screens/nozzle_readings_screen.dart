@@ -263,7 +263,7 @@ class _NozzleReadingsScreenState extends State<NozzleReadingsScreen> {
                       ),
                     ),
                     Text(
-                      '${nozzle.fuelType} - ${nozzle.dispenser}',
+                      '${nozzle.fuelTypeName} - ${nozzle.dispenser}',
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,

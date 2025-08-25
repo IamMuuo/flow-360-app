@@ -20,7 +20,7 @@ class TankModelAdapter extends TypeAdapter<TankModel> {
       id: fields[0] as String,
       station: fields[1] as String,
       name: fields[2] as String,
-      fuelType: fields[3] as String,
+      fuelType: fields[3] as FuelTypeModel?,
       capacityLitres: fields[4] as String,
       currentLevelLitres: fields[5] as String,
       isActive: fields[6] as bool,
@@ -81,7 +81,9 @@ TankModel _$TankModelFromJson(Map<String, dynamic> json) => TankModel(
       id: json['id'] as String,
       station: json['station'] as String,
       name: json['name'] as String,
-      fuelType: json['fuel_type'] as String,
+      fuelType: json['fuelType'] == null
+          ? null
+          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
       capacityLitres: json['capacity_litres'] as String,
       currentLevelLitres: json['current_level_litres'] as String,
       isActive: json['is_active'] as bool,
@@ -96,7 +98,7 @@ Map<String, dynamic> _$TankModelToJson(TankModel instance) => <String, dynamic>{
       'id': instance.id,
       'station': instance.station,
       'name': instance.name,
-      'fuel_type': instance.fuelType,
+      'fuelType': instance.fuelType,
       'capacity_litres': instance.capacityLitres,
       'current_level_litres': instance.currentLevelLitres,
       'is_active': instance.isActive,

@@ -62,13 +62,28 @@ class TankRepository {
   Future<List<TankModel>?> getCachedTanks({
     required String stationId,
   }) async {
-    final cachedData = _hiveService.getCache<List<dynamic>>(
-      _getTanksCacheKey(stationId),
-    );
-    if (cachedData == null) {
+    try {
+      final cachedData = _hiveService.getCache<List<dynamic>>(
+        _getTanksCacheKey(stationId),
+      );
+      if (cachedData == null) {
+        return null;
+      }
+      
+      // Validate that cached data contains valid TankModel objects
+      final tanks = <TankModel>[];
+      for (final item in cachedData) {
+        if (item is TankModel) {
+          tanks.add(item);
+        }
+      }
+      
+      return tanks.isNotEmpty ? tanks : null;
+    } catch (e) {
+      // If there's any error with cached data, return null to force fresh fetch
+      print('Error reading cached tanks: $e');
       return null;
     }
-    return cachedData.cast<TankModel>();
   }
 
   // Create new tank
@@ -132,7 +147,7 @@ class TankRepository {
   }) async {
     try {
       final response = await _dioClient.dio.get(
-        '/station/tanks/$tankId/audit/',
+        '/station/tanks/$tankId/audit-trail/',
       );
 
       final List<dynamic> results = response.data['results'] as List;
@@ -156,12 +171,27 @@ class TankRepository {
   Future<List<TankAuditModel>?> getCachedTankAuditTrail({
     required String tankId,
   }) async {
-    final cachedData = _hiveService.getCache<List<dynamic>>(
-      _getTankAuditCacheKey(tankId),
-    );
-    if (cachedData == null) {
+    try {
+      final cachedData = _hiveService.getCache<List<dynamic>>(
+        _getTankAuditCacheKey(tankId),
+      );
+      if (cachedData == null) {
+        return null;
+      }
+      
+      // Validate that cached data contains valid TankAuditModel objects
+      final audits = <TankAuditModel>[];
+      for (final item in cachedData) {
+        if (item is TankAuditModel) {
+          audits.add(item);
+        }
+      }
+      
+      return audits.isNotEmpty ? audits : null;
+    } catch (e) {
+      // If there's any error with cached data, return null to force fresh fetch
+      print('Error reading cached tank audit trail: $e');
       return null;
     }
-    return cachedData.cast<TankAuditModel>();
   }
 }
