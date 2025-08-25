@@ -4,15 +4,18 @@ import 'package:flow_360/features/tank/models/tank_model.dart';
 import 'package:flow_360/features/tank/models/tank_audit_model.dart';
 import 'package:flow_360/features/tank/repository/tank_repository.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
+import 'package:flow_360/features/fuel/services/fuel_service.dart';
 import 'package:get_it/get_it.dart';
 
 class TankController extends GetxController {
   final TankRepository _tankRepository = GetIt.instance<TankRepository>();
   final AuthController _authController = Get.find<AuthController>();
+  final FuelService _fuelService = FuelService();
 
   // Observable data
   final RxList<TankModel> tanks = <TankModel>[].obs;
   final RxList<TankAuditModel> tankAuditTrail = <TankAuditModel>[].obs;
+  final RxList<Map<String, dynamic>> fuelTypes = <Map<String, dynamic>>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isRefreshing = false.obs;
   final RxString errorMessage = ''.obs;
@@ -25,8 +28,19 @@ class TankController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    // Wait for user data to be available before loading tanks
+    // Load fuel types and wait for user data to be available before loading tanks
+    loadFuelTypes();
     _waitForUserAndLoadTanks();
+  }
+
+  Future<void> loadFuelTypes() async {
+    try {
+      final fuels = await _fuelService.getFuels();
+      fuelTypes.value = fuels;
+    } catch (e) {
+      print('Failed to load fuel types: ${e.toString()}');
+      // Don't show error to user for fuel types, just log it
+    }
   }
 
   Future<void> _waitForUserAndLoadTanks() async {
@@ -76,6 +90,10 @@ class TankController extends GetxController {
       );
       
       tanks.value = networkTanks;
+      print('DEBUG: Loaded ${networkTanks.length} tanks');
+      for (final tank in networkTanks) {
+        print('DEBUG: Tank ${tank.name} - Fuel type: ${tank.fuelTypeName}, KRA code: ${tank.fuelTypeKraCode}');
+      }
     } catch (e) {
       errorMessage.value = 'Failed to load tanks: ${e.toString()}';
     } finally {

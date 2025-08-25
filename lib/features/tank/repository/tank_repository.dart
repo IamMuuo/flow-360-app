@@ -36,9 +36,21 @@ class TankRepository {
       print('Tank response data: ${response.data}');
 
       final List<dynamic> results = response.data['results'] as List;
+      
+      // Debug: Print the first tank data to see the structure
+      if (results.isNotEmpty) {
+        print('DEBUG: First tank data: ${results.first}');
+      }
+      
       final tanks = results
           .map((json) => TankModel.fromJson(json))
           .toList();
+      
+      // Debug: Print the first tank model to see if fuel type is loaded
+      if (tanks.isNotEmpty) {
+        print('DEBUG: First tank fuel type: ${tanks.first.fuelType}');
+        print('DEBUG: First tank fuel type KRA code: ${tanks.first.fuelTypeKraCode}');
+      }
 
       // Cache the fetched data
       await _hiveService.putCache<List<TankModel>>(

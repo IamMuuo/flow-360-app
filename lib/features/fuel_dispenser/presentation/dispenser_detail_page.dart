@@ -834,8 +834,8 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 return DropdownButtonFormField<String>(
                   value: selectedTankId,
                   decoration: const InputDecoration(
-                    labelText: 'Select Tank (Optional)',
-                    hintText: 'Choose a tank to supply fuel',
+                    labelText: 'Select Tank',
+                    hintText: 'Choose a tank to supply fuel (fuel type will be inherited)',
                     border: OutlineInputBorder(),
                   ),
                   items: [
@@ -846,7 +846,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     ...tanks.map((tank) {
                       return DropdownMenuItem<String>(
                         value: tank.id,
-                        child: Text('${tank.name} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
+                        child: Text('${tank.name} - ${tank.fuelTypeName} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
                       );
                     }).toList(),
                   ],

@@ -1,6 +1,7 @@
 import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/fuel_dispenser_repository.dart';
+import 'package:flow_360/features/fuel/services/fuel_service.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
@@ -8,8 +9,30 @@ class FuelDispenserController extends GetxController
     with StateMixin<List<FuelDispenserModel>> {
   final FuelDispenserRepository _repository =
       GetIt.instance<FuelDispenserRepository>();
+  final FuelService _fuelService = FuelService();
 
   final RxList<FuelDispenserModel> dispensers = <FuelDispenserModel>[].obs;
+  final RxList<Map<String, dynamic>> fuelTypes = <Map<String, dynamic>>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadFuelTypes();
+  }
+
+  Future<void> loadFuelTypes() async {
+    try {
+      final fuels = await _fuelService.getFuels();
+      fuelTypes.value = fuels;
+      print('DEBUG: Loaded ${fuels.length} fuel types');
+      for (final fuel in fuels) {
+        print('DEBUG: Fuel - ID: ${fuel['id']}, Name: ${fuel['name']}, KRA Code: ${fuel['kra_code']}');
+      }
+    } catch (e) {
+      print('Failed to load fuel types: ${e.toString()}');
+      // Don't show error to user for fuel types, just log it
+    }
+  }
 
   Future<void> fetchFuelDispensers(String stationId) async {
     // Attempt to load cached data first

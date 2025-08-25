@@ -88,6 +88,7 @@ class TankModel extends HiveObject {
   String get fuelTypeName => fuelType?.name ?? 'Unknown';
   String get fuelTypeKraCode => fuelType?.kraCode ?? '';
   String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+  String? get fuelTypeId => fuelType?.id;
 
   // Fuel status methods
   bool get hasLowFuel => usagePercentage < 10;

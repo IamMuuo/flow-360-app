@@ -19,15 +19,6 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
 
   String? _selectedFuelTypeId;
 
-  // For now, we'll use a simple list until we have a fuel type service
-  // TODO: Create a fuel type service to fetch available fuel types
-  final List<Map<String, String>> _fuelTypes = [
-    {'id': 'temp-pms', 'name': 'Petrol', 'kra_code': 'PMS'},
-    {'id': 'temp-ago', 'name': 'Diesel', 'kra_code': 'AGO'},
-    {'id': 'temp-ik', 'name': 'Kerosene', 'kra_code': 'IK'},
-    {'id': 'temp-vpower', 'name': 'Vpower', 'kra_code': 'VPOWER'},
-  ];
-
   @override
   void dispose() {
     _nameController.dispose();
@@ -71,31 +62,33 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
               const SizedBox(height: 16),
 
               // Fuel type dropdown
-              DropdownButtonFormField<String>(
-                value: _selectedFuelTypeId,
-                decoration: const InputDecoration(
-                  labelText: 'Fuel Type',
-                  prefixIcon: Icon(Icons.local_gas_station),
-                  border: OutlineInputBorder(),
-                ),
-                items: _fuelTypes.map((fuelType) {
-                  return DropdownMenuItem<String>(
-                    value: fuelType['id'],
-                    child: Text(fuelType['name']!),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedFuelTypeId = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select fuel type';
-                  }
-                  return null;
-                },
-              ),
+              Obx(() {
+                return DropdownButtonFormField<String>(
+                  value: _selectedFuelTypeId,
+                  decoration: const InputDecoration(
+                    labelText: 'Fuel Type',
+                    prefixIcon: Icon(Icons.local_gas_station),
+                    border: OutlineInputBorder(),
+                  ),
+                  items: _tankController.fuelTypes.map((fuelType) {
+                    return DropdownMenuItem<String>(
+                      value: fuelType['id'],
+                      child: Text(fuelType['name']),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedFuelTypeId = value;
+                    });
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select fuel type';
+                    }
+                    return null;
+                  },
+                );
+              }),
               const SizedBox(height: 16),
 
               // Capacity
@@ -175,16 +168,10 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       final AuthController authController = Get.find<AuthController>();
-
-      // Get the selected fuel type KRA code
-      final selectedFuelTypeKraCode = _fuelTypes.firstWhere(
-        (ft) => ft['id'] == _selectedFuelTypeId,
-        orElse: () => {'kra_code': 'PMS'},
-      )['kra_code'];
       
       final tankData = {
         'name': _nameController.text,
-        'fuel_type': selectedFuelTypeKraCode, // For now, send KRA code until backend is updated
+        'fuel_type': _selectedFuelTypeId, // Send the Fuel UUID
         'capacity_litres': _capacityController.text,
         'current_level_litres': _currentLevelController.text,
         'is_active': true,
