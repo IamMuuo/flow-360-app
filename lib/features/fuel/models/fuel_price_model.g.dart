@@ -19,29 +19,32 @@ class FuelPriceModelAdapter extends TypeAdapter<FuelPriceModel> {
     return FuelPriceModel(
       id: fields[0] as int,
       station: fields[1] as String,
-      fuelType: fields[2] as FuelTypeModel?,
+      fuelName: fields[2] as String?,
       pricePerLitre: fields[3] as String,
       effectiveFrom: fields[4] as String,
       createdAt: fields[5] as String,
+      colorHex: fields[6] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, FuelPriceModel obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.station)
       ..writeByte(2)
-      ..write(obj.fuelType)
+      ..write(obj.fuelName)
       ..writeByte(3)
       ..write(obj.pricePerLitre)
       ..writeByte(4)
       ..write(obj.effectiveFrom)
       ..writeByte(5)
-      ..write(obj.createdAt);
+      ..write(obj.createdAt)
+      ..writeByte(6)
+      ..write(obj.colorHex);
   }
 
   @override
@@ -63,20 +66,20 @@ FuelPriceModel _$FuelPriceModelFromJson(Map<String, dynamic> json) =>
     FuelPriceModel(
       id: (json['id'] as num).toInt(),
       station: json['station'] as String,
-      fuelType: json['fuelType'] == null
-          ? null
-          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
+      fuelName: json['fuel_name'] as String?,
       pricePerLitre: json['price_per_litre'] as String,
       effectiveFrom: json['effective_from'] as String,
       createdAt: json['created_at'] as String,
+      colorHex: json['color_hex'] as String?,
     );
 
 Map<String, dynamic> _$FuelPriceModelToJson(FuelPriceModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'station': instance.station,
-      'fuelType': instance.fuelType,
+      'fuel_name': instance.fuelName,
       'price_per_litre': instance.pricePerLitre,
       'effective_from': instance.effectiveFrom,
       'created_at': instance.createdAt,
+      'color_hex': instance.colorHex,
     };

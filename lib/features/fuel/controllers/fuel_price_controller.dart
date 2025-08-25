@@ -1,12 +1,14 @@
 import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/fuel/models/fuel_price_model.dart';
 import 'package:flow_360/features/fuel/repository/fuel_price_repository.dart';
+import 'package:flow_360/features/fuel/services/fuel_service.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 
 class FuelPriceController extends GetxController
     with StateMixin<List<FuelPriceModel>> {
   final FuelPriceRepository _repository = GetIt.instance<FuelPriceRepository>();
+  final FuelService _fuelService = FuelService();
 
   final RxList<FuelPriceModel> fuelPrices = <FuelPriceModel>[].obs;
 
@@ -49,10 +51,19 @@ class FuelPriceController extends GetxController
     required double newPrice,
   }) async {
     try {
+      // Get fuel types from the service and map KRA code to UUID
+      final fuels = await _fuelService.getFuels();
+      final fuelTypeData = fuels.firstWhere(
+        (fuel) => fuel['kra_code'] == fuelType,
+        orElse: () => throw Exception('Fuel type not found: $fuelType'),
+      );
+      
+      final fuelTypeUuid = fuelTypeData['id'];
+      
       // Create the new price record in the backend
       final Map<String, dynamic> data = {
         "station": stationId,
-        'fuel_type': fuelType,
+        'fuel_type': fuelTypeUuid,
         'price_per_litre': newPrice.toStringAsFixed(2),
         "effective_from": DateTime.now().toUtc().toIso8601String(),
       };

@@ -16,7 +16,8 @@ class FuelPriceModel extends HiveObject {
   final String station;
 
   @HiveField(2)
-  final FuelTypeModel? fuelType;
+  @JsonKey(name: 'fuel_name')
+  final String? fuelName;
 
   @HiveField(3)
   @JsonKey(name: 'price_per_litre')
@@ -30,13 +31,18 @@ class FuelPriceModel extends HiveObject {
   @JsonKey(name: 'created_at')
   final String createdAt;
 
+  @HiveField(6)
+  @JsonKey(name: 'color_hex')
+  final String? colorHex;
+
   FuelPriceModel({
     required this.id,
     required this.station,
-    this.fuelType,
+    this.fuelName,
     required this.pricePerLitre,
     required this.effectiveFrom,
     required this.createdAt,
+    this.colorHex,
   });
 
   factory FuelPriceModel.fromJson(Map<String, dynamic> json) =>
@@ -44,7 +50,6 @@ class FuelPriceModel extends HiveObject {
   Map<String, dynamic> toJson() => _$FuelPriceModelToJson(this);
 
   // Helper getters
-  String get fuelTypeName => fuelType?.name ?? 'Unknown';
-  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
-  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+  String get fuelTypeName => fuelName ?? 'Unknown';
+  String get fuelTypeColorHex => colorHex ?? '#808080';
 }
