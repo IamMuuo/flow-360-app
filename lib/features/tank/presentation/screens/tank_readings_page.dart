@@ -27,192 +27,237 @@ class TankReadingsPage extends StatelessWidget {
     });
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: Text('Tank Readings - ${shift.formattedShiftDate}'),
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
+        title: Text(
+          'Tank Readings',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        elevation: 0,
+        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () => shiftController.loadTankReadings(shift.id),
+            tooltip: 'Refresh Readings',
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Shift Info Card
-          _buildShiftInfoCard(),
-          
-          // Readings List
-          Expanded(
-            child: Obx(() {
-              if (shiftController.isLoading.value) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      body: Obx(() {
+        if (shiftController.isLoading.value) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
 
-              if (shiftController.tankReadings.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.science,
-                        size: 64,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No tank readings found',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Add tank readings for this shift',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[500],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: () => shiftController.loadTankReadings(shift.id),
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    // Statistics Cards
-                    _buildReadingsStatistics(shiftController),
-                    const SizedBox(height: 24),
-                    
-                    // Readings List
-                    _buildReadingsList(shiftController, context),
-                  ],
+        return RefreshIndicator(
+          onRefresh: () => shiftController.loadTankReadings(shift.id),
+          child: CustomScrollView(
+            slivers: [
+              // Shift Info Card
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: _buildShiftInfoCard(context),
                 ),
-              );
-            }),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showCreateReadingDialog(context, tankController),
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  Widget _buildShiftInfoCard() {
-    return Card(
-      margin: const EdgeInsets.all(16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.schedule,
-                  color: shift.statusColor,
-                  size: 24,
+              ),
+              
+              // Statistics Cards
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: _buildReadingsStatistics(context, shiftController),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  'Shift Information',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[800],
-                  ),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: shift.statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    shift.statusText,
-                    style: TextStyle(
-                      color: shift.statusColor,
-                      fontWeight: FontWeight.w500,
+              ),
+              
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              
+              // Readings List or Empty State
+              if (shiftController.tankReadings.isEmpty)
+                SliverFillRemaining(
+                  child: _buildEmptyState(context),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final reading = shiftController.tankReadings[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: TankReadingCard(
+                            reading: reading,
+                            onReconcile: () => _showReconcileDialog(context, reading),
+                          ),
+                        );
+                      },
+                      childCount: shiftController.tankReadings.length,
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildInfoItem(
-                    'Date',
-                    shift.formattedShiftDate,
-                    Icons.calendar_today,
-                  ),
-                ),
-                Expanded(
-                  child: _buildInfoItem(
-                    'Time',
-                    '${shift.formattedStartTime} - ${shift.formattedEndTime ?? "Ongoing"}',
-                    Icons.access_time,
-                  ),
-                ),
-              ],
-            ),
-            if (shift.durationMinutes != null) ...[
-              const SizedBox(height: 8),
-              _buildInfoItem(
-                'Duration',
-                shift.durationText,
-                Icons.timer,
-              ),
+              
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
-            if (shift.notes?.isNotEmpty == true) ...[
-              const SizedBox(height: 8),
-              _buildInfoItem(
-                'Notes',
-                shift.notes!,
-                Icons.note,
-              ),
-            ],
-          ],
-        ),
+          ),
+        );
+      }),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showCreateReadingDialog(context, tankController),
+        icon: const Icon(Icons.add),
+        label: const Text('Add Reading'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
     );
   }
 
-  Widget _buildInfoItem(String label, String value, IconData icon) {
+  Widget _buildShiftInfoCard(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: shift.statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.schedule,
+                  color: shift.statusColor,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Shift Information',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      shift.formattedShiftDate,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: shift.statusColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  shift.statusText,
+                  style: TextStyle(
+                    color: shift.statusColor,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _buildInfoItem(
+                  context,
+                  'Start Time',
+                  shift.formattedStartTime,
+                  Icons.access_time,
+                ),
+              ),
+              Expanded(
+                child: _buildInfoItem(
+                  context,
+                  'End Time',
+                  shift.formattedEndTime ?? 'Ongoing',
+                  Icons.access_time_filled,
+                ),
+              ),
+            ],
+          ),
+          if (shift.durationMinutes != null) ...[
+            const SizedBox(height: 12),
+            _buildInfoItem(
+              context,
+              'Duration',
+              shift.durationText,
+              Icons.timer,
+            ),
+          ],
+          if (shift.notes?.isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            _buildInfoItem(
+              context,
+              'Notes',
+              shift.notes!,
+              Icons.note,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(BuildContext context, String label, String value, IconData icon) {
     return Row(
       children: [
-        Icon(icon, size: 16, color: Colors.grey[600]),
-        const SizedBox(width: 4),
+        Icon(
+          icon,
+          size: 16,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 14,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w500,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -221,91 +266,155 @@ class TankReadingsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildReadingsStatistics(StationShiftController controller) {
-    return Row(
-      children: [
-        Expanded(
-          child: _buildStatCard(
-            'Total Readings',
-            controller.tankReadings.length.toString(),
-            Icons.science,
-            Colors.blue,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'With Variance',
-            controller.readingsWithVariance.length.toString(),
-            Icons.warning,
-            Colors.orange,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _buildStatCard(
-            'Need Reconciliation',
-            controller.readingsNeedingReconciliation.length.toString(),
-            Icons.error,
-            Colors.red,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
-    return Card(
-      elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          children: [
-            Icon(icon, size: 24, color: color),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 10,
-                color: Colors.grey[600],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildReadingsList(StationShiftController controller, BuildContext context) {
+  Widget _buildReadingsStatistics(BuildContext context, StationShiftController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Tank Readings',
-          style: TextStyle(
-            fontSize: 20,
+          'Readings Overview',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
             fontWeight: FontWeight.bold,
-            color: Colors.grey[800],
           ),
         ),
         const SizedBox(height: 16),
-        ...controller.tankReadings.map((reading) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: TankReadingCard(
-            reading: reading,
-            onReconcile: () => _showReconcileDialog(context, reading),
-          ),
-        )).toList(),
+        Row(
+          children: [
+            Expanded(
+              child: _buildStatCard(
+                context,
+                'Total',
+                controller.tankReadings.length.toString(),
+                Icons.science,
+                Colors.blue,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                'With Variance',
+                controller.readingsWithVariance.length.toString(),
+                Icons.warning,
+                Colors.orange,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _buildStatCard(
+                context,
+                'Need Reconciliation',
+                controller.readingsNeedingReconciliation.length.toString(),
+                Icons.error,
+                Colors.red,
+              ),
+            ),
+          ],
+        ),
       ],
+    );
+  }
+
+  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                Icons.science_outlined,
+                size: 64,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No Tank Readings',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add your first tank reading for this shift to get started',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateReadingDialog(context, Get.find<TankController>()),
+              icon: const Icon(Icons.add),
+              label: const Text('Add First Reading'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

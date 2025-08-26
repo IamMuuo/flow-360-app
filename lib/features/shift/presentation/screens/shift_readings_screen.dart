@@ -6,8 +6,8 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:flow_360/features/shift/controllers/shift_readings_controller.dart';
 import 'package:flow_360/features/tank/models/station_shift_model.dart';
-import 'package:flow_360/features/shift/presentation/screens/tank_readings_screen.dart';
 import 'package:flow_360/features/shift/presentation/screens/nozzle_readings_screen.dart';
+import 'package:flow_360/features/tank/presentation/screens/tank_readings_page.dart';
 
 class ShiftReadingsScreen extends StatelessWidget {
   const ShiftReadingsScreen({super.key});
@@ -829,11 +829,20 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
     final notesController = TextEditingController();
 
-    // Check for existing shift on the selected date
+    // Check for existing active shift on the selected date
     final selectedDate = shiftDateController.text;
-    final existingShift = controller.stationShifts.where((shift) => 
-      shift.shiftDate == selectedDate
+    final existingActiveShift = controller.stationShifts.where((shift) => 
+      shift.shiftDate == selectedDate && shift.status == 'ACTIVE'
     ).firstOrNull;
+    
+    // Check shift count for the selected date
+    final shiftsForDate = controller.stationShifts.where((shift) => 
+      shift.shiftDate == selectedDate
+    ).toList();
+    final shiftCount = shiftsForDate.length;
+    final authController = Get.find<AuthController>();
+    final isStaff = authController.currentUser.value?.user.isStaff ?? false;
+    final canCreateMore = isStaff || shiftCount < 3;
 
     showDialog(
       context: context,
@@ -842,12 +851,60 @@ class ShiftReadingsScreen extends StatelessWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (existingShift != null) ...[
+            // Show shift count info
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: canCreateMore ? Colors.blue.shade50 : Colors.orange.shade50,
+                border: Border.all(color: canCreateMore ? Colors.blue.shade200 : Colors.orange.shade200),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        canCreateMore ? Icons.info : Icons.warning,
+                        color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        canCreateMore ? 'Shift Count' : 'Shift Limit Reached',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    isStaff 
+                      ? 'You have $shiftCount shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))} (Unlimited allowed)'
+                      : 'You have $shiftCount/3 shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))}',
+                    style: TextStyle(color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700),
+                  ),
+                  if (!canCreateMore) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Maximum 3 shifts per day reached. Please contact your administrator if you need more shifts.',
+                      style: TextStyle(color: Colors.orange.shade700, fontSize: 12),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // Show active shift warning if exists
+            if (existingActiveShift != null) ...[
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.shade50,
-                  border: Border.all(color: Colors.orange.shade200),
+                  color: Colors.red.shade50,
+                  border: Border.all(color: Colors.red.shade200),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -855,26 +912,31 @@ class ShiftReadingsScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.warning, color: Colors.orange.shade700, size: 20),
+                        Icon(Icons.error, color: Colors.red.shade700, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Existing Shift Found',
+                          'Active Shift Found',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.orange.shade700,
+                            color: Colors.red.shade700,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'You already have a ${existingShift.status.toLowerCase()} shift for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(existingShift.shiftDate))}.',
-                      style: TextStyle(color: Colors.orange.shade700),
+                      'You already have an active shift for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(existingActiveShift.shiftDate))}.',
+                      style: TextStyle(color: Colors.red.shade700),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Time: ${existingShift.startTime}${existingShift.endTime != null ? ' - ${existingShift.endTime}' : ''}',
-                      style: TextStyle(color: Colors.orange.shade700),
+                      'Time: ${existingActiveShift.startTime}${existingActiveShift.endTime != null ? ' - ${existingActiveShift.endTime}' : ''}',
+                      style: TextStyle(color: Colors.red.shade700),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Please end the current shift before creating a new one.',
+                      style: TextStyle(color: Colors.red.shade700, fontSize: 12),
                     ),
                   ],
                 ),
@@ -935,7 +997,7 @@ class ShiftReadingsScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: (controller.isCreatingShift.value || existingShift != null) ? null : () async {
+            onPressed: (controller.isCreatingShift.value || existingActiveShift != null || !canCreateMore) ? null : () async {
               await controller.createStationShift(
                 shiftDate: shiftDateController.text,
                 startTime: startTimeController.text,
@@ -1025,11 +1087,13 @@ class ShiftReadingsScreen extends StatelessWidget {
   }
 
   void _showTankReadingsDialog(BuildContext context, ShiftReadingsController controller) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const TankReadingsScreen(),
-      ),
-    );
+    if (controller.currentShift.value != null) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => TankReadingsPage(shift: controller.currentShift.value!),
+        ),
+      );
+    }
   }
 
   void _showNozzleReadingsDialog(BuildContext context, ShiftReadingsController controller) {

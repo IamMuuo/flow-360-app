@@ -108,56 +108,67 @@ class _CreateTankReadingDialogState extends State<CreateTankReadingDialog> {
                   );
                 }
 
-                return DropdownButtonFormField<String>(
-                  value: _selectedTankId,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Tank',
-                    prefixIcon: Icon(Icons.storage),
+                return SizedBox(
+                  width: double.infinity,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedTankId,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Tank',
+                      prefixIcon: Icon(Icons.storage),
+                    ),
+                    isExpanded: true,
+                    items: tankController.tanks.map((tank) {
+                      return DropdownMenuItem(
+                        value: tank.id,
+                        child: Text(
+                          '${tank.name} (${tank.fuelTypeName})',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a tank';
+                      }
+                      return null;
+                    },
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTankId = value;
+                      });
+                    },
                   ),
-                  items: tankController.tanks.map((tank) {
-                    return DropdownMenuItem(
-                      value: tank.id,
-                      child: Text('${tank.name} (${tank.fuelTypeName})'),
-                    );
-                  }).toList(),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select a tank';
-                    }
-                    return null;
-                  },
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedTankId = value;
-                    });
-                  },
                 );
               }),
               const SizedBox(height: 16),
 
               // Reading Type
-              DropdownButtonFormField<String>(
-                value: _readingType,
-                decoration: const InputDecoration(
-                  labelText: 'Reading Type',
-                  prefixIcon: Icon(Icons.science),
+              SizedBox(
+                width: double.infinity,
+                child: DropdownButtonFormField<String>(
+                  value: _readingType,
+                  decoration: const InputDecoration(
+                    labelText: 'Reading Type',
+                    prefixIcon: Icon(Icons.science),
+                  ),
+                  isExpanded: true,
+                  items: const [
+                    DropdownMenuItem(value: 'OPENING', child: Text('Opening Reading')),
+                    DropdownMenuItem(value: 'CLOSING', child: Text('Closing Reading')),
+                    DropdownMenuItem(value: 'RECONCILIATION', child: Text('Reconciliation Reading')),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select reading type';
+                    }
+                    return null;
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      _readingType = value!;
+                    });
+                  },
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'OPENING', child: Text('Opening Reading')),
-                  DropdownMenuItem(value: 'CLOSING', child: Text('Closing Reading')),
-                  DropdownMenuItem(value: 'RECONCILIATION', child: Text('Reconciliation Reading')),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select reading type';
-                  }
-                  return null;
-                },
-                onChanged: (value) {
-                  setState(() {
-                    _readingType = value!;
-                  });
-                },
               ),
               const SizedBox(height: 16),
 
@@ -261,7 +272,7 @@ class _CreateTankReadingDialogState extends State<CreateTankReadingDialog> {
     );
   }
 
-  void _submitForm() {
+  void _submitForm() async {
     if (_formKey.currentState!.validate()) {
       // Additional null check for safety
       if (_selectedTankId == null) {
@@ -271,16 +282,43 @@ class _CreateTankReadingDialogState extends State<CreateTankReadingDialog> {
         return;
       }
       
-      final controller = Get.find<StationShiftController>();
-      
-      final data = {
-        'station_shift': widget.shift.id,
-        'tank': _selectedTankId!,
-        'reading_type': _readingType,
-        'manual_reading_litres': double.parse(_manualReadingController.text),
-      };
+      try {
+        final controller = Get.find<StationShiftController>();
+        
+        final data = {
+          'station_shift': widget.shift.id,
+          'tank': _selectedTankId!,
+          'reading_type': _readingType,
+          'manual_reading_litres': double.parse(_manualReadingController.text),
+        };
 
-      controller.createTankReading(data);
+        print('DEBUG: Creating tank reading with data: $data');
+        await controller.createTankReading(data);
+        print('DEBUG: Tank reading created successfully');
+        
+        // Close the dialog after successful creation
+        if (context.mounted) {
+          Navigator.of(context).pop();
+          
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Tank reading created successfully!'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } catch (e) {
+        print('DEBUG: Error creating tank reading: $e');
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error creating tank reading: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
     }
   }
 }

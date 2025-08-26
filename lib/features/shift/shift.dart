@@ -11,7 +11,6 @@ export 'presentation/screens/shift_management_screen.dart';
 export 'presentation/screens/shift_demo_screen.dart';
 export 'presentation/screens/supervisor_shift_management_screen.dart';
 export 'presentation/screens/shift_readings_screen.dart';
-export 'presentation/screens/tank_readings_screen.dart';
 export 'presentation/screens/nozzle_readings_screen.dart';
 export 'presentation/widgets/shift_fab.dart';
 export 'presentation/widgets/shift_status_indicator.dart';

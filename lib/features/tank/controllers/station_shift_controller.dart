@@ -206,10 +206,12 @@ class StationShiftController extends GetxController {
       
       // Refresh the entire list to ensure UI updates
       if (selectedShift.value != null) {
+        print('DEBUG: Refreshing tank readings for shift: ${selectedShift.value!.id}');
         await loadTankReadings(selectedShift.value!.id);
+        print('DEBUG: Tank readings refreshed. Total readings: ${tankReadings.length}');
+      } else {
+        print('DEBUG: No selected shift, cannot refresh readings');
       }
-      
-      print('DEBUG: Refreshed readings list. Total readings: ${tankReadings.length}');
       
       // Success - UI will handle showing snackbar and closing dialog
     } catch (e) {
