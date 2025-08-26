@@ -5,10 +5,12 @@ import 'package:get_it/get_it.dart';
 import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flow_360/features/fuel_dispenser/repository/nozzle_repository.dart';
+import 'package:flow_360/features/fuel/services/fuel_service.dart';
 
 // Removed "with StateMixin<List<NozzleModel>>"
 class NozzleController extends GetxController {
   final NozzleRepository _repository = GetIt.instance<NozzleRepository>();
+  final FuelService _fuelService = FuelService();
 
   // This will be the single source of truth for your UI
   var nozzles = <NozzleModel>[].obs;
@@ -44,8 +46,19 @@ class NozzleController extends GetxController {
     String? tankId,
   }) async {
     try {
+      // If fuelType is a KRA code, convert it to UUID
+      String fuelTypeUuid = fuelType;
+      if (fuelType.length <= 10) { // Likely a KRA code like "PMS", "AGO"
+        final fuels = await _fuelService.getFuels();
+        final fuelTypeData = fuels.firstWhere(
+          (fuel) => fuel['kra_code'] == fuelType,
+          orElse: () => throw Exception('Fuel type not found: $fuelType'),
+        );
+        fuelTypeUuid = fuelTypeData['id'];
+      }
+
       final Map<String, dynamic> data = {
-        "fuel_type": fuelType,
+        "fuel_type": fuelTypeUuid,
         "nozzle_number": nozzleNumber,
         "is_active": isActive,
         "dispenser": dispenserId,
@@ -105,6 +118,31 @@ class NozzleController extends GetxController {
           nozzleNumber: nozzleNumber,
           isActive: isActive,
           tank: tankId,
+        );
+      }
+    } on Failure {
+      rethrow;
+    } catch (e) {
+      throw Failure(message: 'An unexpected error occurred: $e');
+    }
+  }
+
+  Future<void> setInitialReading({
+    required String nozzleId,
+    required double initialReading,
+  }) async {
+    try {
+      await _repository.setInitialReading(
+        nozzleId: nozzleId,
+        initialReading: initialReading,
+      );
+
+      // Update the local nozzle with new readings
+      final index = nozzles.indexWhere((n) => n.id == nozzleId);
+      if (index != -1) {
+        nozzles[index] = nozzles[index].copyWith(
+          initialReading: initialReading,
+          currentReading: initialReading,
         );
       }
     } on Failure {

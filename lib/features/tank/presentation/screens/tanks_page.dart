@@ -30,6 +30,44 @@ class TanksPage extends StatelessWidget {
           IconButton(
             onPressed: () => controller.refreshTanks(),
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Tanks',
+          ),
+          PopupMenuButton<String>(
+            onSelected: (value) => _handleQuickAction(context, controller, value),
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'add_fuel_bulk',
+                child: Row(
+                  children: [
+                    Icon(Icons.add_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Add Fuel to All'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'export_data',
+                child: Row(
+                  children: [
+                    Icon(Icons.download, color: Colors.blue),
+                    SizedBox(width: 8),
+                    Text('Export Tank Data'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'low_fuel_report',
+                child: Row(
+                  children: [
+                    Icon(Icons.warning, color: Colors.orange),
+                    SizedBox(width: 8),
+                    Text('Low Fuel Report'),
+                  ],
+                ),
+              ),
+            ],
+            icon: const Icon(Icons.more_vert),
+            tooltip: 'Quick Actions',
           ),
         ],
       ),
@@ -244,6 +282,147 @@ class TanksPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => const CreateTankDialog(),
+    );
+  }
+
+  void _handleQuickAction(BuildContext context, TankController controller, String action) {
+    switch (action) {
+      case 'add_fuel_bulk':
+        _showBulkAddFuelDialog(context, controller);
+        break;
+      case 'export_data':
+        _showExportDataDialog(context, controller);
+        break;
+      case 'low_fuel_report':
+        _showLowFuelReport(context, controller);
+        break;
+    }
+  }
+
+  void _showBulkAddFuelDialog(BuildContext context, TankController controller) {
+    final activeTanks = controller.activeTanks;
+    if (activeTanks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No active tanks available for bulk operations'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Bulk Add Fuel'),
+        content: Text(
+          'This will add fuel to all ${activeTanks.length} active tanks. This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Bulk add fuel feature coming soon!'),
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            },
+            child: const Text('Continue'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showExportDataDialog(BuildContext context, TankController controller) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Export Tank Data'),
+        content: const Text(
+          'Export tank data including fuel levels, audit trail, and status information.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Export feature coming soon!'),
+                  backgroundColor: Colors.blue,
+                ),
+              );
+            },
+            child: const Text('Export'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLowFuelReport(BuildContext context, TankController controller) {
+    final lowFuelTanks = controller.lowFuelTanks;
+    if (lowFuelTanks.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No tanks with low fuel levels'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Low Fuel Report'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${lowFuelTanks.length} tank(s) have low fuel levels:'),
+            const SizedBox(height: 12),
+            ...lowFuelTanks.map((tank) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: tank.statusColor,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      '${tank.name} - ${tank.currentLevelLitres}L (${tank.usagePercentage.toStringAsFixed(1)}%)',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                ],
+              ),
+            )).toList(),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
     );
   }
 

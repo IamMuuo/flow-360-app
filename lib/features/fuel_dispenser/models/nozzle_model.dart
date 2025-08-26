@@ -12,7 +12,16 @@ class NozzleModel extends HiveObject {
   @HiveField(0)
   final String id;
   @HiveField(1)
-  final FuelTypeModel? fuelType;
+  @JsonKey(name: 'fuel_type')
+  final String? fuelTypeId;
+  
+  @HiveField(8)
+  @JsonKey(name: 'fuel_type_name')
+  final String? fuelTypeName;
+  
+  @HiveField(9)
+  @JsonKey(name: 'fuel_type_kra_code')
+  final String? fuelTypeKraCode;
   @HiveField(2)
   final int nozzleNumber;
   @HiveField(3)
@@ -30,7 +39,9 @@ class NozzleModel extends HiveObject {
 
   NozzleModel({
     required this.id,
-    this.fuelType,
+    this.fuelTypeId,
+    this.fuelTypeName,
+    this.fuelTypeKraCode,
     required this.nozzleNumber,
     required this.isActive,
     required this.dispenser,
@@ -46,7 +57,9 @@ class NozzleModel extends HiveObject {
 
   NozzleModel copyWith({
     String? id,
-    FuelTypeModel? fuelType,
+    String? fuelTypeId,
+    String? fuelTypeName,
+    String? fuelTypeKraCode,
     int? nozzleNumber,
     bool? isActive,
     String? dispenser,
@@ -56,7 +69,9 @@ class NozzleModel extends HiveObject {
   }) {
     return NozzleModel(
       id: id ?? this.id,
-      fuelType: fuelType ?? this.fuelType,
+      fuelTypeId: fuelTypeId ?? this.fuelTypeId,
+      fuelTypeName: fuelTypeName ?? this.fuelTypeName,
+      fuelTypeKraCode: fuelTypeKraCode ?? this.fuelTypeKraCode,
       nozzleNumber: nozzleNumber ?? this.nozzleNumber,
       isActive: isActive ?? this.isActive,
       dispenser: dispenser ?? this.dispenser,
@@ -72,9 +87,9 @@ class NozzleModel extends HiveObject {
   double get totalDispensed => currentReadingValue - initialReadingValue;
 
   // Helper getters for fuel type
-  String get fuelTypeName => fuelType?.name ?? 'Unknown';
-  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
-  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+  String get fuelTypeNameValue => fuelTypeName ?? 'Unknown';
+  String get fuelTypeKraCodeValue => fuelTypeKraCode ?? '';
+  String get fuelTypeColorHex => '#808080'; // Default color since we don't have it in the response
 
   // Helper methods for parsing string to double
   static double? _parseDouble(dynamic value) {

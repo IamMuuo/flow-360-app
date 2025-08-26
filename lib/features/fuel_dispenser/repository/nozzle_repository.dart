@@ -120,4 +120,28 @@ class NozzleRepository {
       throw Failure(message: 'An unexpected error occurred.');
     }
   }
+
+  Future<void> setInitialReading({
+    required String nozzleId,
+    required double initialReading,
+  }) async {
+    try {
+      // Endpoint for setting initial reading
+      await _dioClient.dio.post(
+        '/station/nozzles/$nozzleId/set-initial-reading/',
+        data: {'initial_reading': initialReading},
+      );
+    } on DioException catch (e) {
+      String errorMessage;
+      if (e.response?.data is Map) {
+        errorMessage = e.response?.data['detail'] ?? 'Failed to set initial reading.';
+      } else {
+        errorMessage =
+            'An unexpected server error occurred while setting initial reading.';
+      }
+      throw Failure(message: errorMessage);
+    } catch (e) {
+      throw Failure(message: 'An unexpected error occurred.');
+    }
+  }
 }

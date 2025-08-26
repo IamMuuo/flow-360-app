@@ -26,6 +26,7 @@ class TankModel extends HiveObject {
   final String name;
 
   @HiveField(3)
+  @JsonKey(name: 'fuel_type')
   final FuelTypeModel? fuelType;
 
   @HiveField(4)
@@ -60,6 +61,18 @@ class TankModel extends HiveObject {
   @JsonKey(name: 'fuel_status')
   final String fuelStatus;
 
+  @HiveField(12)
+  @JsonKey(name: 'fuel_name')
+  final String? fuelName;
+
+  @HiveField(13)
+  @JsonKey(name: 'fuel_kra_code')
+  final String? fuelKraCode;
+
+  @HiveField(14)
+  @JsonKey(name: 'fuel_color_hex')
+  final String? fuelColorHex;
+
   TankModel({
     required this.id,
     required this.station,
@@ -73,6 +86,9 @@ class TankModel extends HiveObject {
     required this.usagePercentage,
     required this.availableFuel,
     required this.fuelStatus,
+    this.fuelName,
+    this.fuelKraCode,
+    this.fuelColorHex,
   });
 
   factory TankModel.fromJson(Map<String, dynamic> json) =>
@@ -84,10 +100,10 @@ class TankModel extends HiveObject {
   double get currentLevelLitresDouble =>
       double.tryParse(currentLevelLitres) ?? 0.0;
 
-  // Get fuel type display name
-  String get fuelTypeName => fuelType?.name ?? 'Unknown';
-  String get fuelTypeKraCode => fuelType?.kraCode ?? '';
-  String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+  // Get fuel type display name with fallbacks
+  String get fuelTypeName => fuelType?.name ?? fuelName ?? 'Unknown';
+  String get fuelTypeKraCode => fuelType?.kraCode ?? fuelKraCode ?? '';
+  String get fuelTypeColorHex => fuelType?.colorHex ?? fuelColorHex ?? '#808080';
   String? get fuelTypeId => fuelType?.id;
 
   // Fuel status methods

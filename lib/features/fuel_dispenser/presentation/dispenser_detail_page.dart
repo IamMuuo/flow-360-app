@@ -529,7 +529,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                         size: 20,
                       ),
                     ),
-                    onPressed: () => _showAddNozzleDialog(
+                    onPressed: () => _showCreateNozzleDialog(
                       context,
                       dispenserId,
                       nozzleController,
@@ -641,7 +641,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
           },
           child: Container(
             padding: const EdgeInsets.all(16),
-            constraints: const BoxConstraints(minHeight: 140),
+            constraints: const BoxConstraints(minHeight: 160),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
@@ -664,78 +664,167 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 ),
               ],
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: nozzle.isActive == true
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1)
-                        : Theme.of(
-                            context,
-                          ).colorScheme.error.withValues(alpha: 0.1),
-                  ),
-                  child: Icon(
-                    Icons.water_drop_outlined,
-                    size: 24,
-                    color: nozzle.isActive == true
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.error,
-                  ),
-                ),
-                const SizedBox(width: 16),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Nozzle ${nozzle.nozzleNumber}',
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
+                // Header row with nozzle number and status
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: nozzle.isActive == true
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.error.withValues(alpha: 0.1),
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Fuel Type: ${nozzle.fuelTypeName}',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withValues(alpha: 0.7),
+                      child: Icon(
+                        Icons.water_drop_outlined,
+                        size: 20,
+                        color: nozzle.isActive == true
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Nozzle ${nozzle.nozzleNumber}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: nozzle.isActive == true
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1)
-                        : Theme.of(
-                            context,
-                          ).colorScheme.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    nozzle.isActive == true ? 'Active' : 'Inactive',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: nozzle.isActive == true
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.w600,
                     ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: nozzle.isActive == true
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.error.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        nozzle.isActive == true ? 'Active' : 'Inactive',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: nozzle.isActive == true
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.error,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Fuel type and tank info
+                Row(
+                  children: [
+                    Icon(
+                      Icons.local_gas_station,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        nozzle.fuelTypeNameValue,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                
+                // Tank assignment
+                Row(
+                  children: [
+                    Icon(
+                      Icons.storage,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        nozzle.tank != null ? 'Tank Assigned' : 'No Tank Assigned',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: nozzle.tank != null
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                
+                // Meter readings
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.speed,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Current: ${nozzle.currentReadingValue.toStringAsFixed(2)}L',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              'Total Dispensed: ${nozzle.totalDispensed.toStringAsFixed(2)}L',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      // Quick action button for setting initial reading
+                      if (nozzle.initialReadingValue == 0 && nozzle.currentReadingValue == 0)
+                        IconButton(
+                          onPressed: () => _showSetInitialReadingDialog(context, nozzle),
+                          icon: Icon(
+                            Icons.edit,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          tooltip: 'Set Initial Reading',
+                          constraints: const BoxConstraints(
+                            minWidth: 24,
+                            minHeight: 24,
+                          ),
+                          padding: EdgeInsets.zero,
+                        ),
+                    ],
                   ),
                 ),
               ],
@@ -746,7 +835,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     );
   }
 
-  void _showAddNozzleDialog(
+  void _showCreateNozzleDialog(
     BuildContext context,
     String dispenserId,
     NozzleController nozzleController,
@@ -754,20 +843,15 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     final nozzleNumberController = TextEditingController();
     final initialReadingController = TextEditingController();
     bool isActive = true;
-    String? selectedFuelTypeId; // Now we need to select by ID
     String? selectedTankId;
-
-    // For now, we'll use a simple list until we have a fuel type service
-    // TODO: Create a fuel type service to fetch available fuel types
-    final List<Map<String, String>> fuelTypes = [
-      {'id': 'temp-pms', 'name': 'Petrol', 'kra_code': 'PMS'},
-      {'id': 'temp-ago', 'name': 'Diesel', 'kra_code': 'AGO'},
-      {'id': 'temp-ik', 'name': 'Kerosene', 'kra_code': 'IK'},
-      {'id': 'temp-vpower', 'name': 'Vpower', 'kra_code': 'VPOWER'},
-    ];
 
     // Get tank controller for tank selection
     final tankController = Get.find<TankController>();
+    
+    // Ensure tanks are loaded
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      tankController.loadTanksIfUserAvailable();
+    });
 
     showDialog(
       context: context,
@@ -775,137 +859,342 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
         builder: (context, setState) => AlertDialog(
           title: Row(
             children: [
-              Icon(
-                Icons.add_circle_outline,
-                color: Theme.of(context).colorScheme.primary,
-                size: 28,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.add_circle_outline,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 24,
+                ),
               ),
               const SizedBox(width: 12),
-              const Text('Add Nozzle'),
+              const Text('Add New Nozzle'),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Fuel Type Dropdown
-              DropdownButtonFormField<String>(
-                value: selectedFuelTypeId,
-                decoration: const InputDecoration(
-                  labelText: 'Fuel Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: fuelTypes.map((Map<String, String> fuelType) {
-                  return DropdownMenuItem<String>(
-                    value: fuelType['id'],
-                    child: Text(fuelType['name']!),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedFuelTypeId = newValue;
-                    // Reset tank selection when fuel type changes
-                    selectedTankId = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              
-              // Tank Selection Dropdown
-              Obx(() {
-                final selectedFuelTypeKraCode = fuelTypes.firstWhere(
-                  (ft) => ft['id'] == selectedFuelTypeId,
-                  orElse: () => {'kra_code': ''},
-                )['kra_code'];
-                final tanks = tankController.tanks.where((tank) => tank.fuelTypeKraCode == selectedFuelTypeKraCode).toList();
-                
-                if (tanks.isEmpty) {
-                  return const Card(
-                    color: Colors.orange,
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Text(
-                        'No tanks available for this fuel type',
-                        style: TextStyle(color: Colors.white),
-                      ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Info card about nozzle setup
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     ),
-                  );
-                }
-                
-                return DropdownButtonFormField<String>(
-                  value: selectedTankId,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Tank',
-                    hintText: 'Choose a tank to supply fuel (fuel type will be inherited)',
-                    border: OutlineInputBorder(),
                   ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text('No tank assigned'),
-                    ),
-                    ...tanks.map((tank) {
-                      return DropdownMenuItem<String>(
-                        value: tank.id,
-                        child: Text('${tank.name} - ${tank.fuelTypeName} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
-                      );
-                    }).toList(),
-                  ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedTankId = newValue;
-                    });
-                  },
-                );
-              }),
-              
-              const SizedBox(height: 16),
-              TextField(
-                controller: nozzleNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Nozzle Number',
-                  hintText: 'e.g., 1, 2, 3',
-                  border: OutlineInputBorder(),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'A nozzle dispenses fuel from a specific tank. The fuel type is automatically set based on the selected tank.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: initialReadingController,
-                decoration: const InputDecoration(
-                  labelText: 'Initial Reading (Litres) - Optional',
-                  hintText: 'e.g., 0.00 (defaults to 0 if empty)',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 20),
+                
+                // Tank Selection - Most important field
+                Text(
+                  'Tank Selection *',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Checkbox(
-                    value: isActive,
-                    onChanged: (value) {
+                const SizedBox(height: 8),
+                Obx(() {
+                  // Debug: Print all tanks to understand the issue
+                  print('DEBUG: Total tanks: ${tankController.tanks.length}');
+                  for (final tank in tankController.tanks) {
+                    print('DEBUG: Tank ${tank.name} - Active: ${tank.isActive}, FuelType: ${tank.fuelType}, FuelTypeName: ${tank.fuelTypeName}');
+                  }
+                  
+                  // More robust filtering - check for active tanks with any fuel type info
+                  final tanks = tankController.tanks.where((tank) => 
+                    tank.isActive && 
+                    (tank.fuelType != null || tank.fuelTypeName != 'Unknown' || tank.fuelName != null)
+                  ).toList();
+                  
+                  print('DEBUG: Filtered tanks: ${tanks.length}');
+                  
+                  if (tanks.isEmpty) {
+                                         // Check if there are any tanks at all
+                     final allTanks = tankController.tanks;
+                     final activeTanks = tankController.tanks.where((tank) => tank.isActive).toList();
+                     final tanksWithFuelType = tankController.tanks.where((tank) => tank.fuelType != null).toList();
+                     final tanksWithFuelName = tankController.tanks.where((tank) => tank.fuelName != null).toList();
+                    
+                    String errorMessage = 'You need to create an active tank with a fuel type before adding nozzles.';
+                    
+                                         if (allTanks.isEmpty) {
+                       errorMessage = 'No tanks found. Please create a tank first.';
+                     } else if (activeTanks.isEmpty) {
+                       errorMessage = 'No active tanks found. Please activate a tank or create a new one.';
+                     } else if (tanksWithFuelType.isEmpty && tanksWithFuelName.isEmpty) {
+                       errorMessage = 'No tanks with fuel types found. Please assign fuel types to your tanks.';
+                     }
+                    
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.warning_amber_rounded,
+                            color: Theme.of(context).colorScheme.error,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No Active Tanks Available',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.error,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            errorMessage,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                                                     if (allTanks.isNotEmpty) ...[
+                             const SizedBox(height: 8),
+                             Text(
+                               'Debug Info: ${allTanks.length} total tanks, ${activeTanks.length} active, ${tanksWithFuelType.length} with fuel type object, ${tanksWithFuelName.length} with fuel name',
+                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                 color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                                 fontStyle: FontStyle.italic,
+                               ),
+                               textAlign: TextAlign.center,
+                             ),
+                           ],
+                           const SizedBox(height: 12),
+                                                      ElevatedButton.icon(
+                             onPressed: () {
+                               tankController.refreshTanks();
+                               // Inline debug info
+                               print('DEBUG: Total tanks: ${tankController.tanks.length}');
+                               print('DEBUG: Active tanks: ${tankController.activeTanks.length}');
+                               print('DEBUG: Error: ${tankController.errorMessage.value}');
+                               for (final tank in tankController.tanks) {
+                                 print('DEBUG: Tank ${tank.name} - Active: ${tank.isActive} - FuelType: ${tank.fuelTypeName} - FuelName: ${tank.fuelName} - FuelKraCode: ${tank.fuelKraCode}');
+                               }
+                             },
+                             icon: const Icon(Icons.refresh, size: 16),
+                             label: const Text('Refresh & Debug'),
+                             style: ElevatedButton.styleFrom(
+                               backgroundColor: Theme.of(context).colorScheme.primary,
+                               foregroundColor: Colors.white,
+                             ),
+                           ),
+                        ],
+                      ),
+                    );
+                  }
+                  
+                  return SizedBox(
+                    width: double.infinity,
+                    child: DropdownButtonFormField<String>(
+                      value: selectedTankId,
+                      decoration: InputDecoration(
+                        labelText: 'Select Tank',
+                        hintText: 'Choose a tank to supply fuel to this nozzle',
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.storage),
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
+                      ),
+                      isExpanded: true,
+                      items: tanks.map((tank) {
+                        return DropdownMenuItem<String>(
+                          value: tank.id,
+                          child: Text(
+                            '${tank.name} (${tank.fuelTypeName})',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        );
+                      }).toList(),
+                    onChanged: (String? newValue) {
                       setState(() {
-                        isActive = value ?? true;
+                        selectedTankId = newValue;
                       });
                     },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select a tank';
+                      }
+                      return null;
+                    },
                   ),
-                  const Text('Active'),
-                ],
-              ),
-            ],
+                );
+              }),
+                
+                const SizedBox(height: 20),
+                
+                // Nozzle Number
+                Text(
+                  'Nozzle Number *',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: nozzleNumberController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nozzle Number',
+                    hintText: 'e.g., 1, 2, 3',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.numbers),
+                    filled: true,
+                  ),
+                  keyboardType: TextInputType.number,
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Initial Reading
+                Text(
+                  'Initial Reading (Optional)',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                TextField(
+                  controller: initialReadingController,
+                  decoration: const InputDecoration(
+                    labelText: 'Initial Reading (Litres)',
+                    hintText: 'e.g., 0.00 (defaults to 0 if empty)',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.speed),
+                    filled: true,
+                    helperText: 'Set the initial meter reading for this nozzle',
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                ),
+                
+                const SizedBox(height: 20),
+                
+                // Active Status
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Checkbox(
+                        value: isActive,
+                        onChanged: (value) {
+                          setState(() {
+                            isActive = value ?? true;
+                          });
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Active',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              'Enable this nozzle for fuel dispensing',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => context.pop(),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () async {
+                // Validation
+                if (selectedTankId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Please select a tank'),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
+
                 if (nozzleNumberController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please fill in the nozzle number'),
-                      backgroundColor: Colors.red,
+                    SnackBar(
+                      content: const Text('Please enter a nozzle number'),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                  return;
+                }
+
+                // Validate nozzle number is a positive integer
+                int? nozzleNumber;
+                try {
+                  nozzleNumber = int.parse(nozzleNumberController.text);
+                  if (nozzleNumber <= 0) {
+                    throw FormatException();
+                  }
+                } catch (e) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Nozzle number must be a positive integer'),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
                     ),
                   );
                   return;
@@ -918,18 +1207,20 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     initialReading = double.parse(initialReadingController.text);
                     if (initialReading < 0) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Initial reading must be a positive number'),
-                          backgroundColor: Colors.red,
+                        SnackBar(
+                          content: const Text('Initial reading must be a positive number'),
+                          backgroundColor: Theme.of(context).colorScheme.error,
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                       return;
                     }
                   } catch (e) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Please enter a valid initial reading'),
-                        backgroundColor: Colors.red,
+                      SnackBar(
+                        content: const Text('Please enter a valid initial reading'),
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                     return;
@@ -937,42 +1228,58 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 }
 
                 try {
-                  // Get the selected fuel type KRA code
-                  final selectedFuelTypeKraCode = fuelTypes.firstWhere(
-                    (ft) => ft['id'] == selectedFuelTypeId,
-                    orElse: () => {'kra_code': 'PMS'},
-                  )['kra_code'];
+                  // Get fuel type from selected tank
+                  final selectedTank = tankController.tanks.firstWhere(
+                    (tank) => tank.id == selectedTankId,
+                    orElse: () => throw Exception('Selected tank not found'),
+                  );
+                  
+                  final fuelType = selectedTank.fuelTypeKraCode ?? 'PMS';
+                  
+                  // Show loading indicator
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
                   
                   await nozzleController.createNozzle(
                     dispenserId: dispenserId,
-                    fuelType: selectedFuelTypeKraCode ?? 'PMS', // For now, send KRA code until backend is updated
-                    nozzleNumber: int.parse(nozzleNumberController.text),
+                    fuelType: fuelType,
+                    nozzleNumber: nozzleNumber,
                     isActive: isActive,
                     initialReading: initialReading,
                     tankId: selectedTankId,
                   );
                   
                   if (context.mounted) {
-                    context.pop();
+                    context.pop(); // Close loading dialog
+                    context.pop(); // Close create dialog
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Nozzle created successfully'),
-                        backgroundColor: Colors.green,
+                      SnackBar(
+                        content: const Text('Nozzle created successfully'),
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
                 } catch (e) {
                   if (context.mounted) {
+                    context.pop(); // Close loading dialog
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Error creating nozzle: $e'),
-                        backgroundColor: Colors.red,
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                        behavior: SnackBarBehavior.floating,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Create'),
+              icon: const Icon(Icons.add),
+              label: const Text('Create Nozzle'),
             ),
           ],
         ),
@@ -980,27 +1287,164 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
     );
   }
 
+  void _showSetInitialReadingDialog(BuildContext context, NozzleModel nozzle) {
+    final initialReadingController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                Icons.speed,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text('Set Initial Reading'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.info_outline,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Set the initial meter reading for Nozzle ${nozzle.nozzleNumber}. This can only be done before any sales are made.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: initialReadingController,
+              decoration: const InputDecoration(
+                labelText: 'Initial Reading (Litres)',
+                hintText: 'e.g., 1234.56',
+                border: OutlineInputBorder(),
+                prefixIcon: Icon(Icons.speed),
+                filled: true,
+              ),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => context.pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              if (initialReadingController.text.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Please enter an initial reading'),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                return;
+              }
+
+              double? initialReading;
+              try {
+                initialReading = double.parse(initialReadingController.text);
+                if (initialReading < 0) {
+                  throw FormatException();
+                }
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Please enter a valid positive number'),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+                return;
+              }
+
+              try {
+                // Show loading indicator
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+
+                // Call the API to set initial reading
+                final nozzleController = Get.find<NozzleController>();
+                await nozzleController.setInitialReading(
+                  nozzleId: nozzle.id,
+                  initialReading: initialReading,
+                );
+
+                if (context.mounted) {
+                  context.pop(); // Close loading dialog
+                  context.pop(); // Close set reading dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Initial reading set successfully'),
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  context.pop(); // Close loading dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error setting initial reading: $e'),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                      behavior: SnackBarBehavior.floating,
+                    ),
+                  );
+                }
+              }
+            },
+            icon: const Icon(Icons.save),
+            label: const Text('Set Reading'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showEditNozzleDialog(BuildContext context, NozzleModel nozzle) {
     final nozzleNumberController = TextEditingController(text: nozzle.nozzleNumber.toString());
     bool isActive = nozzle.isActive ?? true;
-    String? selectedFuelTypeId; // Current fuel type ID
     String? selectedTankId = nozzle.tank; // Current tank
-
-    // For now, we'll use a simple list until we have a fuel type service
-    // TODO: Create a fuel type service to fetch available fuel types
-    final List<Map<String, String>> fuelTypes = [
-      {'id': 'temp-pms', 'name': 'Petrol', 'kra_code': 'PMS'},
-      {'id': 'temp-ago', 'name': 'Diesel', 'kra_code': 'AGO'},
-      {'id': 'temp-ik', 'name': 'Kerosene', 'kra_code': 'IK'},
-      {'id': 'temp-vpower', 'name': 'Vpower', 'kra_code': 'VPOWER'},
-    ];
-    
-    // Set the current fuel type ID based on the nozzle's fuel type
-    final currentFuelType = fuelTypes.firstWhere(
-      (ft) => ft['kra_code'] == nozzle.fuelTypeKraCode,
-      orElse: () => {'id': 'temp-pms'},
-    );
-    selectedFuelTypeId = currentFuelType['id'];
 
     // Get tank controller for tank selection
     final tankController = Get.find<TankController>();
@@ -1020,39 +1464,14 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               const Text('Edit Nozzle'),
             ],
           ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Fuel Type Dropdown
-              DropdownButtonFormField<String>(
-                value: selectedFuelTypeId,
-                decoration: const InputDecoration(
-                  labelText: 'Fuel Type',
-                  border: OutlineInputBorder(),
-                ),
-                items: fuelTypes.map((Map<String, String> fuelType) {
-                  return DropdownMenuItem<String>(
-                    value: fuelType['id'],
-                    child: Text(fuelType['name']!),
-                  );
-                }).toList(),
-                onChanged: (String? newValue) {
-                  setState(() {
-                    selectedFuelTypeId = newValue;
-                    // Reset tank selection when fuel type changes
-                    selectedTankId = null;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-              
-              // Tank Selection Dropdown
-              Obx(() {
-                final selectedFuelTypeKraCode = fuelTypes.firstWhere(
-                  (ft) => ft['id'] == selectedFuelTypeId,
-                  orElse: () => {'kra_code': ''},
-                )['kra_code'];
-                final tanks = tankController.tanks.where((tank) => tank.fuelTypeKraCode == selectedFuelTypeKraCode).toList();
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Tank Selection Dropdown
+                Obx(() {
+                  // Show all active tanks since fuel type will be inferred from the tank
+                  final tanks = tankController.tanks.where((tank) => tank.isActive).toList();
                 
                 if (tanks.isEmpty) {
                   return const Card(
@@ -1067,30 +1486,41 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   );
                 }
                 
-                return DropdownButtonFormField<String>(
-                  value: selectedTankId,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Tank (Optional)',
-                    hintText: 'Choose a tank to supply fuel',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: Text('No tank assigned'),
+                return SizedBox(
+                  width: double.infinity,
+                  child: DropdownButtonFormField<String>(
+                    value: selectedTankId,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Tank (Optional)',
+                      hintText: 'Choose a tank to supply fuel',
+                      border: OutlineInputBorder(),
                     ),
-                    ...tanks.map((tank) {
-                      return DropdownMenuItem<String>(
-                        value: tank.id,
-                        child: Text('${tank.name} (${tank.capacityLitresDouble.toStringAsFixed(2)}L)'),
-                      );
-                    }).toList(),
-                  ],
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedTankId = newValue;
-                    });
-                  },
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text(
+                          'No tank assigned',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      ...tanks.map((tank) {
+                        return DropdownMenuItem<String>(
+                          value: tank.id,
+                          child: Text(
+                            '${tank.name} (${tank.fuelTypeName})',
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontWeight: FontWeight.w500),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedTankId = newValue;
+                      });
+                    },
+                  ),
                 );
               }),
               
@@ -1120,6 +1550,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               ),
             ],
           ),
+        ),
           actions: [
             TextButton(
               onPressed: () => context.pop(),
@@ -1140,16 +1571,20 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 try {
                   final nozzleController = Get.find<NozzleController>();
                   
-                  // Get the selected fuel type KRA code
-                  final selectedFuelTypeKraCode = fuelTypes.firstWhere(
-                    (ft) => ft['id'] == selectedFuelTypeId,
-                    orElse: () => {'kra_code': 'PMS'},
-                  )['kra_code'];
+                  // Get the fuel type UUID from the selected tank (if any)
+                  String? fuelTypeUuid;
+                  if (selectedTankId != null) {
+                    final selectedTank = tankController.tanks.firstWhere(
+                      (tank) => tank.id == selectedTankId,
+                      orElse: () => throw Exception('Selected tank not found'),
+                    );
+                    fuelTypeUuid = selectedTank.fuelTypeId;
+                  }
                   
                   await nozzleController.updateNozzle(
                     dispenserId: nozzle.dispenser,
                     nozzleId: nozzle.id,
-                    fuelType: selectedFuelTypeKraCode ?? 'PMS', // For now, send KRA code until backend is updated
+                    fuelType: fuelTypeUuid ?? nozzle.fuelTypeId ?? '', // Use tank's fuel type UUID or keep current
                     nozzleNumber: int.parse(nozzleNumberController.text),
                     isActive: isActive,
                     tankId: selectedTankId,

@@ -258,4 +258,43 @@ class TankController extends GetxController {
   List<TankModel> get lowFuelTanks => tanks.where((tank) => tank.hasLowFuel).toList();
   List<TankModel> get mediumFuelTanks => tanks.where((tank) => tank.hasMediumFuel).toList();
   List<TankModel> get goodFuelTanks => tanks.where((tank) => tank.hasGoodFuel).toList();
+  
+  // Debug method to help troubleshoot tank loading issues
+  void debugTankStatus() {
+    print('=== TANK DEBUG INFO ===');
+    print('Total tanks loaded: ${tanks.length}');
+    print('Is loading: ${isLoading.value}');
+    print('Error message: ${errorMessage.value}');
+    
+    for (int i = 0; i < tanks.length; i++) {
+      final tank = tanks[i];
+      print('Tank $i: ${tank.name}');
+      print('  - ID: ${tank.id}');
+      print('  - Active: ${tank.isActive}');
+      print('  - Fuel Type Object: ${tank.fuelType}');
+      print('  - Fuel Type Name: ${tank.fuelTypeName}');
+      print('  - Fuel Type KRA Code: ${tank.fuelTypeKraCode}');
+      print('  - Fuel Type ID: ${tank.fuelTypeId}');
+      print('  - Capacity: ${tank.capacityLitres}');
+      print('  - Current Level: ${tank.currentLevelLitres}');
+      print('  - Usage %: ${tank.usagePercentage}');
+      print('---');
+    }
+    
+    final activeTanks = tanks.where((tank) => tank.isActive).toList();
+    final tanksWithFuelType = tanks.where((tank) => tank.fuelType != null).toList();
+    final tanksWithValidFuelType = tanks.where((tank) => tank.fuelTypeName != 'Unknown').toList();
+    
+    print('Active tanks: ${activeTanks.length}');
+    print('Tanks with fuel type object: ${tanksWithFuelType.length}');
+    print('Tanks with valid fuel type name: ${tanksWithValidFuelType.length}');
+    print('=== END DEBUG INFO ===');
+  }
+  
+  // Simple debug method as backup
+  void debugTanks() {
+    print('DEBUG: Total tanks: ${tanks.length}');
+    print('DEBUG: Active tanks: ${activeTanks.length}');
+    print('DEBUG: Error: ${errorMessage.value}');
+  }
 }

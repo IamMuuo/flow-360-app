@@ -29,13 +29,16 @@ class TankModelAdapter extends TypeAdapter<TankModel> {
       usagePercentage: fields[9] as double,
       availableFuel: fields[10] as double,
       fuelStatus: fields[11] as String,
+      fuelName: fields[12] as String?,
+      fuelKraCode: fields[13] as String?,
+      fuelColorHex: fields[14] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, TankModel obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -59,7 +62,13 @@ class TankModelAdapter extends TypeAdapter<TankModel> {
       ..writeByte(10)
       ..write(obj.availableFuel)
       ..writeByte(11)
-      ..write(obj.fuelStatus);
+      ..write(obj.fuelStatus)
+      ..writeByte(12)
+      ..write(obj.fuelName)
+      ..writeByte(13)
+      ..write(obj.fuelKraCode)
+      ..writeByte(14)
+      ..write(obj.fuelColorHex);
   }
 
   @override
@@ -81,9 +90,9 @@ TankModel _$TankModelFromJson(Map<String, dynamic> json) => TankModel(
       id: json['id'] as String,
       station: json['station'] as String,
       name: json['name'] as String,
-      fuelType: json['fuelType'] == null
+      fuelType: json['fuel_type'] == null
           ? null
-          : FuelTypeModel.fromJson(json['fuelType'] as Map<String, dynamic>),
+          : FuelTypeModel.fromJson(json['fuel_type'] as Map<String, dynamic>),
       capacityLitres: json['capacity_litres'] as String,
       currentLevelLitres: json['current_level_litres'] as String,
       isActive: json['is_active'] as bool,
@@ -92,13 +101,16 @@ TankModel _$TankModelFromJson(Map<String, dynamic> json) => TankModel(
       usagePercentage: _parseDouble(json['usage_percentage']),
       availableFuel: _parseDouble(json['available_fuel']),
       fuelStatus: json['fuel_status'] as String,
+      fuelName: json['fuel_name'] as String?,
+      fuelKraCode: json['fuel_kra_code'] as String?,
+      fuelColorHex: json['fuel_color_hex'] as String?,
     );
 
 Map<String, dynamic> _$TankModelToJson(TankModel instance) => <String, dynamic>{
       'id': instance.id,
       'station': instance.station,
       'name': instance.name,
-      'fuelType': instance.fuelType,
+      'fuel_type': instance.fuelType,
       'capacity_litres': instance.capacityLitres,
       'current_level_litres': instance.currentLevelLitres,
       'is_active': instance.isActive,
@@ -107,4 +119,7 @@ Map<String, dynamic> _$TankModelToJson(TankModel instance) => <String, dynamic>{
       'usage_percentage': instance.usagePercentage,
       'available_fuel': instance.availableFuel,
       'fuel_status': instance.fuelStatus,
+      'fuel_name': instance.fuelName,
+      'fuel_kra_code': instance.fuelKraCode,
+      'fuel_color_hex': instance.fuelColorHex,
     };

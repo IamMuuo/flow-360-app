@@ -32,8 +32,19 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
     return AlertDialog(
       title: Row(
         children: [
-          Icon(Icons.add_circle, color: Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              Icons.add_circle,
+              color: Theme.of(context).colorScheme.primary,
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
           const Text('Create New Tank'),
         ],
       ),
@@ -42,38 +53,161 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Info card about tank setup
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Theme.of(context).colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Tanks store fuel and supply it to nozzles. Each tank can only hold one type of fuel.',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+
               // Tank name
+              Text(
+                'Tank Name *',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
                   labelText: 'Tank Name',
-                  hintText: 'e.g., Tank 1, Main Tank',
+                  hintText: 'e.g., Tank 1, Main Tank, Diesel Tank',
                   prefixIcon: Icon(Icons.storage),
                   border: OutlineInputBorder(),
+                  filled: true,
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter tank name';
                   }
+                  if (value.length < 2) {
+                    return 'Tank name must be at least 2 characters';
+                  }
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Fuel type dropdown
+              Text(
+                'Fuel Type *',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
               Obx(() {
+                if (_tankController.fuelTypes.isEmpty) {
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(
+                        color: Theme.of(context).colorScheme.error.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Theme.of(context).colorScheme.error,
+                          size: 24,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'No Fuel Types Available',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Theme.of(context).colorScheme.error,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Please contact your administrator to set up fuel types.',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
                 return DropdownButtonFormField<String>(
                   value: _selectedFuelTypeId,
                   decoration: const InputDecoration(
-                    labelText: 'Fuel Type',
+                    labelText: 'Select Fuel Type',
+                    hintText: 'Choose the type of fuel this tank will store',
                     prefixIcon: Icon(Icons.local_gas_station),
                     border: OutlineInputBorder(),
+                    filled: true,
                   ),
                   items: _tankController.fuelTypes.map((fuelType) {
                     return DropdownMenuItem<String>(
                       value: fuelType['id'],
-                      child: Text(fuelType['name']),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 16,
+                            height: 16,
+                            decoration: BoxDecoration(
+                              color: Color(int.parse(fuelType['color_hex']?.replaceAll('#', '0xFF') ?? '0xFF808080')),
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  fuelType['name'] ?? 'Unknown',
+                                  style: const TextStyle(fontWeight: FontWeight.w500),
+                                ),
+                                Text(
+                                  fuelType['kra_code'] ?? '',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     );
                   }).toList(),
                   onChanged: (value) {
@@ -89,17 +223,27 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
                   },
                 );
               }),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Capacity
+              Text(
+                'Tank Capacity *',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _capacityController,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   labelText: 'Capacity (Litres)',
-                  hintText: 'Enter tank capacity',
+                  hintText: 'e.g., 50000.00',
                   prefixIcon: Icon(Icons.straighten),
                   border: OutlineInputBorder(),
+                  filled: true,
+                  helperText: 'Maximum amount of fuel the tank can hold',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -109,24 +253,37 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
                   if (capacity == null || capacity <= 0) {
                     return 'Please enter a valid capacity';
                   }
+                  if (capacity > 1000000) {
+                    return 'Capacity cannot exceed 1,000,000 litres';
+                  }
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
 
               // Current level
+              Text(
+                'Initial Fuel Level',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _currentLevelController,
-                keyboardType: TextInputType.number,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 decoration: const InputDecoration(
                   labelText: 'Current Level (Litres)',
-                  hintText: 'Enter current fuel level',
+                  hintText: 'e.g., 0.00 (leave empty if tank is empty)',
                   prefixIcon: Icon(Icons.water_drop),
                   border: OutlineInputBorder(),
+                  filled: true,
+                  helperText: 'Current amount of fuel in the tank (optional)',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter current level';
+                    return null; // Optional field
                   }
                   final level = double.tryParse(value);
                   if (level == null || level < 0) {
@@ -140,6 +297,47 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
                   return null;
                 },
               ),
+              const SizedBox(height: 20),
+
+              // Active status
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: true,
+                      onChanged: null, // Always active for new tanks
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Active',
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            'Enable this tank for fuel dispensing',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -150,15 +348,16 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
           child: const Text('Cancel'),
         ),
         Obx(() {
-          return ElevatedButton(
+          return ElevatedButton.icon(
             onPressed: _tankController.isLoading.value ? null : _submitForm,
-            child: _tankController.isLoading.value
+            icon: _tankController.isLoading.value
                 ? const SizedBox(
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Create Tank'),
+                : const Icon(Icons.add),
+            label: Text(_tankController.isLoading.value ? 'Creating...' : 'Create Tank'),
           );
         }),
       ],
@@ -170,10 +369,12 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
       final AuthController authController = Get.find<AuthController>();
       
       final tankData = {
-        'name': _nameController.text,
-        'fuel_type': _selectedFuelTypeId, // Send the Fuel UUID
+        'name': _nameController.text.trim(),
+        'fuel_type': _selectedFuelTypeId,
         'capacity_litres': _capacityController.text,
-        'current_level_litres': _currentLevelController.text,
+        'current_level_litres': _currentLevelController.text.isEmpty 
+            ? '0.00' 
+            : _currentLevelController.text,
         'is_active': true,
         'station': authController.currentUser.value!.user.station,
       };
@@ -184,15 +385,15 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
         // Show success snackbar and close dialog
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Tank created successfully'),
+                  const SizedBox(width: 8),
+                  Text('Tank "${_nameController.text.trim()}" created successfully'),
                 ],
               ),
-              backgroundColor: Colors.green,
+              backgroundColor: Theme.of(context).colorScheme.primary,
               behavior: SnackBarBehavior.floating,
             ),
           );
@@ -207,10 +408,12 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
                 children: [
                   const Icon(Icons.error, color: Colors.white),
                   const SizedBox(width: 8),
-                  Text('Failed to create tank: ${e.toString()}'),
+                  Expanded(
+                    child: Text('Failed to create tank: ${e.toString()}'),
+                  ),
                 ],
               ),
-              backgroundColor: Colors.red,
+              backgroundColor: Theme.of(context).colorScheme.error,
               behavior: SnackBarBehavior.floating,
             ),
           );

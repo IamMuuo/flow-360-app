@@ -60,12 +60,11 @@ class TankRepository {
 
       return tanks;
     } catch (e) {
-      // print('Error fetching tanks: $e');
-      // if (e is DioException) {
-      //   print('DioException status: ${e.response?.statusCode}');
-      //   print('DioException data: ${e.response?.data}');
-      // }
-    print(e.toString());
+      print('Error fetching tanks: $e');
+      if (e is DioException) {
+        print('DioException status: ${e.response?.statusCode}');
+        print('DioException data: ${e.response?.data}');
+      }
       rethrow;
     }
   }

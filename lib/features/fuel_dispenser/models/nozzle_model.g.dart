@@ -18,7 +18,9 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
     };
     return NozzleModel(
       id: fields[0] as String,
-      fuelType: fields[1] as FuelTypeModel?,
+      fuelTypeId: fields[1] as String?,
+      fuelTypeName: fields[8] as String?,
+      fuelTypeKraCode: fields[9] as String?,
       nozzleNumber: fields[2] as int,
       isActive: fields[3] as bool,
       dispenser: fields[4] as String,
@@ -31,11 +33,15 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
   @override
   void write(BinaryWriter writer, NozzleModel obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
-      ..write(obj.fuelType)
+      ..write(obj.fuelTypeId)
+      ..writeByte(8)
+      ..write(obj.fuelTypeName)
+      ..writeByte(9)
+      ..write(obj.fuelTypeKraCode)
       ..writeByte(2)
       ..write(obj.nozzleNumber)
       ..writeByte(3)
@@ -67,9 +73,9 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
 
 NozzleModel _$NozzleModelFromJson(Map<String, dynamic> json) => NozzleModel(
       id: json['id'] as String,
-      fuelType: json['fuel_type'] == null
-          ? null
-          : FuelTypeModel.fromJson(json['fuel_type'] as Map<String, dynamic>),
+      fuelTypeId: json['fuel_type'] as String?,
+      fuelTypeName: json['fuel_type_name'] as String?,
+      fuelTypeKraCode: json['fuel_type_kra_code'] as String?,
       nozzleNumber: (json['nozzle_number'] as num).toInt(),
       isActive: json['is_active'] as bool,
       dispenser: json['dispenser'] as String,
@@ -81,7 +87,9 @@ NozzleModel _$NozzleModelFromJson(Map<String, dynamic> json) => NozzleModel(
 Map<String, dynamic> _$NozzleModelToJson(NozzleModel instance) =>
     <String, dynamic>{
       'id': instance.id,
-      'fuel_type': instance.fuelType,
+      'fuel_type': instance.fuelTypeId,
+      'fuel_type_name': instance.fuelTypeName,
+      'fuel_type_kra_code': instance.fuelTypeKraCode,
       'nozzle_number': instance.nozzleNumber,
       'is_active': instance.isActive,
       'dispenser': instance.dispenser,
