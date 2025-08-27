@@ -125,13 +125,21 @@ class TankRepository {
     required String tankId,
     required double litres,
     required String reason,
+    Map<String, dynamic>? supplierInfo,
   }) async {
+    final data = {
+      'litres': litres,
+      'reason': reason,
+    };
+    
+    // Add supplier info if provided (for KRA VSCU compliance)
+    if (supplierInfo != null) {
+      data['supplier_info'] = supplierInfo;
+    }
+    
     final response = await _dioClient.dio.post(
       '/station/tanks/$tankId/add-fuel/',
-      data: {
-        'litres': litres,
-        'reason': reason,
-      },
+      data: data,
     );
     return TankAuditModel.fromJson(response.data);
   }

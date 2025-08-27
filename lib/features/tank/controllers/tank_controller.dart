@@ -159,7 +159,7 @@ class TankController extends GetxController {
     }
   }
 
-  Future<void> addFuelToTank(String tankId, double litres, String reason) async {
+  Future<void> addFuelToTank(String tankId, double litres, String reason, {Map<String, dynamic>? supplierInfo}) async {
     try {
       isLoading.value = true;
       errorMessage.value = '';
@@ -168,6 +168,7 @@ class TankController extends GetxController {
         tankId: tankId,
         litres: litres,
         reason: reason,
+        supplierInfo: supplierInfo,
       );
       
       // Refresh tanks to get updated levels
