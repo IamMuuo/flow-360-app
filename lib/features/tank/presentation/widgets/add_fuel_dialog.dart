@@ -26,12 +26,21 @@ class _AddFuelDialogState extends State<AddFuelDialog> {
   final _supplierNameController = TextEditingController();
   final _supplierInvoiceNoController = TextEditingController();
   
+  // Purchase information controllers
+  final _unitPriceController = TextEditingController();
+  final _taxRateController = TextEditingController();
+  final _purchaseDateController = TextEditingController();
+  
   final TankController _tankController = Get.find<TankController>();
 
   @override
   void initState() {
     super.initState();
     _reasonController.text = 'Manual addition';
+    
+    // Set default values for purchase fields
+    _taxRateController.text = '18'; // Default VAT rate
+    _purchaseDateController.text = DateTime.now().toString().split(' ')[0]; // Today's date
   }
 
   @override
@@ -42,6 +51,9 @@ class _AddFuelDialogState extends State<AddFuelDialog> {
     _supplierBhfIdController.dispose();
     _supplierNameController.dispose();
     _supplierInvoiceNoController.dispose();
+    _unitPriceController.dispose();
+    _taxRateController.dispose();
+    _purchaseDateController.dispose();
     super.dispose();
   }
 
@@ -253,6 +265,126 @@ class _AddFuelDialogState extends State<AddFuelDialog> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 16),
+                
+                // Purchase Information Section
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.shopping_cart,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Purchase Information (KRA VSCU Required)',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Purchase details required for KRA VSCU purchase transaction.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        
+                        // Unit Price
+                        TextFormField(
+                          controller: _unitPriceController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Unit Price (KES/Litre) *',
+                            hintText: 'e.g., 150.00',
+                            prefixIcon: Icon(Icons.attach_money),
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Unit price is required';
+                            }
+                            final price = double.tryParse(value);
+                            if (price == null || price <= 0) {
+                              return 'Please enter a valid unit price';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Tax Rate
+                        TextFormField(
+                          controller: _taxRateController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(
+                            labelText: 'Tax Rate (%) *',
+                            hintText: 'e.g., 18',
+                            prefixIcon: Icon(Icons.percent),
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Tax rate is required';
+                            }
+                            final rate = double.tryParse(value);
+                            if (rate == null || rate < 0 || rate > 100) {
+                              return 'Please enter a valid tax rate (0-100)';
+                            }
+                            return null;
+                          },
+                        ),
+                        const SizedBox(height: 12),
+                        
+                        // Purchase Date
+                        TextFormField(
+                          controller: _purchaseDateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Purchase Date *',
+                            hintText: 'YYYY-MM-DD',
+                            prefixIcon: Icon(Icons.calendar_today),
+                            border: OutlineInputBorder(),
+                          ),
+                          onTap: () async {
+                            final date = await showDatePicker(
+                              context: context,
+                              initialDate: DateTime.now(),
+                              firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                              lastDate: DateTime.now(),
+                            );
+                            if (date != null) {
+                              _purchaseDateController.text = date.toString().split(' ')[0];
+                            }
+                          },
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Purchase date is required';
+                            }
+                            try {
+                              DateTime.parse(value);
+                              return null;
+                            } catch (e) {
+                              return 'Please enter a valid date (YYYY-MM-DD)';
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -292,6 +424,10 @@ class _AddFuelDialogState extends State<AddFuelDialog> {
         'bhf_id': _supplierBhfIdController.text.trim(),
         'name': _supplierNameController.text.trim(),
         'invoice_no': _supplierInvoiceNoController.text.trim(),
+        'unit_price': double.parse(_unitPriceController.text),
+        'tax_rate': double.parse(_taxRateController.text),
+        'purchase_date': _purchaseDateController.text,
+        'litres': litres,
       };
       
       try {

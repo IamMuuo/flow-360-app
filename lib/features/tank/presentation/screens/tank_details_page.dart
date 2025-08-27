@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/tank/controllers/tank_controller.dart';
 import 'package:flow_360/features/tank/models/tank_model.dart';
 import 'package:flow_360/features/tank/presentation/widgets/add_fuel_dialog.dart';
-import 'package:flow_360/features/tank/presentation/widgets/adjust_level_dialog.dart';
+
 
 class TankDetailsPage extends StatelessWidget {
   final TankModel tank;
@@ -222,19 +222,7 @@ class TankDetailsPage extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton.icon(
-            onPressed: () => _showAdjustLevelDialog(context),
-            icon: const Icon(Icons.tune),
-            label: const Text('Adjust Level'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-          ),
-        ),
+
       ],
     );
   }
@@ -349,10 +337,5 @@ class TankDetailsPage extends StatelessWidget {
     );
   }
 
-  void _showAdjustLevelDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AdjustLevelDialog(tank: tank),
-    );
-  }
+
 }
