@@ -624,7 +624,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
     _showDetailedReportDialog(
       'Fuel Type Analysis Report',
       _controller.fuelTypeReports,
-      (report) => report.fuelType,
+      (report) => report.fuelTypeDisplay,
       (report) => 'KES ${report.totalAmount.toStringAsFixed(2)}',
       (report) => '${report.totalLitres.toStringAsFixed(1)}L',
     );

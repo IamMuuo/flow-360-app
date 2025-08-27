@@ -7,7 +7,7 @@ class SalesReportModel {
   final String id;
   @JsonKey(name: 'employee_name') final String employeeName;
   @JsonKey(name: 'employee_id') final String employeeId;
-  @JsonKey(name: 'fuel_type') final String fuelType;
+  @JsonKey(name: 'fuel_type') final String? fuelType;
   @JsonKey(name: 'total_amount') final double totalAmount;
   @JsonKey(name: 'litres_sold') final double litresSold;
   @JsonKey(name: 'price_per_litre') final double pricePerLitre;
@@ -20,7 +20,7 @@ class SalesReportModel {
     required this.id,
     required this.employeeName,
     required this.employeeId,
-    required this.fuelType,
+    this.fuelType,
     required this.totalAmount,
     required this.litresSold,
     required this.pricePerLitre,
@@ -32,6 +32,9 @@ class SalesReportModel {
 
   factory SalesReportModel.fromJson(Map<String, dynamic> json) => _$SalesReportModelFromJson(json);
   Map<String, dynamic> toJson() => _$SalesReportModelToJson(this);
+  
+  // Helper getter for fuel type with fallback
+  String get fuelTypeDisplay => fuelType ?? 'Unknown';
 }
 
 @JsonSerializable()
@@ -78,7 +81,7 @@ class EmployeeSalesReport {
 
 @JsonSerializable()
 class FuelTypeSalesReport {
-  @JsonKey(name: 'fuel_type') final String fuelType;
+  @JsonKey(name: 'fuel_type') final String? fuelType;
   @JsonKey(name: 'total_amount') final double totalAmount;
   @JsonKey(name: 'total_litres') final double totalLitres;
   @JsonKey(name: 'total_sales') final int totalSales;
@@ -86,7 +89,7 @@ class FuelTypeSalesReport {
   final List<SalesReportModel> sales;
 
   FuelTypeSalesReport({
-    required this.fuelType,
+    this.fuelType,
     required this.totalAmount,
     required this.totalLitres,
     required this.totalSales,
@@ -96,6 +99,9 @@ class FuelTypeSalesReport {
 
   factory FuelTypeSalesReport.fromJson(Map<String, dynamic> json) => _$FuelTypeSalesReportFromJson(json);
   Map<String, dynamic> toJson() => _$FuelTypeSalesReportToJson(this);
+  
+  // Helper getter for fuel type with fallback
+  String get fuelTypeDisplay => fuelType ?? 'Unknown';
 }
 
 @JsonSerializable()

@@ -11,7 +11,7 @@ SalesReportModel _$SalesReportModelFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String,
       employeeName: json['employee_name'] as String,
       employeeId: json['employee_id'] as String,
-      fuelType: json['fuel_type'] as String,
+      fuelType: json['fuel_type'] as String?,
       totalAmount: (json['total_amount'] as num).toDouble(),
       litresSold: (json['litres_sold'] as num).toDouble(),
       pricePerLitre: (json['price_per_litre'] as num).toDouble(),
@@ -81,7 +81,7 @@ Map<String, dynamic> _$EmployeeSalesReportToJson(
 
 FuelTypeSalesReport _$FuelTypeSalesReportFromJson(Map<String, dynamic> json) =>
     FuelTypeSalesReport(
-      fuelType: json['fuel_type'] as String,
+      fuelType: json['fuel_type'] as String?,
       totalAmount: (json['total_amount'] as num).toDouble(),
       totalLitres: (json['total_litres'] as num).toDouble(),
       totalSales: (json['total_sales'] as num).toInt(),
