@@ -7,6 +7,8 @@ import 'package:flow_360/features/auth/controllers/auth_controller.dart';
 import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
 import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
+import 'package:flow_360/features/sales/presentation/widgets/credit_note_dialog.dart';
+import 'package:flow_360/features/sales/models/sale_model.dart';
 
 class EmployeeDashboard extends StatefulWidget {
   const EmployeeDashboard({super.key});
@@ -761,6 +763,23 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
+                  // Credit Note Icon
+                  GestureDetector(
+                    onTap: () => _showCreditNoteDialog(sale),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.receipt_long,
+                        color: Colors.red,
+                        size: 16,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -1051,6 +1070,19 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
         ],
       ),
     );
+  }
+
+  void _showCreditNoteDialog(SaleModel sale) {
+    showDialog(
+      context: context,
+      builder: (context) => CreditNoteDialog(sale: sale),
+    ).then((result) {
+      if (result == true) {
+        // Refresh sales data after successful credit note creation
+        final salesController = Get.find<SalesController>();
+        salesController.loadSales();
+      }
+    });
   }
 
 }

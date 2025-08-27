@@ -72,6 +72,32 @@ class SalesRepository {
     }
   }
 
+  Future<void> createCreditNote({
+    required String saleId,
+    required String reason,
+  }) async {
+    try {
+      final response = await _dioClient.dio.post(
+        '/sales/$saleId/credit-note/',
+        data: {
+          'reason': reason,
+        },
+      );
+      
+      if (response.statusCode != 201) {
+        throw Failure(
+          message: response.data['detail'] ?? 'Failed to create credit note.',
+        );
+      }
+    } on dio.DioException catch (e) {
+      throw Failure(
+        message: e.response?.data['detail'] ?? 'Failed to create credit note.',
+      );
+    } catch (e) {
+      throw Failure(message: 'An unexpected error occurred.');
+    }
+  }
+
   Future<Map<String, dynamic>> getAvailableNozzles() async {
     try {
       final response = await _dioClient.dio.get('/sales/employee/nozzles/');

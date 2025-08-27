@@ -147,6 +147,26 @@ class SalesController extends GetxController {
     }
   }
 
+  Future<void> createCreditNote({
+    required String saleId,
+    required String reason,
+  }) async {
+    try {
+      await _repository.createCreditNote(
+        saleId: saleId,
+        reason: reason,
+      );
+      successMessage.value = 'Credit note created successfully!';
+    } catch (e) {
+      if (e is Failure) {
+        errorMessage.value = e.message;
+      } else {
+        errorMessage.value = e.toString();
+      }
+      throw e; // Re-throw to let the dialog handle it
+    }
+  }
+
   void clearSuccess() {
     successMessage.value = '';
   }
