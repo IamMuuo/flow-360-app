@@ -669,64 +669,64 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               children: [
                 // Header row with nozzle number and status
                 Row(
-                  children: [
-                    Container(
+              children: [
+                Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: nozzle.isActive == true
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1)
-                            : Theme.of(
-                                context,
-                              ).colorScheme.error.withValues(alpha: 0.1),
-                      ),
-                      child: Icon(
-                        Icons.water_drop_outlined,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: nozzle.isActive == true
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.1),
+                  ),
+                  child: Icon(
+                    Icons.water_drop_outlined,
                         size: 20,
-                        color: nozzle.isActive == true
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.error,
-                      ),
-                    ),
+                    color: nozzle.isActive == true
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.error,
+                  ),
+                ),
                     const SizedBox(width: 12),
-                    Expanded(
+                Expanded(
                       child: Text(
                         'Nozzle ${nozzle.nozzleNumber}',
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: nozzle.isActive == true
-                            ? Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1)
-                            : Theme.of(
-                                context,
-                              ).colorScheme.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        nozzle.isActive == true ? 'Active' : 'Inactive',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: nozzle.isActive == true
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.error,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: nozzle.isActive == true
+                        ? Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.1)
+                        : Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    nozzle.isActive == true ? 'Active' : 'Inactive',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: nozzle.isActive == true
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.error,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
+                  ),
                 ),
+              ],
+            ),
                 const SizedBox(height: 12),
                 
                 // Fuel type and tank info
@@ -866,8 +866,8 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  Icons.add_circle_outline,
-                  color: Theme.of(context).colorScheme.primary,
+                Icons.add_circle_outline,
+                color: Theme.of(context).colorScheme.primary,
                   size: 24,
                 ),
               ),
@@ -877,9 +877,9 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
           ),
           content: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+            mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            children: [
                 // Info card about nozzle setup
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -920,7 +920,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   ),
                 ),
                 const SizedBox(height: 8),
-                Obx(() {
+              Obx(() {
                   // Debug: Print all tanks to understand the issue
                   print('DEBUG: Total tanks: ${tankController.tanks.length}');
                   for (final tank in tankController.tanks) {
@@ -934,8 +934,8 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   ).toList();
                   
                   print('DEBUG: Filtered tanks: ${tanks.length}');
-                  
-                  if (tanks.isEmpty) {
+                
+                if (tanks.isEmpty) {
                                          // Check if there are any tanks at all
                      final allTanks = tankController.tanks;
                      final activeTanks = tankController.tanks.where((tank) => tank.isActive).toList();
@@ -1021,10 +1021,10 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   
                   return SizedBox(
                     width: double.infinity,
-                    child: DropdownButtonFormField<String>(
-                      value: selectedTankId,
+                  child: DropdownButtonFormField<String>(
+                    value: selectedTankId,
                       decoration: InputDecoration(
-                        labelText: 'Select Tank',
+                      labelText: 'Select Tank',
                         hintText: 'Choose a tank to supply fuel to this nozzle',
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.storage),
@@ -1056,7 +1056,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   ),
                 );
               }),
-                
+              
                 const SizedBox(height: 20),
                 
                 // Nozzle Number
@@ -1068,17 +1068,17 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   ),
                 ),
                 const SizedBox(height: 8),
-                TextField(
-                  controller: nozzleNumberController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nozzle Number',
-                    hintText: 'e.g., 1, 2, 3',
-                    border: OutlineInputBorder(),
+              TextField(
+                controller: nozzleNumberController,
+                decoration: const InputDecoration(
+                  labelText: 'Nozzle Number',
+                  hintText: 'e.g., 1, 2, 3',
+                  border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.numbers),
                     filled: true,
-                  ),
-                  keyboardType: TextInputType.number,
                 ),
+                keyboardType: TextInputType.number,
+              ),
                 
                 const SizedBox(height: 20),
                 
@@ -1091,18 +1091,18 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                   ),
                 ),
                 const SizedBox(height: 8),
-                TextField(
-                  controller: initialReadingController,
-                  decoration: const InputDecoration(
+              TextField(
+                controller: initialReadingController,
+                decoration: const InputDecoration(
                     labelText: 'Initial Reading (Litres)',
-                    hintText: 'e.g., 0.00 (defaults to 0 if empty)',
-                    border: OutlineInputBorder(),
+                  hintText: 'e.g., 0.00 (defaults to 0 if empty)',
+                  border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.speed),
                     filled: true,
                     helperText: 'Set the initial meter reading for this nozzle',
-                  ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                 ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              ),
                 
                 const SizedBox(height: 20),
                 
@@ -1117,15 +1117,15 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                     ),
                   ),
                   child: Row(
-                    children: [
-                      Checkbox(
-                        value: isActive,
-                        onChanged: (value) {
-                          setState(() {
-                            isActive = value ?? true;
-                          });
-                        },
-                      ),
+                children: [
+                  Checkbox(
+                    value: isActive,
+                    onChanged: (value) {
+                      setState(() {
+                        isActive = value ?? true;
+                      });
+                    },
+                  ),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Column(
@@ -1466,10 +1466,10 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
           ),
           content: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Tank Selection Dropdown
-                Obx(() {
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Tank Selection Dropdown
+              Obx(() {
                   // Show all active tanks since fuel type will be inferred from the tank
                   final tanks = tankController.tanks.where((tank) => tank.isActive).toList();
                 
@@ -1489,37 +1489,37 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
                 return SizedBox(
                   width: double.infinity,
                   child: DropdownButtonFormField<String>(
-                    value: selectedTankId,
-                    decoration: const InputDecoration(
-                      labelText: 'Select Tank (Optional)',
-                      hintText: 'Choose a tank to supply fuel',
-                      border: OutlineInputBorder(),
-                    ),
+                  value: selectedTankId,
+                  decoration: const InputDecoration(
+                    labelText: 'Select Tank (Optional)',
+                    hintText: 'Choose a tank to supply fuel',
+                    border: OutlineInputBorder(),
+                  ),
                     isExpanded: true,
-                    items: [
-                      const DropdownMenuItem<String>(
-                        value: null,
+                  items: [
+                    const DropdownMenuItem<String>(
+                      value: null,
                         child: Text(
                           'No tank assigned',
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      ...tanks.map((tank) {
-                        return DropdownMenuItem<String>(
-                          value: tank.id,
+                    ),
+                    ...tanks.map((tank) {
+                      return DropdownMenuItem<String>(
+                        value: tank.id,
                           child: Text(
                             '${tank.name} (${tank.fuelTypeName})',
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
-                        );
-                      }).toList(),
-                    ],
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedTankId = newValue;
-                      });
-                    },
+                      );
+                    }).toList(),
+                  ],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedTankId = newValue;
+                    });
+                  },
                   ),
                 );
               }),
@@ -1550,7 +1550,7 @@ class _DispenserDetailPageState extends State<DispenserDetailPage>
               ),
             ],
           ),
-        ),
+          ),
           actions: [
             TextButton(
               onPressed: () => context.pop(),

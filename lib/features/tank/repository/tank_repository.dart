@@ -141,13 +141,21 @@ class TankRepository {
     required String tankId,
     required double newLevel,
     required String reason,
+    Map<String, dynamic>? supplierInfo,
   }) async {
+    final data = {
+      'new_level': newLevel,
+      'reason': reason,
+    };
+    
+    // Add supplier info if provided (for purchase transactions)
+    if (supplierInfo != null) {
+      data['supplier_info'] = supplierInfo;
+    }
+    
     final response = await _dioClient.dio.post(
       '/station/tanks/$tankId/adjust-level/',
-      data: {
-        'new_level': newLevel,
-        'reason': reason,
-      },
+      data: data,
     );
     return TankAuditModel.fromJson(response.data);
   }

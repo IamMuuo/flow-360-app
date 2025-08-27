@@ -66,9 +66,7 @@ class ShiftReadingsScreen extends StatelessWidget {
         }
 
         if (controller.isLoading.value) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         return RefreshIndicator(
@@ -103,7 +101,10 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildShiftStatusCard(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildShiftStatusCard(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     final currentShift = controller.currentShift.value;
     final todayShifts = controller.getTodayShifts();
     final canCreate = controller.canCreateShiftToday;
@@ -111,19 +112,19 @@ class ShiftReadingsScreen extends StatelessWidget {
     final authController = Get.find<AuthController>();
     final isAdmin = authController.currentUser.value?.user.isStaff ?? false;
     final maxShifts = isAdmin ? '∞' : '3';
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: currentShift?.isActive == true 
-          ? Theme.of(context).colorScheme.primaryContainer
-          : Theme.of(context).colorScheme.surface,
+        color: currentShift?.isActive == true
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: currentShift?.isActive == true 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-            : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: currentShift?.isActive == true
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+              : Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
         boxShadow: [
           BoxShadow(
@@ -139,28 +140,35 @@ class ShiftReadingsScreen extends StatelessWidget {
           Row(
             children: [
               Icon(
-                currentShift?.isActive == true ? Icons.play_circle_filled : Icons.schedule,
-                color: currentShift?.isActive == true 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                currentShift?.isActive == true
+                    ? Icons.play_circle_filled
+                    : Icons.schedule,
+                color: currentShift?.isActive == true
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 24,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  currentShift?.isActive == true ? 'Active Shift' : 'Today\'s Shifts',
+                  currentShift?.isActive == true
+                      ? 'Active Shift'
+                      : 'Today\'s Shifts',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: currentShift?.isActive == true 
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: currentShift?.isActive == true
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
               if (currentShift?.isActive == true)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(12),
@@ -176,7 +184,7 @@ class ShiftReadingsScreen extends StatelessWidget {
                 ),
             ],
           ),
-          
+
           // Today's shift count
           Container(
             margin: const EdgeInsets.only(top: 12),
@@ -197,9 +205,9 @@ class ShiftReadingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  isAdmin 
-                    ? 'Today: $todayCount shifts created (Unlimited allowed)'
-                    : 'Today: $todayCount/$maxShifts shifts created',
+                  isAdmin
+                      ? 'Today: $todayCount shifts created (Unlimited allowed)'
+                      : 'Today: $todayCount/$maxShifts shifts created',
                   style: TextStyle(
                     fontSize: 12,
                     color: canCreate ? Colors.green[700] : Colors.orange[700],
@@ -209,7 +217,7 @@ class ShiftReadingsScreen extends StatelessWidget {
               ],
             ),
           ),
-          
+
           if (currentShift != null) ...[
             const SizedBox(height: 16),
             _buildShiftInfoRow(context, 'Date', currentShift.shiftDate),
@@ -217,7 +225,11 @@ class ShiftReadingsScreen extends StatelessWidget {
             if (currentShift.endTime != null)
               _buildShiftInfoRow(context, 'End Time', currentShift.endTime!),
             if (currentShift.durationMinutes != null)
-              _buildShiftInfoRow(context, 'Duration', '${currentShift.durationMinutes} min'),
+              _buildShiftInfoRow(
+                context,
+                'Duration',
+                '${currentShift.durationMinutes} min',
+              ),
             if (currentShift.notes?.isNotEmpty == true) ...[
               const SizedBox(height: 8),
               Text(
@@ -240,41 +252,51 @@ class ShiftReadingsScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ...todayShifts.map((shift) => Container(
-                margin: const EdgeInsets.only(bottom: 8),
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      shift.isActive ? Icons.play_circle_filled : Icons.stop_circle,
-                      color: shift.isActive 
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurfaceVariant,
-                      size: 16,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${shift.startTime}${shift.endTime != null ? ' - ${shift.endTime}' : ''} (${shift.status})',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+              ...todayShifts
+                  .map(
+                    (shift) => Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceVariant.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            shift.isActive
+                                ? Icons.play_circle_filled
+                                : Icons.stop_circle,
+                            color: shift.isActive
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                            size: 16,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              '${shift.startTime}${shift.endTime != null ? ' - ${shift.endTime}' : ''} (${shift.status})',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              )).toList(),
+                  )
+                  .toList(),
               const SizedBox(height: 12),
             ],
             Text(
-              canCreate 
-                ? 'Create a new shift to start recording readings.'
-                : 'Maximum shifts reached for today.',
+              canCreate
+                  ? 'Create a new shift to start recording readings.'
+                  : 'Maximum shifts reached for today.',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 14,
@@ -332,7 +354,10 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReadingSections(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildReadingSections(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -399,11 +424,7 @@ class ShiftReadingsScreen extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 32,
-            ),
+            Icon(icon, color: color, size: 32),
             const SizedBox(height: 12),
             Text(
               title,
@@ -429,10 +450,13 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildReconciliationSection(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildReconciliationSection(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     final hasOpeningReadings = controller.hasOpeningReadings();
     final hasClosingReadings = controller.hasClosingReadings();
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -484,18 +508,20 @@ class ShiftReadingsScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: controller.isReconciling.value 
-                  ? null 
-                  : () => controller.reconcileShiftReadings(),
-                icon: controller.isReconciling.value 
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.compare_arrows),
+                onPressed: controller.isReconciling.value
+                    ? null
+                    : () => controller.reconcileShiftReadings(),
+                icon: controller.isReconciling.value
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.compare_arrows),
                 label: Text(
-                  controller.isReconciling.value ? 'Reconciling...' : 'Reconcile Readings',
+                  controller.isReconciling.value
+                      ? 'Reconciling...'
+                      : 'Reconcile Readings',
                 ),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -529,23 +555,23 @@ class ShiftReadingsScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isComplete 
-            ? Theme.of(context).colorScheme.primaryContainer
-            : Theme.of(context).colorScheme.surfaceVariant,
+          color: isComplete
+              ? Theme.of(context).colorScheme.primaryContainer
+              : Theme.of(context).colorScheme.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isComplete 
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-              : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            color: isComplete
+                ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+                : Theme.of(context).colorScheme.outline.withOpacity(0.2),
           ),
         ),
         child: Column(
           children: [
             Icon(
               icon,
-              color: isComplete 
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: isComplete
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 24,
             ),
             const SizedBox(height: 8),
@@ -554,18 +580,18 @@ class ShiftReadingsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isComplete 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isComplete
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
             Icon(
               isComplete ? Icons.check_circle : Icons.pending,
-              color: isComplete 
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onSurfaceVariant,
+              color: isComplete
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.onSurfaceVariant,
               size: 16,
             ),
           ],
@@ -574,7 +600,10 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildNoActiveShiftCard(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildNoActiveShiftCard(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -615,7 +644,10 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDebugSection(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildDebugSection(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -681,7 +713,10 @@ class ShiftReadingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildShiftHistorySection(BuildContext context, ShiftReadingsController controller) {
+  Widget _buildShiftHistorySection(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -740,9 +775,9 @@ class ShiftReadingsScreen extends StatelessWidget {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: shift.isActive 
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-            : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: shift.isActive
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+              : Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
         boxShadow: [
           BoxShadow(
@@ -759,9 +794,9 @@ class ShiftReadingsScreen extends StatelessWidget {
             children: [
               Icon(
                 shift.isActive ? Icons.play_circle_filled : Icons.stop_circle,
-                color: shift.isActive 
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: shift.isActive
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
                 size: 20,
               ),
               const SizedBox(width: 8),
@@ -778,17 +813,17 @@ class ShiftReadingsScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: shift.isActive 
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.surfaceVariant,
+                  color: shift.isActive
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   shift.status,
                   style: TextStyle(
-                    color: shift.isActive 
-                      ? Colors.white
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: shift.isActive
+                        ? Colors.white
+                        : Theme.of(context).colorScheme.onSurfaceVariant,
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
@@ -820,7 +855,10 @@ class ShiftReadingsScreen extends StatelessWidget {
   }
 
   // Dialog methods
-  void _showCreateShiftDialog(BuildContext context, ShiftReadingsController controller) {
+  void _showCreateShiftDialog(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     final shiftDateController = TextEditingController(
       text: DateFormat('yyyy-MM-dd').format(DateTime.now()),
     );
@@ -831,14 +869,17 @@ class ShiftReadingsScreen extends StatelessWidget {
 
     // Check for existing active shift on the selected date
     final selectedDate = shiftDateController.text;
-    final existingActiveShift = controller.stationShifts.where((shift) => 
-      shift.shiftDate == selectedDate && shift.status == 'ACTIVE'
-    ).firstOrNull;
-    
+    final existingActiveShift = controller.stationShifts
+        .where(
+          (shift) =>
+              shift.shiftDate == selectedDate && shift.status == 'ACTIVE',
+        )
+        .firstOrNull;
+
     // Check shift count for the selected date
-    final shiftsForDate = controller.stationShifts.where((shift) => 
-      shift.shiftDate == selectedDate
-    ).toList();
+    final shiftsForDate = controller.stationShifts
+        .where((shift) => shift.shiftDate == selectedDate)
+        .toList();
     final shiftCount = shiftsForDate.length;
     final authController = Get.find<AuthController>();
     final isStaff = authController.currentUser.value?.user.isStaff ?? false;
@@ -848,63 +889,22 @@ class ShiftReadingsScreen extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Create New Shift'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Show shift count info
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: canCreateMore ? Colors.blue.shade50 : Colors.orange.shade50,
-                border: Border.all(color: canCreateMore ? Colors.blue.shade200 : Colors.orange.shade200),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        canCreateMore ? Icons.info : Icons.warning,
-                        color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        canCreateMore ? 'Shift Count' : 'Shift Limit Reached',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    isStaff 
-                      ? 'You have $shiftCount shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))} (Unlimited allowed)'
-                      : 'You have $shiftCount/3 shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))}',
-                    style: TextStyle(color: canCreateMore ? Colors.blue.shade700 : Colors.orange.shade700),
-                  ),
-                  if (!canCreateMore) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'Maximum 3 shifts per day reached. Please contact your administrator if you need more shifts.',
-                      style: TextStyle(color: Colors.orange.shade700, fontSize: 12),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // Show active shift warning if exists
-            if (existingActiveShift != null) ...[
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Show shift count info
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.red.shade50,
-                  border: Border.all(color: Colors.red.shade200),
+                  color: canCreateMore
+                      ? Colors.blue.shade50
+                      : Colors.orange.shade50,
+                  border: Border.all(
+                    color: canCreateMore
+                        ? Colors.blue.shade200
+                        : Colors.orange.shade200,
+                  ),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Column(
@@ -912,84 +912,156 @@ class ShiftReadingsScreen extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.error, color: Colors.red.shade700, size: 20),
+                        Icon(
+                          canCreateMore ? Icons.info : Icons.warning,
+                          color: canCreateMore
+                              ? Colors.blue.shade700
+                              : Colors.orange.shade700,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
-                          'Active Shift Found',
+                          canCreateMore ? 'Shift Count' : 'Shift Limit Reached',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: Colors.red.shade700,
+                            color: canCreateMore
+                                ? Colors.blue.shade700
+                                : Colors.orange.shade700,
                           ),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'You already have an active shift for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(existingActiveShift.shiftDate))}.',
-                      style: TextStyle(color: Colors.red.shade700),
+                      isStaff
+                          ? 'You have $shiftCount shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))} (Unlimited allowed)'
+                          : 'You have $shiftCount/3 shifts for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(selectedDate))}',
+                      style: TextStyle(
+                        color: canCreateMore
+                            ? Colors.blue.shade700
+                            : Colors.orange.shade700,
+                      ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Time: ${existingActiveShift.startTime}${existingActiveShift.endTime != null ? ' - ${existingActiveShift.endTime}' : ''}',
-                      style: TextStyle(color: Colors.red.shade700),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Please end the current shift before creating a new one.',
-                      style: TextStyle(color: Colors.red.shade700, fontSize: 12),
-                    ),
+                    if (!canCreateMore) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Maximum 3 shifts per day reached. Please contact your administrator if you need more shifts.',
+                        style: TextStyle(
+                          color: Colors.orange.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // Show active shift warning if exists
+              if (existingActiveShift != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade50,
+                    border: Border.all(color: Colors.red.shade200),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.error,
+                            color: Colors.red.shade700,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Active Shift Found',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'You already have an active shift for ${DateFormat('MMM dd, yyyy').format(DateTime.parse(existingActiveShift.shiftDate))}.',
+                        style: TextStyle(color: Colors.red.shade700),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Time: ${existingActiveShift.startTime}${existingActiveShift.endTime != null ? ' - ${existingActiveShift.endTime}' : ''}',
+                        style: TextStyle(color: Colors.red.shade700),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Please end the current shift before creating a new one.',
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              TextField(
+                controller: shiftDateController,
+                decoration: const InputDecoration(
+                  labelText: 'Shift Date',
+                  border: OutlineInputBorder(),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: DateTime.now(),
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 30),
+                    ),
+                    lastDate: DateTime.now().add(const Duration(days: 30)),
+                  );
+                  if (date != null) {
+                    shiftDateController.text = DateFormat(
+                      'yyyy-MM-dd',
+                    ).format(date);
+                  }
+                },
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: startTimeController,
+                decoration: const InputDecoration(
+                  labelText: 'Start Time',
+                  border: OutlineInputBorder(),
+                ),
+                readOnly: true,
+                onTap: () async {
+                  final time = await showTimePicker(
+                    context: context,
+                    initialTime: TimeOfDay.now(),
+                  );
+                  if (time != null) {
+                    startTimeController.text =
+                        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+                  }
+                },
+              ),
               const SizedBox(height: 16),
+              TextField(
+                controller: notesController,
+                decoration: const InputDecoration(
+                  labelText: 'Notes (Optional)',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
             ],
-            TextField(
-              controller: shiftDateController,
-              decoration: const InputDecoration(
-                labelText: 'Shift Date',
-                border: OutlineInputBorder(),
-              ),
-              readOnly: true,
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime.now().subtract(const Duration(days: 30)),
-                  lastDate: DateTime.now().add(const Duration(days: 30)),
-                );
-                if (date != null) {
-                  shiftDateController.text = DateFormat('yyyy-MM-dd').format(date);
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: startTimeController,
-              decoration: const InputDecoration(
-                labelText: 'Start Time',
-                border: OutlineInputBorder(),
-              ),
-              readOnly: true,
-              onTap: () async {
-                final time = await showTimePicker(
-                  context: context,
-                  initialTime: TimeOfDay.now(),
-                );
-                if (time != null) {
-                  startTimeController.text = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
-                }
-              },
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: notesController,
-              decoration: const InputDecoration(
-                labelText: 'Notes (Optional)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 3,
-            ),
-          ],
+          ),
         ),
         actions: [
           TextButton(
@@ -997,28 +1069,39 @@ class ShiftReadingsScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: (controller.isCreatingShift.value || existingActiveShift != null || !canCreateMore) ? null : () async {
-              await controller.createStationShift(
-                shiftDate: shiftDateController.text,
-                startTime: startTimeController.text,
-                notes: notesController.text.isNotEmpty ? notesController.text : null,
-              );
-              Navigator.of(context).pop();
-            },
-            child: controller.isCreatingShift.value 
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Create'),
+            onPressed:
+                (controller.isCreatingShift.value ||
+                    existingActiveShift != null ||
+                    !canCreateMore)
+                ? null
+                : () async {
+                    await controller.createStationShift(
+
+                      shiftDate: shiftDateController.text,
+                      startTime: startTimeController.text,
+                      notes: notesController.text.isNotEmpty
+                          ? notesController.text
+                          : null,
+                    );
+                    Navigator.of(context).pop();
+                  },
+            child: controller.isCreatingShift.value
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Create'),
           ),
         ],
       ),
     );
   }
 
-  void _showEndShiftDialog(BuildContext context, ShiftReadingsController controller) {
+  void _showEndShiftDialog(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     final endTimeController = TextEditingController(
       text: DateFormat('HH:mm').format(DateTime.now()),
     );
@@ -1044,7 +1127,8 @@ class ShiftReadingsScreen extends StatelessWidget {
                   initialTime: TimeOfDay.now(),
                 );
                 if (time != null) {
-                  endTimeController.text = '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
+                  endTimeController.text =
+                      '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
                 }
               },
             ),
@@ -1065,42 +1149,51 @@ class ShiftReadingsScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: controller.isEndingShift.value ? null : () async {
-              await controller.endStationShift(
-                shiftId: controller.currentShift.value!.id,
-                endTime: endTimeController.text,
-                notes: notesController.text.isNotEmpty ? notesController.text : null,
-              );
-              Navigator.of(context).pop();
-            },
-            child: controller.isEndingShift.value 
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('End Shift'),
+            onPressed: controller.isEndingShift.value
+                ? null
+                : () async {
+                    await controller.endStationShift(
+                      shiftId: controller.currentShift.value!.id,
+                      endTime: endTimeController.text,
+                      notes: notesController.text.isNotEmpty
+                          ? notesController.text
+                          : null,
+                    );
+                    Navigator.of(context).pop();
+                  },
+            child: controller.isEndingShift.value
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('End Shift'),
           ),
         ],
       ),
     );
   }
 
-  void _showTankReadingsDialog(BuildContext context, ShiftReadingsController controller) {
+  void _showTankReadingsDialog(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     if (controller.currentShift.value != null) {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => TankReadingsPage(shift: controller.currentShift.value!),
+          builder: (context) =>
+              TankReadingsPage(shift: controller.currentShift.value!),
         ),
       );
     }
   }
 
-  void _showNozzleReadingsDialog(BuildContext context, ShiftReadingsController controller) {
+  void _showNozzleReadingsDialog(
+    BuildContext context,
+    ShiftReadingsController controller,
+  ) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const NozzleReadingsScreen(),
-      ),
+      MaterialPageRoute(builder: (context) => const NozzleReadingsScreen()),
     );
   }
 }

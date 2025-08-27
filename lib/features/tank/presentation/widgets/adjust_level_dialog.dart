@@ -20,6 +20,15 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
   final _levelController = TextEditingController();
   final _reasonController = TextEditingController();
   final TankController _tankController = Get.find<TankController>();
+  
+  // Supplier information controllers
+  final _supplierTinController = TextEditingController();
+  final _supplierBhfIdController = TextEditingController();
+  final _supplierNameController = TextEditingController();
+  final _supplierInvoiceNoController = TextEditingController();
+  
+  // State variables
+  bool _isPurchaseMode = false;
 
   @override
   void initState() {
@@ -32,6 +41,10 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
   void dispose() {
     _levelController.dispose();
     _reasonController.dispose();
+    _supplierTinController.dispose();
+    _supplierBhfIdController.dispose();
+    _supplierNameController.dispose();
+    _supplierInvoiceNoController.dispose();
     super.dispose();
   }
 
@@ -41,11 +54,11 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
       title: Row(
         children: [
           Icon(
-            Icons.tune,
+            _isPurchaseMode ? Icons.shopping_cart : Icons.tune,
             color: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(width: 8),
-          const Text('Adjust Tank Level'),
+          Text(_isPurchaseMode ? 'Purchase Fuel' : 'Adjust Tank Level'),
         ],
       ),
       content: Form(
@@ -126,6 +139,159 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
                 return null;
               },
             ),
+            const SizedBox(height: 16),
+            
+            // Purchase mode toggle
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.shopping_cart,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Purchase Mode',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Enable this if you are adding fuel from a supplier (will create KRA purchase transaction)',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SwitchListTile(
+                      title: const Text('This is a fuel purchase'),
+                      value: _isPurchaseMode,
+                      onChanged: (value) {
+                        setState(() {
+                          _isPurchaseMode = value;
+                        });
+                      },
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Supplier information (only show if purchase mode is enabled)
+            if (_isPurchaseMode) ...[
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.business,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Supplier Information',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Supplier TIN
+                      TextFormField(
+                        controller: _supplierTinController,
+                        decoration: const InputDecoration(
+                          labelText: 'Supplier TIN',
+                          hintText: 'e.g., P123456789Z',
+                          prefixIcon: Icon(Icons.numbers),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _isPurchaseMode ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Supplier TIN is required for purchases';
+                          }
+                          return null;
+                        } : null,
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Supplier BHF ID
+                      TextFormField(
+                        controller: _supplierBhfIdController,
+                        decoration: const InputDecoration(
+                          labelText: 'Supplier BHF ID',
+                          hintText: 'e.g., 00',
+                          prefixIcon: Icon(Icons.location_on),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _isPurchaseMode ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Supplier BHF ID is required for purchases';
+                          }
+                          return null;
+                        } : null,
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Supplier Name
+                      TextFormField(
+                        controller: _supplierNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Supplier Name',
+                          hintText: 'e.g., ABC Fuel Suppliers Ltd',
+                          prefixIcon: Icon(Icons.business),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _isPurchaseMode ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Supplier name is required for purchases';
+                          }
+                          return null;
+                        } : null,
+                      ),
+                      const SizedBox(height: 12),
+                      
+                      // Supplier Invoice Number
+                      TextFormField(
+                        controller: _supplierInvoiceNoController,
+                        decoration: const InputDecoration(
+                          labelText: 'Supplier Invoice Number',
+                          hintText: 'e.g., INV-2024-001',
+                          prefixIcon: Icon(Icons.receipt),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: _isPurchaseMode ? (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Supplier invoice number is required for purchases';
+                          }
+                          return null;
+                        } : null,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ],
         ),
       ),
@@ -145,7 +311,7 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Adjust Level'),
+                : Text(_isPurchaseMode ? 'Purchase Fuel' : 'Adjust Level'),
           );
         }),
       ],
@@ -157,22 +323,41 @@ class _AdjustLevelDialogState extends State<AdjustLevelDialog> {
       final newLevel = double.parse(_levelController.text);
       final reason = _reasonController.text;
       
+      // Prepare supplier info if in purchase mode
+      Map<String, dynamic>? supplierInfo;
+      if (_isPurchaseMode) {
+        supplierInfo = {
+          'tin': _supplierTinController.text.trim(),
+          'bhf_id': _supplierBhfIdController.text.trim(),
+          'name': _supplierNameController.text.trim(),
+          'invoice_no': _supplierInvoiceNoController.text.trim(),
+        };
+      }
+      
       try {
         await _tankController.adjustTankLevel(
           widget.tank.id,
           newLevel,
           reason,
+          supplierInfo: supplierInfo,
         );
         
         // Show success snackbar and close dialog
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
+            SnackBar(
               content: Row(
                 children: [
-                  Icon(Icons.tune, color: Colors.white),
-                  SizedBox(width: 8),
-                  Text('Tank level adjusted successfully'),
+                  Icon(
+                    _isPurchaseMode ? Icons.shopping_cart : Icons.tune,
+                    color: Colors.white,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    _isPurchaseMode 
+                      ? 'Fuel purchase completed successfully'
+                      : 'Tank level adjusted successfully',
+                  ),
                 ],
               ),
               backgroundColor: Colors.green,

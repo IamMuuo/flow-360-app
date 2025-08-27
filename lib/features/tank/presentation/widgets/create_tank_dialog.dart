@@ -164,63 +164,56 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
                   );
                 }
 
-                return DropdownButtonFormField<String>(
-                  value: _selectedFuelTypeId,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Fuel Type',
-                    hintText: 'Choose the type of fuel this tank will store',
-                    prefixIcon: Icon(Icons.local_gas_station),
-                    border: OutlineInputBorder(),
-                    filled: true,
+                return SizedBox(
+                  width: double.infinity,
+                  child: DropdownButtonFormField<String>(
+                    value: _selectedFuelTypeId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Fuel Type',
+                      hintText: 'Choose the type of fuel this tank will store',
+                      prefixIcon: Icon(Icons.local_gas_station),
+                      border: OutlineInputBorder(),
+                      filled: true,
+                    ),
+                    items: _tankController.fuelTypes.map((fuelType) {
+                      return DropdownMenuItem<String>(
+                        value: fuelType['id'],
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: Color(int.parse(fuelType['color_hex']?.replaceAll('#', '0xFF') ?? '0xFF808080')),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                fuelType['name'] ?? 'Unknown',
+                                style: const TextStyle(fontWeight: FontWeight.w500),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFuelTypeId = value;
+                      });
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please select fuel type';
+                      }
+                      return null;
+                    },
                   ),
-                  items: _tankController.fuelTypes.map((fuelType) {
-                    return DropdownMenuItem<String>(
-                      value: fuelType['id'],
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 16,
-                            height: 16,
-                            decoration: BoxDecoration(
-                              color: Color(int.parse(fuelType['color_hex']?.replaceAll('#', '0xFF') ?? '0xFF808080')),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  fuelType['name'] ?? 'Unknown',
-                                  style: const TextStyle(fontWeight: FontWeight.w500),
-                                ),
-                                Text(
-                                  fuelType['kra_code'] ?? '',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedFuelTypeId = value;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please select fuel type';
-                    }
-                    return null;
-                  },
                 );
               }),
               const SizedBox(height: 20),
@@ -387,10 +380,16 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.check_circle, color: Colors.white),
                   const SizedBox(width: 8),
-                  Text('Tank "${_nameController.text.trim()}" created successfully'),
+                  Flexible(
+                    child: Text(
+                      'Tank "${_nameController.text.trim()}" created successfully',
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
                 ],
               ),
               backgroundColor: Theme.of(context).colorScheme.primary,
@@ -405,11 +404,15 @@ class _CreateTankDialogState extends State<CreateTankDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   const Icon(Icons.error, color: Colors.white),
                   const SizedBox(width: 8),
-                  Expanded(
-                    child: Text('Failed to create tank: ${e.toString()}'),
+                  Flexible(
+                    child: Text(
+                      'Failed to create tank: ${e.toString()}',
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ],
               ),

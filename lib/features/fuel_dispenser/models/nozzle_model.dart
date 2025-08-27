@@ -28,6 +28,9 @@ class NozzleModel extends HiveObject {
   final bool isActive;
   @HiveField(4)
   final String dispenser;
+  @HiveField(10)
+  @JsonKey(name: 'dispenser_name')
+  final String? dispenserName;
   @HiveField(5)
   final String? tank;
   @HiveField(6)
@@ -45,6 +48,7 @@ class NozzleModel extends HiveObject {
     required this.nozzleNumber,
     required this.isActive,
     required this.dispenser,
+    this.dispenserName,
     this.tank,
     this.initialReading,
     this.currentReading,
@@ -63,6 +67,7 @@ class NozzleModel extends HiveObject {
     int? nozzleNumber,
     bool? isActive,
     String? dispenser,
+    String? dispenserName,
     String? tank,
     double? initialReading,
     double? currentReading,
@@ -75,6 +80,7 @@ class NozzleModel extends HiveObject {
       nozzleNumber: nozzleNumber ?? this.nozzleNumber,
       isActive: isActive ?? this.isActive,
       dispenser: dispenser ?? this.dispenser,
+      dispenserName: dispenserName ?? this.dispenserName,
       tank: tank ?? this.tank,
       initialReading: initialReading ?? this.initialReading,
       currentReading: currentReading ?? this.currentReading,
@@ -90,6 +96,9 @@ class NozzleModel extends HiveObject {
   String get fuelTypeNameValue => fuelTypeName ?? 'Unknown';
   String get fuelTypeKraCodeValue => fuelTypeKraCode ?? '';
   String get fuelTypeColorHex => '#808080'; // Default color since we don't have it in the response
+  
+  // Helper getter for dispenser name
+  String get dispenserNameValue => dispenserName ?? 'Unknown Dispenser';
 
   // Helper methods for parsing string to double
   static double? _parseDouble(dynamic value) {

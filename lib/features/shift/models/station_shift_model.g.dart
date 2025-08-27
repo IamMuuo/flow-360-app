@@ -86,6 +86,7 @@ class ShiftNozzleModelAdapter extends TypeAdapter<ShiftNozzleModel> {
     return ShiftNozzleModel(
       id: fields[0] as String,
       dispenser: fields[1] as String,
+      dispenserName: fields[9] as String?,
       tank: fields[2] as String?,
       fuelType: fields[3] as FuelTypeModel?,
       nozzleNumber: fields[4] as int,
@@ -99,11 +100,13 @@ class ShiftNozzleModelAdapter extends TypeAdapter<ShiftNozzleModel> {
   @override
   void write(BinaryWriter writer, ShiftNozzleModel obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(10)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.dispenser)
+      ..writeByte(9)
+      ..write(obj.dispenserName)
       ..writeByte(2)
       ..write(obj.tank)
       ..writeByte(3)
@@ -173,6 +176,7 @@ ShiftNozzleModel _$ShiftNozzleModelFromJson(Map<String, dynamic> json) =>
     ShiftNozzleModel(
       id: json['id'] as String,
       dispenser: json['dispenser'] as String,
+      dispenserName: json['dispenser_name'] as String?,
       tank: json['tank'] as String?,
       fuelType: json['fuelType'] == null
           ? null
@@ -188,6 +192,7 @@ Map<String, dynamic> _$ShiftNozzleModelToJson(ShiftNozzleModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'dispenser': instance.dispenser,
+      'dispenser_name': instance.dispenserName,
       'tank': instance.tank,
       'fuelType': instance.fuelType,
       'nozzle_number': instance.nozzleNumber,

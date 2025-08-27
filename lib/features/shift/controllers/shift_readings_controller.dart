@@ -159,6 +159,7 @@ class ShiftReadingsController extends GetxController {
       }
 
       final newShift = await _repository.createStationShift(
+
         stationId: currentUser!.user.station!,
         shiftDate: shiftDate,
         startTime: startTime,

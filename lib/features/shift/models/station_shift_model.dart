@@ -115,6 +115,10 @@ class ShiftNozzleModel extends HiveObject {
   @HiveField(1)
   final String dispenser;
   
+  @HiveField(9)
+  @JsonKey(name: 'dispenser_name')
+  final String? dispenserName;
+  
   @HiveField(2)
   final String? tank;
   
@@ -144,6 +148,7 @@ class ShiftNozzleModel extends HiveObject {
   ShiftNozzleModel({
     required this.id,
     required this.dispenser,
+    this.dispenserName,
     this.tank,
     this.fuelType,
     required this.nozzleNumber,
@@ -173,6 +178,9 @@ class ShiftNozzleModel extends HiveObject {
   String get fuelTypeName => fuelType?.name ?? 'Unknown';
   String get fuelTypeKraCode => fuelType?.kraCode ?? '';
   String get fuelTypeColorHex => fuelType?.colorHex ?? '#808080';
+  
+  // Helper getter for dispenser name
+  String get dispenserNameValue => dispenserName ?? 'Unknown Dispenser';
 }
 
 
