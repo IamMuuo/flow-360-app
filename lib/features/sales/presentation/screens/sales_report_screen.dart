@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flow_360/features/sales/controllers/sales_report_controller.dart';
 import 'package:flow_360/features/sales/models/sales_report_model.dart';
+import 'package:flow_360/features/sales/controllers/sales_controller.dart';
+import 'package:flow_360/features/sales/models/sale_model.dart';
+import 'package:flow_360/features/sales/presentation/widgets/credit_note_dialog.dart';
 
 class SalesReportScreen extends StatefulWidget {
   const SalesReportScreen({super.key});
@@ -203,6 +206,10 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                       
                       // Summary Statistics
                       _buildSummaryStatistics(),
+                      const SizedBox(height: 24),
+                      
+                      // Recent Sales Section
+                      _buildRecentSalesSection(),
                       const SizedBox(height: 24),
                       
                       // Report Sections
@@ -476,6 +483,247 @@ class _SalesReportScreenState extends State<SalesReportScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildRecentSalesSection() {
+    final salesController = Get.put(SalesController());
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Recent Sales',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => salesController.loadSales(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Refresh'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Obx(() {
+          if (salesController.isLoading.value) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          
+          if (salesController.sales.isEmpty) {
+            return Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                ),
+              ),
+              child: const Center(
+                child: Text('No sales recorded yet'),
+              ),
+            );
+          }
+          
+          return ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: salesController.sales.take(10).length,
+            itemBuilder: (context, index) {
+              final sale = salesController.sales[index];
+              return _buildSaleCard(context, sale);
+            },
+          );
+        }),
+      ],
+    );
+  }
+
+  Widget _buildSaleCard(BuildContext context, SaleModel sale) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.shopping_cart,
+              color: Theme.of(context).colorScheme.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${sale.litresSold.toStringAsFixed(2)}L - ${sale.paymentMode}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'KES ${sale.totalAmount.toStringAsFixed(2)}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Receipt: ${sale.receiptNumber ?? 'N/A'}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                _formatDateTime(sale.soldAt),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Print Receipt Icon
+                  GestureDetector(
+                    onTap: () => _printReceipt(sale.id),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.print,
+                        color: Colors.blue,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // QR Code Icon
+                  GestureDetector(
+                    onTap: () => _showQrCode(sale.id),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.qr_code,
+                        color: Colors.orange,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Credit Note Icon
+                  GestureDetector(
+                    onTap: () => _showCreditNoteDialog(sale),
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: Colors.red.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.receipt_long,
+                        color: Colors.red,
+                        size: 16,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+    
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else {
+      return '${difference.inDays}d ago';
+    }
+  }
+
+  void _printReceipt(String saleId) {
+    // TODO: Implement print receipt functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Print receipt for sale $saleId'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showQrCode(String saleId) {
+    // TODO: Implement QR code functionality
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Show QR code for sale $saleId'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showCreditNoteDialog(SaleModel sale) {
+    showDialog(
+      context: context,
+      builder: (context) => CreditNoteDialog(sale: sale),
+    ).then((result) {
+      if (result == true) {
+        // Refresh sales data after successful credit note creation
+        final salesController = Get.find<SalesController>();
+        salesController.loadSales();
+      }
+    });
   }
 
   Widget _buildReportSections() {
