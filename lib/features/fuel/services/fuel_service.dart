@@ -11,12 +11,30 @@ class FuelService {
       final response = await _dioClient.dio.get('/station/fuels/');
       
       if (response.statusCode == 200) {
-        final List<dynamic> results = response.data['results'] ?? response.data;
-        return results.cast<Map<String, dynamic>>();
+        // Handle both paginated and non-paginated responses
+        List<dynamic> results;
+        if (response.data is Map && response.data.containsKey('results')) {
+          results = response.data['results'];
+        } else if (response.data is List) {
+          results = response.data;
+        } else {
+          results = [];
+        }
+        
+        // Convert to the expected format for the dropdown
+        return results.map<Map<String, dynamic>>((fuel) {
+          return {
+            'id': fuel['id']?.toString(),
+            'name': fuel['name']?.toString() ?? 'Unknown',
+            'color_hex': fuel['color_hex']?.toString() ?? '#808080',
+            'kra_code': fuel['kra_code']?.toString() ?? '',
+          };
+        }).toList();
       } else {
         throw Exception('Failed to load fuel types');
       }
     } catch (e) {
+      print('FuelService Error: ${e.toString()}');
       throw Exception('Failed to load fuel types: ${e.toString()}');
     }
   }

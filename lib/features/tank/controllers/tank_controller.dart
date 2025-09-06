@@ -35,7 +35,12 @@ class TankController extends GetxController {
 
   Future<void> loadFuelTypes() async {
     try {
+      print('DEBUG: Loading fuel types...');
       final fuels = await _fuelService.getFuels();
+      print('DEBUG: Loaded ${fuels.length} fuel types');
+      for (final fuel in fuels) {
+        print('DEBUG: Fuel - ID: ${fuel['id']}, Name: ${fuel['name']}, Color: ${fuel['color_hex']}');
+      }
       fuelTypes.value = fuels;
     } catch (e) {
       print('Failed to load fuel types: ${e.toString()}');

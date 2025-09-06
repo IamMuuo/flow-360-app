@@ -6,12 +6,6 @@ import 'package:flow_360/features/fuel/controllers/fuel_price_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
-import 'package:flow_360/features/shift/controllers/shift_controller.dart';
-import 'package:flow_360/features/shift/controllers/supervisor_shift_controller.dart';
-import 'package:flow_360/features/shift/controllers/shift_readings_controller.dart';
-import 'package:flow_360/features/tank/controllers/tank_controller.dart';
-import 'package:flow_360/features/tank/controllers/station_shift_controller.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import './app.dart';
