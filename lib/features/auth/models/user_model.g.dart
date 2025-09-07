@@ -17,7 +17,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserModel(
-      id: fields[0] as int,
+      id: (fields[0] as num).toInt(),
       username: fields[1] as String,
       firstName: fields[2] as String?,
       lastName: fields[3] as String?,

@@ -21,13 +21,13 @@ class NozzleModelAdapter extends TypeAdapter<NozzleModel> {
       fuelTypeId: fields[1] as String?,
       fuelTypeName: fields[8] as String?,
       fuelTypeKraCode: fields[9] as String?,
-      nozzleNumber: fields[2] as int,
+      nozzleNumber: (fields[2] as num).toInt(),
       isActive: fields[3] as bool,
       dispenser: fields[4] as String,
       dispenserName: fields[10] as String?,
       tank: fields[5] as String?,
-      initialReading: fields[6] as double?,
-      currentReading: fields[7] as double?,
+      initialReading: (fields[6] as num?)?.toDouble(),
+      currentReading: (fields[7] as num?)?.toDouble(),
     );
   }
 

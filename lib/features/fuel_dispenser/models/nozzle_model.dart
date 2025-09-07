@@ -1,6 +1,6 @@
 // lib/features/fuel_dispenser/models/nozzle_model.dart
 
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 

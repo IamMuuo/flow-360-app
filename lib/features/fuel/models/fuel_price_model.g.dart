@@ -17,7 +17,7 @@ class FuelPriceModelAdapter extends TypeAdapter<FuelPriceModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return FuelPriceModel(
-      id: fields[0] as int,
+      id: (fields[0] as num).toInt(),
       station: fields[1] as String,
       fuelName: fields[2] as String?,
       pricePerLitre: fields[3] as String,

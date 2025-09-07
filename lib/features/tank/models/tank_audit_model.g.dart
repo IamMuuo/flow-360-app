@@ -25,7 +25,7 @@ class TankAuditModelAdapter extends TypeAdapter<TankAuditModel> {
       changeAmount: fields[5] as String,
       changeType: fields[6] as String,
       reason: fields[7] as String,
-      recordedBy: fields[8] as int?,
+      recordedBy: (fields[8] as num?)?.toInt(),
       recordedByName: fields[9] as String?,
       saleReference: fields[10] as String?,
       recordedAt: fields[11] as String,

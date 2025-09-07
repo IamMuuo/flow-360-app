@@ -19,7 +19,7 @@ class StationShiftModelAdapter extends TypeAdapter<StationShiftModel> {
     return StationShiftModel(
       id: fields[0] as String,
       station: fields[1] as String,
-      supervisor: fields[2] as int,
+      supervisor: (fields[2] as num).toInt(),
       shiftDate: fields[3] as String,
       startTime: fields[4] as String,
       endTime: fields[5] as String?,
@@ -29,8 +29,8 @@ class StationShiftModelAdapter extends TypeAdapter<StationShiftModel> {
       updatedAt: fields[9] as String?,
       stationName: fields[10] as String,
       supervisorName: fields[11] as String,
-      tankReadingsCount: fields[12] as int,
-      durationMinutes: fields[13] as int?,
+      tankReadingsCount: (fields[12] as num).toInt(),
+      durationMinutes: (fields[13] as num?)?.toInt(),
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:flow_360/features/features.dart';
 import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
 import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
-import 'package:hive_flutter/hive_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:flow_360/features/auth/models/user_model.dart';
 import 'package:flow_360/features/auth/models/auth_model.dart';
 import 'package:flow_360/features/fuel/models/fuel_price_model.dart';

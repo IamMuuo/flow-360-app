@@ -1,7 +1,6 @@
 // lib/features/shift/models/station_shift_model.dart
 
-import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
+import 'package:hive_ce/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:flow_360/features/shared/models/fuel_type_model.dart';
 
