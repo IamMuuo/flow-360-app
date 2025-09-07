@@ -41,11 +41,7 @@ class ReceiptScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.red[300],
-                ),
+                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
                 const SizedBox(height: 16),
                 Text(
                   controller.errorMessage.value,
@@ -64,335 +60,82 @@ class ReceiptScreen extends StatelessWidget {
 
         final receipt = controller.currentReceipt.value;
         if (receipt == null) {
-          return const Center(
-            child: Text('No receipt data available'),
-          );
+          return const Center(child: Text('No receipt data available'));
         }
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              // Success/Error Messages
-              Obx(() {
-                if (controller.successMessage.value.isNotEmpty) {
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.green[50],
-                      border: Border.all(color: Colors.green),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.check_circle, color: Colors.green),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            controller.successMessage.value,
-                            style: const TextStyle(color: Colors.green),
-                          ),
+        return Column(
+          children: [
+            // Success/Error Messages
+            Obx(() {
+              if (controller.successMessage.value.isNotEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    border: Border.all(color: Colors.green),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.green),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.successMessage.value,
+                          style: const TextStyle(color: Colors.green),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.green),
-                          onPressed: () => controller.clearSuccess(),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.green),
+                        onPressed: () => controller.clearSuccess(),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              if (controller.errorMessage.value.isNotEmpty) {
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    border: Border.all(color: Colors.red),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.error, color: Colors.red),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          controller.errorMessage.value,
+                          style: const TextStyle(color: Colors.red),
                         ),
-                      ],
-                    ),
-                  );
-                }
-                if (controller.errorMessage.value.isNotEmpty) {
-                  return Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: Colors.red[50],
-                      border: Border.all(color: Colors.red),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error, color: Colors.red),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            controller.errorMessage.value,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.close, color: Colors.red),
-                          onPressed: () => controller.clearError(),
-                        ),
-                      ],
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              }),
-              
-              _buildReceiptCard(receipt),
-              const SizedBox(height: 16),
-              _buildActionButtons(context),
-            ],
-          ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.red),
+                        onPressed: () => controller.clearError(),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+
+            // ASCII Preview Only
+            Expanded(
+              child: _buildAsciiPreview(receipt),
+            ),
+          ],
         );
       }),
     );
   }
 
-  Widget _buildReceiptCard(ReceiptModel receipt) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            _buildHeader(receipt),
-            const Divider(),
-            
-            // Organization Details
-            _buildOrganizationDetails(receipt),
-            const Divider(),
-            
-            // Sale Details
-            _buildSaleDetails(receipt),
-            const Divider(),
-            
-            // VAT Breakdown
-            _buildVatBreakdown(receipt),
-            const Divider(),
-            
-            // Customer Details
-            _buildCustomerDetails(receipt),
-            const Divider(),
-            
-            // Payment Details
-            _buildPaymentDetails(receipt),
-            const Divider(),
-            
-            // KRA Details
-            _buildKraDetails(receipt),
-            const Divider(),
-            
-            // Footer
-            _buildFooter(receipt),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(ReceiptModel receipt) {
-    return Column(
-      children: [
-        const Text(
-          'OFFICIAL E-TAX INVOICE',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          receipt.organizationName,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 4),
-        Text(
-          receipt.organizationAddress,
-          style: const TextStyle(fontSize: 12),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('PIN: ${receipt.kraPin}'),
-            Text('VRN: ${receipt.registrationNumber}'),
-          ],
-        ),
-        Text('Invoice: ${receipt.receiptNumber}'),
-        Text('Date: ${receipt.date}'),
-        if (receipt.kraTrn.isNotEmpty)
-          Text('T.R.N: ${receipt.kraTrn}'),
-      ],
-    );
-  }
-
-  Widget _buildOrganizationDetails(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Station Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text('Station: ${receipt.stationName}'),
-        Text('Location: ${receipt.stationLocation}'),
-        Text('City: ${receipt.stationCity}'),
-        Text('County: ${receipt.stationCounty}'),
-      ],
-    );
-  }
-
-  Widget _buildSaleDetails(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Item Description',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                receipt.fuelTypeDisplay,
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text('Nozzle: ${receipt.nozzleNumber}'),
-              Text('Unit Price: ${receipt.currencySymbol} ${receipt.unitPrice.toStringAsFixed(2)}'),
-              Text('Litres: ${receipt.litresSold.toStringAsFixed(2)}'),
-              Text('Total: ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildVatBreakdown(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Summary',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.blue[50],
-            borderRadius: BorderRadius.circular(4),
-          ),
-          child: Column(
-            children: [
-              Text(
-                'TOTAL (${receipt.currency}): ${receipt.currencySymbol} ${receipt.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'VAT Breakdown',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              Text('Taxable Amount (${receipt.vatRate.toInt()}%): ${receipt.currencySymbol} ${receipt.taxableAmount.toStringAsFixed(2)}'),
-              Text('VAT Amount: ${receipt.currencySymbol} ${receipt.vatAmount.toStringAsFixed(2)}'),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCustomerDetails(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Customer Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        if (receipt.customerName.isNotEmpty) Text('Name: ${receipt.customerName}'),
-        if (receipt.customerKraPin.isNotEmpty) Text('PIN: ${receipt.customerKraPin}'),
-        if (receipt.carRegistration.isNotEmpty) Text('Car Registration: ${receipt.carRegistration}'),
-        if (receipt.odometerReading != null && receipt.odometerReading! > 0) Text('Odometer: ${receipt.odometerReading}'),
-      ],
-    );
-  }
-
-  Widget _buildPaymentDetails(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Payment Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        Text('Mode: ${receipt.paymentModeDisplay}'),
-        if (receipt.externalTransactionId.isNotEmpty)
-          Text('Reference: ${receipt.externalTransactionId}'),
-      ],
-    );
-  }
-
-  Widget _buildKraDetails(ReceiptModel receipt) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'KRA Details',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 4),
-        if (receipt.kraInvoiceNumber.isNotEmpty)
-          Text('E-Invoice No.: ${receipt.kraInvoiceNumber}'),
-        Text('TIN: ${receipt.kraPin}'),
-        if (receipt.kraDeviceSerial.isNotEmpty)
-          Text('S/N: ${receipt.kraDeviceSerial}'),
-        Text('Date: ${receipt.date}'),
-        Text('C.Name: ${receipt.organizationName}'),
-        Text('V.R.N: ${receipt.registrationNumber}'),
-        if (receipt.kraBranchId.isNotEmpty)
-          Text('B.I.D: ${receipt.kraBranchId}'),
-        if (receipt.kraTrn.isNotEmpty)
-          Text('C.I.D: ${receipt.kraTrn}'),
-      ],
-    );
-  }
-
-  Widget _buildFooter(ReceiptModel receipt) {
-    return Column(
-      children: [
-        Text('Served by: ${receipt.employeeName}'),
-        Text('Shift: ${receipt.shiftStartedAt}'),
-        const SizedBox(height: 16),
-        const Text(
-          'Thank you for your business.',
-          style: TextStyle(
-            fontStyle: FontStyle.italic,
-            fontSize: 12,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ],
-    );
-  }
 
   Widget _buildActionButtons(BuildContext context) {
     return Column(
@@ -483,10 +226,7 @@ class ReceiptScreen extends StatelessWidget {
               subtitle: const Text('Generate PDF for printing'),
               onTap: () {
                 Navigator.pop(context);
-                controller.printReceipt(
-                  saleId: saleId,
-                  printerType: 'pdf',
-                );
+                controller.printReceipt(saleId: saleId, printerType: 'pdf');
               },
             ),
           ],
@@ -515,7 +255,9 @@ class ReceiptScreen extends StatelessWidget {
               onTap: () {
                 Navigator.pop(context);
                 if (controller.currentReceipt.value != null) {
-                  controller.generateAndSharePdf(controller.currentReceipt.value!);
+                  controller.generateAndSharePdf(
+                    controller.currentReceipt.value!,
+                  );
                 }
               },
             ),
@@ -546,5 +288,96 @@ class ReceiptScreen extends StatelessWidget {
     if (controller.currentReceipt.value != null) {
       controller.shareAsText(controller.currentReceipt.value!);
     }
+  }
+
+  Widget _buildAsciiPreview(ReceiptModel receipt) {
+    return FutureBuilder<String>(
+      future: ReceiptService.generateReceiptText(receipt),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.error_outline, size: 64, color: Colors.red[300]),
+                const SizedBox(height: 16),
+                Text(
+                  'Error generating ASCII preview: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+          );
+        }
+
+        final asciiText = snapshot.data ?? 'No ASCII preview available';
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // ASCII Preview Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: Colors.blue[50],
+                  border: Border.all(color: Colors.blue),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.info_outline, color: Colors.blue),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'ASCII Receipt Preview - This is how the receipt will appear when printed or shared as text',
+                        style: TextStyle(
+                          color: Colors.blue[800],
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ASCII Text Display
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: SelectableText(
+                  asciiText,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontFamily: 'Courier',
+                    fontSize: 16,
+                    color: Colors.black,
+                    height: 1.3,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Action Buttons for ASCII Preview
+              _buildActionButtons(context),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

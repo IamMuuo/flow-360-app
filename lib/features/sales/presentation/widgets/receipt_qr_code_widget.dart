@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:qr_flutter/qr_flutter.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
+import 'package:flow_360/features/sales/presentation/widgets/kra_qr_code_widget.dart';
+import 'package:flow_360/features/sales/services/kra_qr_service.dart';
 
 class ReceiptQrCodeWidget extends StatelessWidget {
   final String saleId;
@@ -13,23 +14,9 @@ class ReceiptQrCodeWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      if (controller.isGeneratingQrCode.value) {
-        return const Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Generating QR Code...'),
-            ],
-          ),
-        );
-      }
-
       final qrData = controller.qrCodeData.value;
-      final pdfUrl = controller.pdfUrl.value;
 
-      if (qrData == null || pdfUrl == null) {
+      if (qrData == null) {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -40,7 +27,7 @@ class ReceiptQrCodeWidget extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Generate QR Code for E-Receipt',
+              'Generate KRA QR Code',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -48,7 +35,7 @@ class ReceiptQrCodeWidget extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Customers can scan this QR code to download their receipt as PDF',
+              'Generate KRA-compliant QR code for receipt verification',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.grey),
             ),
@@ -56,8 +43,35 @@ class ReceiptQrCodeWidget extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () => controller.generateQrCodeForReceipt(saleId),
               icon: const Icon(Icons.qr_code),
-              label: const Text('Generate QR Code'),
+              label: const Text('Generate KRA QR Code'),
             ),
+            // Show error message if validation failed
+            if (controller.errorMessage.value.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline, color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        controller.errorMessage.value,
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         );
       }
@@ -65,23 +79,6 @@ class ReceiptQrCodeWidget extends StatelessWidget {
       return Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // QR Code
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.grey.shade300),
-            ),
-            child: QrImageView(
-              data: pdfUrl,
-              version: QrVersions.auto,
-              size: 180.0,
-              backgroundColor: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-
           // Receipt Info
           Container(
             padding: const EdgeInsets.all(12),
@@ -107,11 +104,68 @@ class ReceiptQrCodeWidget extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+
+          // KRA QR Code Section
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.shade50,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.shade200, width: 2),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.verified_user, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'KRA eTIMS Verification',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // KRA QR Code
+                KraQrCodeWidget(
+                  kraPin: qrData['kra_pin'] ?? 'A000000000Z',
+                  bhfId: qrData['sdc_id'] ?? 'KRACU0100000001',
+                  receiptSignature: qrData['receipt_signature'] ?? 'V249-J39C-FJ48-HE2W',
+                  size: 150.0,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Scan to verify with KRA eTIMS',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.orange.shade700,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'This QR code links directly to KRA\'s eTIMS system for receipt verification',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.orange.shade600,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
 
           // Instructions
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
               color: Colors.blue.shade50,
               borderRadius: BorderRadius.circular(8),
@@ -137,15 +191,15 @@ class ReceiptQrCodeWidget extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   '1. Customer scans this QR code with their phone\n'
-                  '2. QR code opens the receipt download link\n'
-                  '3. Customer can download the receipt as PDF\n'
-                  '4. Receipt is valid for 30 days',
+                  '2. QR code opens KRA eTIMS verification page\n'
+                  '3. Customer can verify receipt authenticity\n'
+                  '4. Receipt is KRA-compliant and tax-verified',
                   style: TextStyle(fontSize: 11, color: Colors.blue.shade700),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
 
           // Action Buttons
           Column(
@@ -167,15 +221,20 @@ class ReceiptQrCodeWidget extends StatelessWidget {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        // Share the QR code or PDF URL
+                        // Share the KRA QR code
                         final qrData = controller.qrCodeData.value;
-                        if (qrData != null && qrData['download_url'] != null) {
-                          // You can implement sharing functionality here
-                          // For now, just show a snackbar
+                        if (qrData != null) {
+                          // Generate the KRA QR URL for sharing
+                          final kraUrl = KraQrService.generateKraQrUrl(
+                            kraPin: qrData['kra_pin'] ?? 'A000000000Z',
+                            bhfId: qrData['sdc_id'] ?? 'KRACU0100000001',
+                            receiptSignature: qrData['receipt_signature'] ?? 'V249-J39C-FJ48-HE2W',
+                          );
+                          
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Share functionality coming soon!'),
-                              duration: Duration(seconds: 2),
+                            SnackBar(
+                              content: Text('KRA QR URL: $kraUrl'),
+                              duration: const Duration(seconds: 5),
                             ),
                           );
                         }

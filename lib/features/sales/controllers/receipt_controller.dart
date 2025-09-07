@@ -5,6 +5,7 @@ import 'package:flow_360/features/sales/repository/receipt_repository.dart';
 import 'package:flow_360/features/sales/models/receipt_model.dart';
 import 'package:flow_360/features/sales/services/receipt_service.dart';
 import 'package:flow_360/features/sales/services/thermal_printer_service.dart';
+import 'package:flow_360/features/sales/services/kra_qr_service.dart';
 
 class ReceiptController extends GetxController {
   final ReceiptRepository _repository = GetIt.instance<ReceiptRepository>();
@@ -282,10 +283,48 @@ class ReceiptController extends GetxController {
     errorMessage.value = '';
     
     try {
-      final response = await _repository.getSaleReceiptPdfUrl(saleId);
-      qrCodeData.value = response.qrData;
-      pdfUrl.value = response.qrScanUrl;
-      successMessage.value = 'QR Code generated successfully!';
+      // First get the receipt data
+      final receipt = await _repository.getSaleReceipt(saleId);
+      currentReceipt.value = receipt;
+      
+      // Validate required parameters before generating QR code
+      final validationResult = _validateReceiptForKraQr(receipt);
+      if (!validationResult.isValid) {
+        errorMessage.value = validationResult.errorMessage;
+        return;
+      }
+      
+      // Generate KRA QR data with validated parameters
+      final kraPin = receipt.kraPin;
+      final bhfId = receipt.sdcId;
+      final receiptSignature = KraQrService.generateReceiptSignature(
+        receiptNumber: receipt.receiptNumber,
+        timestamp: receipt.date,
+        totalAmount: receipt.totalAmount.toString(),
+        kraPin: kraPin,
+      );
+      
+      // Create enhanced QR data with KRA information
+      final enhancedQrData = {
+        'receipt_number': receipt.receiptNumber,
+        'organization': receipt.organizationName,
+        'station': receipt.stationName,
+        'amount': receipt.totalAmount.toString(),
+        'date': receipt.date,
+        'sale_id': saleId,
+        'kra_pin': kraPin,
+        'sdc_id': bhfId,
+        'receipt_signature': receiptSignature,
+        'kra_qr_url': KraQrService.generateKraQrUrl(
+          kraPin: kraPin,
+          bhfId: bhfId,
+          receiptSignature: receiptSignature,
+        ),
+      };
+      
+      qrCodeData.value = enhancedQrData;
+      pdfUrl.value = enhancedQrData['kra_qr_url'];
+      successMessage.value = 'KRA QR Code generated successfully!';
     } catch (e) {
       if (e is Failure) {
         errorMessage.value = e.message;
@@ -297,8 +336,80 @@ class ReceiptController extends GetxController {
     }
   }
 
+  /// Validates receipt data for KRA QR code generation
+  _ValidationResult _validateReceiptForKraQr(ReceiptModel receipt) {
+    // Check if receipt number is valid
+    if (receipt.receiptNumber.isEmpty) {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Receipt number is missing. Cannot generate KRA QR code.',
+      );
+    }
+    
+    // Check if KRA PIN is valid (should not be default/empty)
+    if (receipt.kraPin.isEmpty || receipt.kraPin == 'A000000000Z') {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Valid KRA PIN is required. Please configure KRA PIN in station settings.',
+      );
+    }
+    
+    // Check if BHF ID (SCU ID) is valid
+    if (receipt.sdcId.isEmpty || receipt.sdcId == 'KRACU0100000001') {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Valid BHF ID (SCU ID) is required. Please configure VSCU device.',
+      );
+    }
+    
+    // Check if receipt date is valid
+    if (receipt.date.isEmpty) {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Receipt date is missing. Cannot generate KRA QR code.',
+      );
+    }
+    
+    // Check if total amount is valid
+    if (receipt.totalAmount <= 0) {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Invalid total amount. Amount must be greater than zero.',
+      );
+    }
+    
+    // Check if organization name is valid
+    if (receipt.organizationName.isEmpty) {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Organization name is missing. Cannot generate KRA QR code.',
+      );
+    }
+    
+    // Check if station name is valid
+    if (receipt.stationName.isEmpty) {
+      return _ValidationResult(
+        isValid: false,
+        errorMessage: 'Station name is missing. Cannot generate KRA QR code.',
+      );
+    }
+    
+    return _ValidationResult(isValid: true);
+  }
+
   void clearQrCodeData() {
     qrCodeData.value = null;
     pdfUrl.value = null;
   }
+}
+
+/// Helper class for validation results
+class _ValidationResult {
+  final bool isValid;
+  final String errorMessage;
+  
+  _ValidationResult({
+    required this.isValid,
+    this.errorMessage = '',
+  });
 }
