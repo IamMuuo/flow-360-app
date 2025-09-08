@@ -34,21 +34,20 @@ class _SalesReportScreenState extends State<SalesReportScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeAnimationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _fadeAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideAnimationController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _slideAnimationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
 
     _fadeAnimationController.forward();
     _slideAnimationController.forward();
@@ -91,7 +90,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                     end: Alignment.bottomRight,
                     colors: [
                       Theme.of(context).colorScheme.primary,
-                      Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withValues(alpha: 0.8),
                     ],
                   ),
                 ),
@@ -114,7 +115,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
               ),
             ],
           ),
-          
+
           // Content
           SliverToBoxAdapter(
             child: SlideTransition(
@@ -129,7 +130,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                       // Quick Actions
                       _buildQuickActions(),
                       const SizedBox(height: 24),
-                      
+
                       // Error Message
                       Obx(() {
                         if (_controller.errorMessage.value.isNotEmpty) {
@@ -137,7 +138,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                             margin: const EdgeInsets.only(bottom: 16),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.errorContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.errorContainer,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -151,7 +154,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                                   child: Text(
                                     _controller.errorMessage.value,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.error,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
                                     ),
                                   ),
                                 ),
@@ -166,7 +171,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                         }
                         return const SizedBox.shrink();
                       }),
-                      
+
                       // Success Message
                       Obx(() {
                         if (_controller.successMessage.value.isNotEmpty) {
@@ -174,7 +179,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                             margin: const EdgeInsets.only(bottom: 16),
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primaryContainer,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primaryContainer,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Row(
@@ -188,7 +195,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                                   child: Text(
                                     _controller.successMessage.value,
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                     ),
                                   ),
                                 ),
@@ -203,15 +212,15 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                         }
                         return const SizedBox.shrink();
                       }),
-                      
+
                       // Summary Statistics
                       _buildSummaryStatistics(),
                       const SizedBox(height: 24),
-                      
+
                       // Recent Sales Section
                       _buildRecentSalesSection(),
                       const SizedBox(height: 24),
-                      
+
                       // Report Sections
                       _buildReportSections(),
                     ],
@@ -261,7 +270,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 subtitle: 'View this week\'s sales',
                 onTap: () {
                   final now = DateTime.now();
-                  final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+                  final startOfWeek = now.subtract(
+                    Duration(days: now.weekday - 1),
+                  );
                   _controller.setDateRange(startOfWeek, now);
                 },
               ),
@@ -317,11 +328,15 @@ class _SalesReportScreenState extends State<SalesReportScreen>
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -332,7 +347,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -354,7 +371,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 Text(
                   subtitle,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -442,9 +461,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
         boxShadow: [
           BoxShadow(
             color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
@@ -467,7 +484,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -487,7 +506,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
 
   Widget _buildRecentSalesSection() {
     final salesController = Get.put(SalesController());
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -513,7 +532,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
           if (salesController.isLoading.value) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (salesController.sales.isEmpty) {
             return Container(
               padding: const EdgeInsets.all(20),
@@ -521,15 +540,15 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.outline.withValues(alpha: 0.2),
                 ),
               ),
-              child: const Center(
-                child: Text('No sales recorded yet'),
-              ),
+              child: const Center(child: Text('No sales recorded yet')),
             );
           }
-          
+
           return ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -567,7 +586,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -600,7 +621,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 Text(
                   'Receipt: ${sale.receiptNumber ?? 'N/A'}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -612,7 +635,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
               Text(
                 _formatDateTime(sale.soldAt),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 8),
@@ -628,11 +653,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                         color: Colors.blue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.print,
-                        color: Colors.blue,
-                        size: 16,
-                      ),
+                      child: Icon(Icons.print, color: Colors.blue, size: 16),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -681,7 +702,7 @@ class _SalesReportScreenState extends State<SalesReportScreen>
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -738,25 +759,25 @@ class _SalesReportScreenState extends State<SalesReportScreen>
           ),
         ),
         const SizedBox(height: 16),
-        
+
         // Daily Reports
         _buildReportSection(
           title: 'Daily Sales',
           icon: Icons.calendar_today,
           onTap: () => _showDailyReports(),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Employee Reports
         _buildReportSection(
           title: 'Employee Performance',
           icon: Icons.people,
           onTap: () => _showEmployeeReports(),
         ),
-        
+
         const SizedBox(height: 12),
-        
+
         // Fuel Type Reports
         _buildReportSection(
           title: 'Fuel Type Analysis',
@@ -785,11 +806,15 @@ class _SalesReportScreenState extends State<SalesReportScreen>
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -800,7 +825,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
@@ -821,7 +848,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 ),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.5),
                   size: 16,
                 ),
               ],
@@ -838,7 +867,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
       firstDate: DateTime.now().subtract(const Duration(days: 365)),
       lastDate: DateTime.now(),
       initialDateRange: DateTimeRange(
-        start: _controller.selectedStartDate.value ?? DateTime.now().subtract(const Duration(days: 30)),
+        start:
+            _controller.selectedStartDate.value ??
+            DateTime.now().subtract(const Duration(days: 30)),
         end: _controller.selectedEndDate.value ?? DateTime.now(),
       ),
     ).then((dateRange) {
@@ -900,7 +931,9 @@ class _SalesReportScreenState extends State<SalesReportScreen>
                 margin: const EdgeInsets.symmetric(vertical: 4),
                 child: ListTile(
                   title: Text(titleExtractor(report)),
-                  subtitle: Text('${value1Extractor(report)} • ${value2Extractor(report)}'),
+                  subtitle: Text(
+                    '${value1Extractor(report)} • ${value2Extractor(report)}',
+                  ),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     Navigator.pop(context);

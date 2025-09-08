@@ -4,10 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
-import 'package:flow_360/features/sales/presentation/screens/create_sale_screen.dart';
 import 'package:flow_360/features/shift/controllers/shift_controller.dart';
 import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
-
 
 class EmployeeDashboard extends StatefulWidget {
   const EmployeeDashboard({super.key});
@@ -47,76 +45,61 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
-    _pulseAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.05,
-    ).animate(CurvedAnimation(
-      parent: _pulseController,
-      curve: Curves.easeInOut,
-    ));
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
 
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
     _fadeController.forward();
     _slideController.forward();
     _pulseController.repeat(reverse: true);
     _scaleController.forward();
-    
+
     // Initialize reactive shift status monitoring
     _initializeReactiveShiftMonitoring();
   }
-  
+
   void _initializeReactiveShiftMonitoring() {
     // Initialize controllers
     final shiftController = Get.put(ShiftController());
     final salesController = Get.put(SalesController());
-    
+
     // Listen to app lifecycle changes for shift status updates
     WidgetsBinding.instance.addObserver(this);
-    
+
     // Initial shift check and sales load
     shiftController.refreshShiftStatus();
     salesController.loadSales();
   }
-  
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-    
+
     // Update shift status and sales when app becomes active
     if (state == AppLifecycleState.resumed) {
       _refreshShiftStatus();
       _refreshSales();
     }
   }
-  
+
   void _refreshShiftStatus() {
     final shiftController = Get.put(ShiftController());
     shiftController.refreshShiftStatus();
   }
-  
+
   void _refreshSales() {
     final salesController = Get.put(SalesController());
     salesController.loadSales();
@@ -140,9 +123,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     final user = authController.currentUser.value;
 
     if (user == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -189,7 +170,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                       end: Alignment.bottomRight,
                       colors: [
                         Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+                        Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.8),
                       ],
                     ),
                   ),
@@ -254,7 +237,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                         WidgetsBinding.instance.addPostFrameCallback((_) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(salesController.successMessage.value),
+                              content: Text(
+                                salesController.successMessage.value,
+                              ),
                               backgroundColor: Colors.green,
                               behavior: SnackBarBehavior.floating,
                             ),
@@ -283,7 +268,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                           const SizedBox(height: 24),
                           _buildStatisticsSection(context, salesController),
                           const SizedBox(height: 24),
-                          _buildAvailableNozzlesSection(context, salesController),
+                          _buildAvailableNozzlesSection(
+                            context,
+                            salesController,
+                          ),
                           const SizedBox(height: 24),
                           _buildRecentSalesSection(context, salesController),
                         ],
@@ -298,26 +286,30 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
       ),
       floatingActionButton: Obx(() {
         final hasActiveShift = shiftController.hasActiveShift;
-        
+
         return AnimatedBuilder(
           animation: _scaleAnimation,
           builder: (context, child) {
             return Transform.scale(
               scale: _scaleAnimation.value,
               child: FloatingActionButton.extended(
-                onPressed: hasActiveShift 
+                onPressed: hasActiveShift
                     ? () async {
                         await context.push('/create-sale');
                         // Refresh shift status when returning from sale creation
                         _refreshShiftStatus();
                       }
                     : () => _showNoShiftDialog(context),
-                backgroundColor: hasActiveShift 
+                backgroundColor: hasActiveShift
                     ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
-                foregroundColor: hasActiveShift 
+                    : Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
+                foregroundColor: hasActiveShift
                     ? Colors.white
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
+                    : Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                 icon: Icon(
                   hasActiveShift ? Icons.add_shopping_cart : Icons.schedule,
                 ),
@@ -332,10 +324,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
 
   Widget _buildWelcomeSection(BuildContext context, dynamic user) {
     final shiftController = Get.put(ShiftController());
-    
+
     return Obx(() {
       final hasActiveShift = shiftController.hasActiveShift;
-      
+
       return Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -344,12 +336,20 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             end: Alignment.bottomRight,
             colors: hasActiveShift
                 ? [
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
+                    Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.05),
                   ]
                 : [
-                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.1),
-                    Theme.of(context).colorScheme.outline.withValues(alpha: 0.05),
+                    Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.1),
+                    Theme.of(
+                      context,
+                    ).colorScheme.outline.withValues(alpha: 0.05),
                   ],
           ),
           borderRadius: BorderRadius.circular(16),
@@ -370,19 +370,22 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                     children: [
                       Text(
                         'Welcome back, ${user.user.firstName}!',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.onSurface,
-                        ),
+                        style: Theme.of(context).textTheme.headlineSmall
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        hasActiveShift 
+                        hasActiveShift
                             ? 'Ready to serve customers?'
                             : 'Contact your supervisor to start your shift',
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: hasActiveShift
-                              ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7)
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.7)
                               : Theme.of(context).colorScheme.error,
                         ),
                       ),
@@ -390,11 +393,16 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: hasActiveShift
                         ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.outline.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -405,7 +413,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                         size: 16,
                         color: hasActiveShift
                             ? Colors.white
-                            : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -413,7 +423,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: hasActiveShift
                               ? Colors.white
-                              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                              : Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6),
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -428,7 +440,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     });
   }
 
-  Widget _buildStatisticsSection(BuildContext context, SalesController controller) {
+  Widget _buildStatisticsSection(
+    BuildContext context,
+    SalesController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -467,7 +482,13 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     );
   }
 
-  Widget _buildStatCard(BuildContext context, String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    BuildContext context,
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -480,17 +501,11 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: color.withValues(alpha: 0.2),
-        ),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
-          Icon(
-            icon,
-            color: color,
-            size: 32,
-          ),
+          Icon(icon, color: color, size: 32),
           const SizedBox(height: 12),
           Text(
             value,
@@ -503,7 +518,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
           Text(
             title,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -511,7 +528,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     );
   }
 
-  Widget _buildAvailableNozzlesSection(BuildContext context, SalesController controller) {
+  Widget _buildAvailableNozzlesSection(
+    BuildContext context,
+    SalesController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -530,12 +550,12 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
-            child: const Center(
-              child: Text('No available nozzles'),
-            ),
+            child: const Center(child: Text('No available nozzles')),
           )
         else
           GridView.builder(
@@ -571,7 +591,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
           ),
         ],
         border: Border.all(
-          color: Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')).withValues(alpha: 0.3),
+          color: Color(
+            int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+          ).withValues(alpha: 0.3),
         ),
       ),
       child: Padding(
@@ -582,12 +604,16 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')).withValues(alpha: 0.1),
+                color: Color(
+                  int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+                ).withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.local_gas_station,
-                color: Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')),
+                color: Color(
+                  int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+                ),
                 size: 24,
               ),
             ),
@@ -604,7 +630,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             Text(
               'Nozzle ${nozzle['nozzle_number']}',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -621,7 +649,10 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     );
   }
 
-  Widget _buildRecentSalesSection(BuildContext context, SalesController controller) {
+  Widget _buildRecentSalesSection(
+    BuildContext context,
+    SalesController controller,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -640,12 +671,12 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               color: Theme.of(context).colorScheme.surface,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                color: Theme.of(
+                  context,
+                ).colorScheme.outline.withValues(alpha: 0.2),
               ),
             ),
-            child: const Center(
-              child: Text('No sales recorded yet'),
-            ),
+            child: const Center(child: Text('No sales recorded yet')),
           )
         else
           ListView.builder(
@@ -684,7 +715,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -722,7 +755,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
               Text(
                 _formatDateTime(sale.soldAt),
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 8),
@@ -738,17 +773,14 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                         color: Colors.blue.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.print,
-                        color: Colors.blue,
-                        size: 16,
-                      ),
+                      child: Icon(Icons.print, color: Colors.blue, size: 16),
                     ),
                   ),
                   const SizedBox(width: 8),
                   // QR Code Icon
                   GestureDetector(
-                    onTap: () => _showQrCode(sale.id),
+                    onTap: () => context.push('/receipt/${sale.id}'),
+                    // _showQrCode(sale.id),
                     child: Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
@@ -756,14 +788,13 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
-                        Icons.qr_code,
+                        Icons.receipt,
                         color: Colors.orange,
                         size: 16,
                       ),
                     ),
                   ),
                   const SizedBox(width: 8),
-
                 ],
               ),
             ],
@@ -776,7 +807,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
   String _formatDateTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inMinutes < 1) {
       return 'Just now';
     } else if (difference.inMinutes < 60) {
@@ -788,9 +819,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
     }
   }
 
-  void _printReceipt(String saleId) {
+  void _printReceipt(String saleId) async {
     final receiptController = Get.put(ReceiptController());
-    
+
     // Show loading indicator
     showDialog(
       context: context,
@@ -805,41 +836,48 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
         ),
       ),
     );
-    
+
+    await receiptController.fetchSaleReceipt(saleId);
+
     // Print the receipt
-    receiptController.printReceipt(
-      saleId: saleId,
-      printerType: 'thermal_58mm',
-    ).then((_) {
-      // Close loading dialog
-      Navigator.of(context).pop();
-      
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Receipt printed successfully!'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }).catchError((error) {
-      // Close loading dialog
-      Navigator.of(context).pop();
-      
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to print receipt: $error'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    });
+    receiptController
+        .printReceipt(receipt: receiptController.currentReceipt.value!)
+        .then((_) {
+          if (!mounted) return;
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Receipt printed successfully!'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        })
+        .catchError((error) {
+          // Close loading dialog
+
+          if (!mounted) return;
+          Navigator.of(context).pop();
+
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to print receipt: $error'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        });
   }
 
   void _showQrCode(String saleId) {
+    // context.push('/receipt/$saleId');
+
     final receiptController = Get.put(ReceiptController());
-    
+
     // Show loading indicator
     showDialog(
       context: context,
@@ -854,38 +892,39 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
         ),
       ),
     );
-    
+
     // Generate QR code
-    receiptController.generateQrCodeForReceipt(saleId).then((_) {
-      // Close loading dialog
-      Navigator.of(context).pop();
-      
-      // Show QR code dialog
-      _showQrCodeDialog(saleId);
-    }).catchError((error) {
-      // Close loading dialog
-      Navigator.of(context).pop();
-      
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to generate QR code: $error'),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    });
+    receiptController
+        .generateQrCodeForReceipt(saleId)
+        .then((_) {
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          // Show QR code dialog
+          _showQrCodeDialog(saleId);
+        })
+        .catchError((error) {
+          // Close loading dialog
+          Navigator.of(context).pop();
+
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to generate QR code: $error'),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        });
   }
 
   void _showQrCodeDialog(String saleId) {
     final receiptController = Get.find<ReceiptController>();
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -901,10 +940,7 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                   const SizedBox(width: 12),
                   const Text(
                     'QR Code Generated',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -1003,10 +1039,14 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                color: Theme.of(
+                  context,
+                ).colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.3),
                 ),
               ),
               child: Column(
@@ -1026,7 +1066,9 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
                     '• Helps maintain accurate shift records\n'
                     '• Contact your supervisor to start your shift',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.8),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -1055,7 +1097,4 @@ class _EmployeeDashboardState extends State<EmployeeDashboard>
       ),
     );
   }
-
-
-
 }

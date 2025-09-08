@@ -52,6 +52,7 @@ dependencies:
   crypto: ^3.0.3
   hive_ce: ^2.11.4
   hive_ce_flutter: ^2.3.2
+  ciontek: ^0.0.5+2025051401
 
 dev_dependencies:
   flutter_test:

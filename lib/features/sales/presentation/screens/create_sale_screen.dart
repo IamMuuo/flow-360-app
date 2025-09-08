@@ -1,16 +1,10 @@
+import 'package:flow_360/features/sales/models/receipt_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/sales/controllers/sales_controller.dart';
-import 'package:flow_360/features/sales/models/sale_model.dart';
 import 'package:flow_360/features/fuel_dispenser/controller/fuel_dispenser_controller.dart';
-import 'package:flow_360/features/fuel_dispenser/controller/nozzle_controller.dart';
-import 'package:flow_360/features/fuel_dispenser/models/fuel_dispenser_model.dart';
-import 'package:flow_360/features/fuel_dispenser/models/nozzle_model.dart';
 import 'package:flow_360/features/auth/controllers/auth_controller.dart';
-import 'package:flow_360/features/auth/models/user_model.dart';
-import 'package:flow_360/features/shift/controllers/shift_controller.dart';
-import 'package:flow_360/features/sales/presentation/widgets/receipt_success_dialog.dart';
 import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
 import 'package:flow_360/features/sales/presentation/widgets/animated_timer_widget.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -32,12 +26,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   late Animation<double> _progressAnimation;
 
   final SalesController _salesController = Get.find<SalesController>();
-  final FuelDispenserController _dispenserController = Get.find<FuelDispenserController>();
+  final FuelDispenserController _dispenserController =
+      Get.find<FuelDispenserController>();
   final AuthController _authController = Get.find<AuthController>();
-  
+
   int _currentStep = 0;
   final int _totalSteps = 6;
-  
+
   // Form data
   String? selectedDispenserId;
   String? selectedNozzleId;
@@ -47,7 +42,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   final registrationController = TextEditingController();
   final kraPinController = TextEditingController();
   final customerNameController = TextEditingController();
-  
+
   // Sale creation state
   bool _isCreatingSale = false;
   bool _saleCreated = false;
@@ -68,48 +63,41 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutCubic,
-    ));
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
 
-    _progressAnimation = Tween<double>(
-      begin: 0.0,
-      end: (_currentStep + 1) / _totalSteps,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeInOut,
-    ));
+    _progressAnimation =
+        Tween<double>(
+          begin: 0.0,
+          end: (_currentStep + 1) / _totalSteps,
+        ).animate(
+          CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
+        );
 
     _fadeController.forward();
     _slideController.forward();
     _progressController.forward();
-    
+
     // Load dispensers for the current user's station
     _loadDispensers();
-    
+
     // Load available nozzles for the employee
     _loadAvailableNozzles();
   }
-  
+
   void _loadDispensers() {
     final user = _authController.currentUser.value;
     if (user?.user.station != null) {
       _dispenserController.fetchFuelDispensers(user!.user.station!);
     }
   }
-  
+
   void _loadAvailableNozzles() {
     _salesController.fetchAvailableNozzles();
   }
@@ -127,8 +115,6 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     super.dispose();
   }
 
-
-
   void _previousStep() {
     if (_currentStep > 0) {
       setState(() {
@@ -141,13 +127,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   }
 
   void _updateProgress() {
-    _progressAnimation = Tween<double>(
-      begin: _progressAnimation.value,
-      end: (_currentStep + 1) / _totalSteps,
-    ).animate(CurvedAnimation(
-      parent: _progressController,
-      curve: Curves.easeInOut,
-    ));
+    _progressAnimation =
+        Tween<double>(
+          begin: _progressAnimation.value,
+          end: (_currentStep + 1) / _totalSteps,
+        ).animate(
+          CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
+        );
     _progressController.reset();
     _progressController.forward();
   }
@@ -198,7 +184,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   builder: (context, child) {
                     return LinearProgressIndicator(
                       value: _progressAnimation.value,
-                      backgroundColor: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                      backgroundColor: Theme.of(
+                        context,
+                      ).colorScheme.outline.withValues(alpha: 0.2),
                       valueColor: AlwaysStoppedAnimation<Color>(
                         Theme.of(context).colorScheme.primary,
                       ),
@@ -254,7 +242,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: Text(_currentStep == _totalSteps - 1 ? 'Create Sale' : 'Next'),
+                    child: Text(
+                      _currentStep == _totalSteps - 1 ? 'Create Sale' : 'Next',
+                    ),
                   ),
                 ),
               ],
@@ -287,7 +277,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   Widget _buildDispenserSelectionStep() {
     final user = _authController.currentUser.value;
     final stationId = user?.user.station ?? '';
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -302,15 +292,15 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         Text(
           'Choose the fuel dispenser you want to use',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
         Obx(() {
           if (_dispenserController.dispensers.isEmpty) {
-            return const Center(
-              child: Text('No available dispensers'),
-            );
+            return const Center(child: Text('No available dispensers'));
           }
           return GridView.builder(
             shrinkWrap: true,
@@ -346,11 +336,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         ),
         const SizedBox(height: 8),
         Text(
-          selectedDispenserId != null 
+          selectedDispenserId != null
               ? 'Choose the nozzle from the selected dispenser'
               : 'Choose the nozzle you want to use for this sale',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
@@ -366,16 +358,12 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             );
           }
-          
+
           if (_salesController.errorMessage.value.isNotEmpty) {
             return Center(
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    size: 48,
-                    color: Colors.red,
-                  ),
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
                   Text(
                     'Error Loading Nozzles',
@@ -388,7 +376,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   Text(
                     _salesController.errorMessage.value,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -409,7 +399,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             );
           }
-          
+
           if (_salesController.availableNozzles.isEmpty) {
             return Center(
               child: Column(
@@ -431,7 +421,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   Text(
                     'You need to have an active shift to view available nozzles.\nPlease contact your supervisor to start your shift.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -451,37 +443,36 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             );
           }
-          
+
           // Filter nozzles by selected dispenser
           final filteredNozzles = selectedDispenserId != null
-              ? _salesController.availableNozzles.where((nozzle) => 
-                  nozzle['dispenser_id'] == selectedDispenserId).toList()
+              ? _salesController.availableNozzles
+                    .where(
+                      (nozzle) => nozzle['dispenser_id'] == selectedDispenserId,
+                    )
+                    .toList()
               : _salesController.availableNozzles;
-          
+
           if (filteredNozzles.isEmpty) {
             return Center(
               child: Column(
                 children: [
-                  const Icon(
-                    Icons.info_outline,
-                    size: 48,
-                    color: Colors.grey,
-                  ),
+                  const Icon(Icons.info_outline, size: 48, color: Colors.grey),
                   const SizedBox(height: 16),
                   Text(
-                    selectedDispenserId != null 
+                    selectedDispenserId != null
                         ? 'No nozzles available for selected dispenser'
                         : 'Please select a dispenser first',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Colors.grey,
-                    ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodyLarge?.copyWith(color: Colors.grey),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             );
           }
-          
+
           return GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -514,7 +505,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         duration: const Duration(milliseconds: 200),
         constraints: const BoxConstraints(minHeight: 140),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -526,9 +517,11 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
             ),
           ],
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? Theme.of(context).colorScheme.primary
-                : Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')).withValues(alpha: 0.3),
+                : Color(
+                    int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+                  ).withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
         ),
@@ -540,12 +533,16 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')).withValues(alpha: 0.1),
+                  color: Color(
+                    int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+                  ).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   Icons.local_gas_station,
-                  color: Color(int.parse('0xFF${nozzle['color_hex'].substring(1)}')),
+                  color: Color(
+                    int.parse('0xFF${nozzle['color_hex'].substring(1)}'),
+                  ),
                   size: 24,
                 ),
               ),
@@ -562,7 +559,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               Text(
                 'Nozzle ${nozzle['nozzle_number']}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 8),
@@ -593,7 +592,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         duration: const Duration(milliseconds: 200),
         constraints: const BoxConstraints(minHeight: 140),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
@@ -605,7 +604,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
             ),
           ],
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
@@ -619,7 +618,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -641,14 +642,16 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               Text(
                 'Serial: ${dispenser.serialNumber}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withValues(alpha: 0.7),
                 ),
               ),
               const SizedBox(height: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: dispenser.isActive 
+                  color: dispenser.isActive
                       ? Colors.green.withValues(alpha: 0.1)
                       : Colors.red.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
@@ -683,7 +686,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         Text(
           'Enter the total amount for this sale',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
@@ -700,7 +705,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             ],
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -724,7 +731,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -733,10 +742,11 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                       const Text('Estimated Litres:'),
                       Text(
                         _getEstimatedLitres(),
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
                     ],
                   ),
@@ -763,7 +773,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         Text(
           'Select the payment method for this sale',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
@@ -780,7 +792,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             ],
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -811,12 +825,12 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected 
+          color: isSelected
               ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected 
+            color: isSelected
                 ? Theme.of(context).colorScheme.primary
                 : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
           ),
@@ -825,16 +839,18 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           children: [
             Icon(
               icon,
-              color: isSelected 
+              color: isSelected
                   ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.7),
             ),
             const SizedBox(width: 12),
             Text(
               label,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected 
+                color: isSelected
                     ? Theme.of(context).colorScheme.primary
                     : Theme.of(context).colorScheme.onSurface,
               ),
@@ -866,7 +882,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         Text(
           'Add additional information (optional)',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
@@ -883,7 +901,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               ),
             ],
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -942,11 +962,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         Text(
           'Choose how you want to handle the receipt after sale',
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withValues(alpha: 0.7),
           ),
         ),
         const SizedBox(height: 24),
-        
+
         // Receipt Options Grid
         GridView.count(
           shrinkWrap: true,
@@ -964,7 +986,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               color: Colors.blue,
               onTap: () => _handleReceiptOption('print'),
             ),
-            
+
             // View Receipt Option
             _buildReceiptOptionCard(
               icon: Icons.receipt,
@@ -973,16 +995,16 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
               color: Colors.green,
               onTap: () => _handleReceiptOption('view'),
             ),
-            
+
             // QR Code Option
-            _buildReceiptOptionCard(
-              icon: Icons.qr_code,
-              title: 'QR Code',
-              subtitle: 'Generate QR for customer',
-              color: Colors.orange,
-              onTap: () => _handleReceiptOption('qr'),
-            ),
-            
+            // _buildReceiptOptionCard(
+            //   icon: Icons.qr_code,
+            //   title: 'QR Code',
+            //   subtitle: 'Generate QR for customer',
+            //   color: Colors.orange,
+            //   onTap: () => _handleReceiptOption('qr'),
+            // ),
+
             // Skip Option
             _buildReceiptOptionCard(
               icon: Icons.skip_next,
@@ -993,9 +1015,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
             ),
           ],
         ),
-        
+
         const SizedBox(height: 24),
-        
+
         // Preview of sale details
         Container(
           padding: const EdgeInsets.all(16),
@@ -1003,7 +1025,9 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
             color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+              color: Theme.of(
+                context,
+              ).colorScheme.outline.withValues(alpha: 0.2),
             ),
           ),
           child: Column(
@@ -1011,12 +1035,15 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
             children: [
               Text(
                 'Sale Preview',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 12),
-              _buildSalePreviewRow('Amount:', 'KES ${totalAmountController.text.isEmpty ? '0.00' : totalAmountController.text}'),
+              _buildSalePreviewRow(
+                'Amount:',
+                'KES ${totalAmountController.text.isEmpty ? '0.00' : totalAmountController.text}',
+              ),
               _buildSalePreviewRow('Payment:', selectedPaymentMode),
               _buildSalePreviewRow('Litres:', _getEstimatedLitres()),
               if (customerNameController.text.isNotEmpty)
@@ -1041,18 +1068,12 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
+            Icon(icon, size: 32, color: color),
             const SizedBox(height: 8),
             Text(
               title,
@@ -1086,16 +1107,15 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
           Text(
             label,
             style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.7),
               fontSize: 14,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],
       ),
@@ -1108,7 +1128,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     setState(() {
       _selectedReceiptOption = option;
     });
-    
+
     // Proceed to create the sale
     _createSale();
   }
@@ -1121,18 +1141,11 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 64,
-            ),
+            const Icon(Icons.check_circle, color: Colors.green, size: 64),
             const SizedBox(height: 16),
             const Text(
               'Sale Created Successfully!',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -1156,20 +1169,20 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     if (totalAmountController.text.isEmpty || selectedNozzleId == null) {
       return '0.00L';
     }
-    
+
     final amount = double.tryParse(totalAmountController.text);
     if (amount == null) return '0.00L';
-    
+
     final nozzle = _salesController.availableNozzles.firstWhere(
       (n) => n['id'] == selectedNozzleId,
       orElse: () => <String, dynamic>{},
     );
-    
+
     if (nozzle.isEmpty) return '0.00L';
-    
+
     final pricePerLitre = nozzle['price_per_litre'] as double;
     if (pricePerLitre <= 0) return '0.00L';
-    
+
     final litres = amount / pricePerLitre;
     return '${litres.toStringAsFixed(2)}L';
   }
@@ -1177,7 +1190,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
   bool _canProceed() {
     // Prevent proceeding if sale is being created or has been created
     if (_isCreatingSale || _saleCreated) return false;
-    
+
     switch (_currentStep) {
       case 0:
         return selectedDispenserId != null;
@@ -1214,7 +1227,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
 
   void _createSale() async {
     if (!_canProceed()) return;
-    
+
     // Prevent multiple sales from being created
     if (_isCreatingSale || _saleCreated) return;
 
@@ -1255,9 +1268,13 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         totalAmount: amount,
         paymentMode: selectedPaymentMode,
         odometerReading: int.tryParse(odometerController.text),
-        carRegistrationNumber: registrationController.text.isNotEmpty ? registrationController.text : null,
+        carRegistrationNumber: registrationController.text.isNotEmpty
+            ? registrationController.text
+            : null,
         kraPin: kraPinController.text.isNotEmpty ? kraPinController.text : null,
-        customerName: customerNameController.text.isNotEmpty ? customerNameController.text : null,
+        customerName: customerNameController.text.isNotEmpty
+            ? customerNameController.text
+            : null,
       );
 
       // Check if there was an error
@@ -1265,34 +1282,38 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         print('Error in controller: ${_salesController.errorMessage.value}');
         throw Exception(_salesController.errorMessage.value);
       }
-      
+
       print('Sale created successfully!');
-      
+
       // Get the created sale
       final createdSale = _salesController.sales.last;
       print('Created sale ID: ${createdSale.id}');
-      
+
       // Set sale created flag
       setState(() {
         _saleCreated = true;
         _isCreatingSale = false;
       });
-      
+
       // Close timer dialog
       context.pop();
-      
+
       // Handle receipt based on selected option
-      await _handleReceiptAfterSale(createdSale.id);
+
+      final receiptController = Get.put(ReceiptController());
+      await receiptController.fetchSaleReceipt(createdSale.id);
+
+      await _handleReceiptAfterSale(receiptController.currentReceipt.value!);
     } catch (e) {
       // Reset flags on error
       setState(() {
         _isCreatingSale = false;
         _saleCreated = false;
       });
-      
+
       // Close timer dialog
       context.pop();
-      
+
       print('Error creating sale: $e');
       // Show error dialog
       showDialog(
@@ -1311,35 +1332,38 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     }
   }
 
-  Future<void> _handleReceiptAfterSale(String saleId) async {
+  Future<void> _handleReceiptAfterSale(ReceiptModel receipt) async {
     final receiptController = Get.put(ReceiptController());
-    
+
     switch (_selectedReceiptOption) {
       case 'print':
         // Print receipt
-        await receiptController.printReceipt(
-          saleId: saleId,
-          printerType: 'thermal_58mm',
+        await receiptController.printReceipt(receipt: receipt);
+        _showReceiptCompletionDialog(
+          'Receipt printed successfully!',
+          receipt.saleId,
         );
-        _showReceiptCompletionDialog('Receipt printed successfully!', saleId);
         break;
-        
+
       case 'view':
         // Navigate to receipt screen
         context.pop(); // Close sale creation screen
-        context.push('/receipt/$saleId');
+        context.push('/receipt/${receipt.saleId}');
         break;
-        
+
       case 'qr':
         // Generate QR code
-        await receiptController.generateQrCodeForReceipt(saleId);
-        _showQrCodeDialog(saleId);
+        await receiptController.generateQrCodeForReceipt(receipt.saleId);
+        _showQrCodeDialog(receipt.saleId);
         break;
-        
+
       case 'skip':
       default:
         // Just show success and stay in flow
-        _showReceiptCompletionDialog('Sale completed successfully!', saleId);
+        _showReceiptCompletionDialog(
+          'Sale completed successfully!',
+          receipt.saleId,
+        );
         break;
     }
   }
@@ -1352,27 +1376,17 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.check_circle,
-              color: Colors.green,
-              size: 64,
-            ),
+            const Icon(Icons.check_circle, color: Colors.green, size: 64),
             const SizedBox(height: 16),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
             const Text(
               'What would you like to do next?',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
           ],
@@ -1418,13 +1432,11 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
 
   void _showQrCodeDialog(String saleId) {
     final receiptController = Get.find<ReceiptController>();
-    
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -1440,10 +1452,7 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
                   const SizedBox(width: 12),
                   const Text(
                     'QR Code Generated',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
@@ -1533,4 +1542,3 @@ class _CreateSaleScreenState extends State<CreateSaleScreen>
     );
   }
 }
-

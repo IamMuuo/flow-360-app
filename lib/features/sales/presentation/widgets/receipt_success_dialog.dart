@@ -3,18 +3,13 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
 import 'package:flow_360/features/sales/models/receipt_model.dart';
-import 'package:flow_360/features/sales/services/receipt_service.dart';
 import 'package:flow_360/features/sales/presentation/widgets/receipt_qr_code_widget.dart';
 
 class ReceiptSuccessDialog extends StatelessWidget {
   final String saleId;
   final VoidCallback? onClose;
 
-  const ReceiptSuccessDialog({
-    super.key,
-    required this.saleId,
-    this.onClose,
-  });
+  const ReceiptSuccessDialog({super.key, required this.saleId, this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +22,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
     });
 
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         padding: const EdgeInsets.all(24),
         child: Obx(() {
@@ -48,11 +41,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 48,
-                ),
+                const Icon(Icons.error_outline, color: Colors.red, size: 48),
                 const SizedBox(height: 16),
                 Text(
                   'Error loading receipt: ${receiptController.errorMessage.value}',
@@ -72,11 +61,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
             return const Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.receipt,
-                  color: Colors.grey,
-                  size: 48,
-                ),
+                Icon(Icons.receipt, color: Colors.grey, size: 48),
                 SizedBox(height: 16),
                 Text('No receipt data available'),
               ],
@@ -105,10 +90,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
               // Title
               const Text(
                 'Sale Completed Successfully!',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -116,10 +98,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
               // Receipt Number
               Text(
                 'Receipt: ${receipt.receiptNumber}',
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: const TextStyle(fontSize: 16, color: Colors.grey),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
@@ -169,7 +148,11 @@ class ReceiptSuccessDialog extends StatelessWidget {
                 children: [
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _showPrintOptions(context, receiptController, receipt),
+                      onPressed: () => _showPrintOptions(
+                        context,
+                        receiptController,
+                        receipt,
+                      ),
                       icon: const Icon(Icons.print),
                       label: const Text('Print'),
                       style: ElevatedButton.styleFrom(
@@ -193,7 +176,11 @@ class ReceiptSuccessDialog extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: () => _showShareOptions(context, receiptController, receipt),
+                      onPressed: () => _showShareOptions(
+                        context,
+                        receiptController,
+                        receipt,
+                      ),
                       icon: const Icon(Icons.share),
                       label: const Text('Share'),
                       style: ElevatedButton.styleFrom(
@@ -211,65 +198,17 @@ class ReceiptSuccessDialog extends StatelessWidget {
     );
   }
 
-  void _showPrintOptions(BuildContext context, ReceiptController controller, ReceiptModel receipt) {
-    showModalBottomSheet(
-      context: context,
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Print Receipt',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            ListTile(
-              leading: const Icon(Icons.print),
-              title: const Text('Thermal Printer (58mm)'),
-              subtitle: const Text('Portable PDQ machine'),
-              onTap: () {
-                Navigator.pop(context);
-                controller.printReceipt(
-                  saleId: saleId,
-                  printerType: 'thermal_58mm',
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.print),
-              title: const Text('Thermal Printer (80mm)'),
-              subtitle: const Text('Standard thermal printer'),
-              onTap: () {
-                Navigator.pop(context);
-                controller.printReceipt(
-                  saleId: saleId,
-                  printerType: 'thermal_80mm',
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.picture_as_pdf),
-              title: const Text('Save as PDF'),
-              subtitle: const Text('Save to device'),
-              onTap: () {
-                Navigator.pop(context);
-                controller.savePdfToDevice(receipt);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  void _showPrintOptions(
+    BuildContext context,
+    ReceiptController controller,
+    ReceiptModel receipt,
+  ) {}
 
   void _showQrCodeDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Container(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -277,10 +216,7 @@ class ReceiptSuccessDialog extends StatelessWidget {
             children: [
               const Text(
                 'E-Receipt QR Code',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               const Text(
@@ -305,7 +241,11 @@ class ReceiptSuccessDialog extends StatelessWidget {
     );
   }
 
-  void _showShareOptions(BuildContext context, ReceiptController controller, ReceiptModel receipt) {
+  void _showShareOptions(
+    BuildContext context,
+    ReceiptController controller,
+    ReceiptModel receipt,
+  ) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(

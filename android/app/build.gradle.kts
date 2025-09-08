@@ -37,8 +37,16 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
     }
+     buildFeatures {
+        aidl = true
+    }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // This line tells Gradle to include all .jar files in the `libs` folder.
+    implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

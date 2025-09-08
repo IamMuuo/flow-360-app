@@ -1,14 +1,27 @@
+import 'package:ciontek/ciontek.dart';
+import 'package:ciontek/models/ciontek_print_line.dart';
+import 'package:flow_360/features/sales/sales.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flow_360/features/sales/controllers/receipt_controller.dart';
-import 'package:flow_360/features/sales/models/receipt_model.dart';
-import 'package:flow_360/features/sales/services/receipt_service.dart';
 
-class ReceiptScreen extends StatelessWidget {
+class ReceiptScreen extends StatefulWidget {
+  const ReceiptScreen({super.key, required this.saleId});
+
   final String saleId;
+
+  @override
+  State<ReceiptScreen> createState() => _ReceiptScreenState();
+}
+
+class _ReceiptScreenState extends State<ReceiptScreen> {
   final ReceiptController controller = Get.put(ReceiptController());
 
-  ReceiptScreen({super.key, required this.saleId});
+  String saleId = '';
+  @override
+  void initState() {
+    super.initState();
+    saleId = widget.saleId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,19 +31,7 @@ class ReceiptScreen extends StatelessWidget {
     });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Receipt'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.print),
-            onPressed: () => _showPrintOptions(context),
-          ),
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () => _showShareOptions(context),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Receipt')),
       body: Obx(() {
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -127,58 +128,43 @@ class ReceiptScreen extends StatelessWidget {
             }),
 
             // ASCII Preview Only
-            Expanded(
-              child: _buildAsciiPreview(receipt),
-            ),
+            Expanded(child: _buildAsciiPreview(receipt)),
           ],
         );
       }),
     );
   }
 
-
-  Widget _buildActionButtons(BuildContext context) {
+  Widget _buildActionButtons(BuildContext context, String asciiText) {
     return Column(
       children: [
         Row(
           children: [
             Expanded(
               child: ElevatedButton.icon(
-                onPressed: () => _showPrintOptions(context),
+                onPressed: () {
+                  final lines = asciiText.split('\n');
+                  final printLines = lines.map((printable) {
+                    return CiontekPrintLine(
+                      text: printable,
+                      bold:
+                          printable.contains("**") ||
+                          printable.contains("CASH"),
+                      textGray: TextGray.medium,
+                      type: CiontekPrintLineType.text,
+                    );
+                  }).toList();
+                  printLines.add(CiontekPrintLine.feedPaper(lines: 5));
+                  Ciontek().printLine(lines: printLines);
+                },
+                // _showPrintOptions(context),
                 icon: const Icon(Icons.print),
-                label: const Text('Print'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: () => _showShareOptions(context),
-                icon: const Icon(Icons.share),
-                label: const Text('Share'),
+                label: Text('Print'),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _savePdfToDevice(context),
-                icon: const Icon(Icons.download),
-                label: const Text('Save PDF'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () => _shareAsText(context),
-                icon: const Icon(Icons.text_fields),
-                label: const Text('Share Text'),
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
@@ -200,33 +186,19 @@ class ReceiptScreen extends StatelessWidget {
               leading: const Icon(Icons.print),
               title: const Text('Thermal Printer (58mm)'),
               subtitle: const Text('Portable PDQ machine'),
-              onTap: () {
-                Navigator.pop(context);
-                controller.printReceipt(
-                  saleId: saleId,
-                  printerType: 'thermal_58mm',
-                );
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.print),
               title: const Text('Thermal Printer (80mm)'),
               subtitle: const Text('Standard thermal printer'),
-              onTap: () {
-                Navigator.pop(context);
-                controller.printReceipt(
-                  saleId: saleId,
-                  printerType: 'thermal_80mm',
-                );
-              },
+              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.picture_as_pdf),
               title: const Text('PDF Receipt'),
               subtitle: const Text('Generate PDF for printing'),
               onTap: () {
-                Navigator.pop(context);
-                controller.printReceipt(saleId: saleId, printerType: 'pdf');
               },
             ),
           ],
@@ -338,10 +310,7 @@ class ReceiptScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'ASCII Receipt Preview - This is how the receipt will appear when printed or shared as text',
-                        style: TextStyle(
-                          color: Colors.blue[800],
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: Colors.blue[800], fontSize: 12),
                       ),
                     ),
                   ],
@@ -373,7 +342,7 @@ class ReceiptScreen extends StatelessWidget {
               const SizedBox(height: 16),
 
               // Action Buttons for ASCII Preview
-              _buildActionButtons(context),
+              _buildActionButtons(context, asciiText),
             ],
           ),
         );
