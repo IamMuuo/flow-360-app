@@ -405,96 +405,6 @@ ${alignText(center: 'THANK YOU')}
 
     return Future.value(text);
   }
-  // NOTE: The alignText function is a custom implementation for cleaner layout.
-  // You may need to replace the centerText implementation in your code with this.
-  // Also, the _generateKraQrUrl and ReceiptModel are not defined here, so you
-  // should ensure they exist in your project.
-
-  //   static Future<String> generateReceiptText(ReceiptModel receipt) {
-  //     // Create full-width underlines for 58mm printer (32 characters)
-  //     const fullWidthLine = '================================';
-  //     const width = 32;
-  //
-  //     // Helper function to center text perfectly for 58mm width
-  //     String centerText(String text, int lineWidth) {
-  //       // if (text.length >= lineWidth) return text.substring(0, lineWidth);
-  //       // final padding = (lineWidth - text.length) ~/ 2;
-  //       // return ' ' * padding + text;
-  //       return text;
-  //     }
-  //
-  //     // Helper function to format currency amounts
-  //     String formatAmount(double amount) {
-  //       return '${receipt.currencySymbol} ${amount.toStringAsFixed(2)}';
-  //     }
-  //
-  //     final text =
-  //         '''
-  // ${centerText(receipt.organizationName, width)}
-  // ${centerText(receipt.organizationAddress, width)}
-  // ${centerText('PIN: ${receipt.kraPin}', width)}
-  //
-  // ${centerText('*** TAX INVOICE ***', width)}
-  //
-  // ${centerText('Welcome to our service station', width)}
-  //
-  // $fullWidthLine
-  //
-  // ${centerText('*** BUYER INFORMATION ***', width)}
-  // ${centerText('Buyer PIN: ${receipt.customerKraPin.isNotEmpty ? receipt.customerKraPin : 'NOT PROVIDED'}', width)}
-  // ${centerText('Buyer Name: ${receipt.customerName}', width)}
-  // $fullWidthLine
-  //
-  //
-  // ${centerText('*** Product Details ***', width)}
-  //
-  // ${centerText('Fuel   Purchased: ${receipt.fuelTypeDisplay}', width)}
-  // ${centerText('Unit Price in L :       ${formatAmount(receipt.unitPrice)}', width)}
-  // ${centerText('Amount Purchased: ${receipt.litresSold.toStringAsFixed(2)}L', width)}
-  // ${centerText('${receipt.litresSold.toStringAsFixed(2)}L x ${formatAmount(receipt.unitPrice)}', width)}
-  // ${centerText(formatAmount(receipt.totalAmount), width)}
-  //
-  // $fullWidthLine
-  // ${centerText('TOTAL BEFORE DISCOUNT: ${formatAmount(receipt.totalAmount)}', width)}
-  // ${centerText('TOTAL DISCOUNT: (0.00)', width)}
-  // ${centerText('SUB TOTAL: ${formatAmount(receipt.taxableAmount)}', width)}
-  // ${centerText('VAT: ${formatAmount(receipt.vatAmount)}', width)}
-  // ${centerText('TOTAL: ${formatAmount(receipt.totalAmount)}', width)}
-  //
-  // ${centerText('CASH: ${formatAmount(receipt.totalAmount)}', width)}
-  // ${centerText('ITEMS: 1', width)}
-  //
-  // $fullWidthLine
-  // ${centerText('Rate    Taxable    VAT', width)}
-  // ${centerText('EX      ${formatAmount(0.00)}    ${formatAmount(0.00)}', width)}
-  // ${centerText('16%     ${formatAmount(receipt.taxableAmount)}    ${formatAmount(receipt.vatAmount)}', width)}
-  // ${centerText('0%      ${formatAmount(0.00)}    ${formatAmount(0.00)}', width)}
-  // ${centerText('Non-VAT ${formatAmount(0.00)}    ${formatAmount(0.00)}', width)}
-  // ${centerText('8%      ${formatAmount(0.00)}    ${formatAmount(0.00)}', width)}
-  //
-  // $fullWidthLine
-  // ${centerText('Date: ${receipt.date}', width)}
-  // ${centerText('Time: ${receipt.time}', width)}
-  // ${centerText('SCU ID: ${receipt.sdcId.isNotEmpty ? receipt.sdcId : 'KRACU0100000001'}', width)}
-  // ${centerText('CU INVOICE: ${receipt.sdcId.isNotEmpty ? receipt.sdcId : 'KRACU0100000001'}/${receipt.receiptNo.isNotEmpty ? receipt.receiptNo : receipt.receiptNumber}', width)}
-  // ${centerText('Internal: ${receipt.internalData.isNotEmpty ? receipt.internalData : 'TE68-SLA2-34J5-EAV3-N569-88LJ-Q7'}', width)}
-  // ${centerText('Signature: ${receipt.receiptSignature.isNotEmpty ? receipt.receiptSignature : 'V249-J39C-FJ48-HE2W'}', width)}
-  //
-  // $fullWidthLine
-  // ${centerText('RECEIPT: ${receipt.receiptNo.isNotEmpty ? receipt.receiptNo : receipt.receiptNumber}', width)}
-  // ${centerText('DATE: ${receipt.date}', width)}
-  // ${centerText('TIME: ${receipt.time}', width)}
-  //
-  // $fullWidthLine
-  // ${centerText('KRA eTIMS QR Code:', width)}
-  // ${centerText(_generateKraQrUrl(receipt), width)}
-  // ${centerText('Scan to verify with KRA eTIMS', width)}
-  //
-  // $fullWidthLine
-  // ${centerText('THANK YOU', width)}
-  // ''';
-  //     return Future.value(text);
-  //   }
 
   static Future<void> shareTextReceipt(ReceiptModel receipt) async {
     try {
@@ -511,19 +421,17 @@ ${alignText(center: 'THANK YOU')}
   /// Generates KRA-compliant QR URL for the receipt
   static String _generateKraQrUrl(ReceiptModel receipt) {
     try {
+      if (receipt.kraPin.isEmpty) {
+        throw ("No kra pin found");
+      }
       // Extract KRA PIN from receipt
-      final kraPin = receipt.kraPin.isNotEmpty ? receipt.kraPin : 'A000000000Z';
+      final kraPin = receipt.kraPin;
 
       // Extract BHF ID from SCU ID or use default
-      final bhfId = receipt.sdcId.isNotEmpty
-          ? receipt.sdcId
-          : 'KRACU0100000001';
-
-      // Check if we have valid KRA data (not default values)
-      if (kraPin == 'A000000000Z' || bhfId == 'KRACU0100000001') {
-        // Return a placeholder message for invalid KRA data
-        return 'KRA QR Code not available - Invalid KRA PIN or BHF ID';
+      if (receipt.kraBranchId.isEmpty) {
+        throw ("No valid kra branch id found!");
       }
+      final bhfId = receipt.kraBranchId;
 
       // Generate receipt signature
       final receiptSignature = KraQrService.generateReceiptSignature(
@@ -537,7 +445,7 @@ ${alignText(center: 'THANK YOU')}
       return KraQrService.generateKraQrUrl(
         kraPin: kraPin,
         bhfId: bhfId,
-        receiptSignature: receiptSignature,
+        receiptSignature: receipt.receiptSignature,
       );
     } catch (e) {
       // Return a placeholder message if QR generation fails

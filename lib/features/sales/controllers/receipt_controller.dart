@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:ciontek/ciontek.dart';
 import 'package:ciontek/models/ciontek_print_line.dart';
 import 'package:get/get.dart';
@@ -8,7 +6,6 @@ import 'package:flow_360/core/failure.dart';
 import 'package:flow_360/features/sales/repository/receipt_repository.dart';
 import 'package:flow_360/features/sales/models/receipt_model.dart';
 import 'package:flow_360/features/sales/services/receipt_service.dart';
-import 'package:flow_360/features/sales/services/thermal_printer_service.dart';
 import 'package:flow_360/features/sales/services/kra_qr_service.dart';
 
 class ReceiptController extends GetxController {
@@ -104,12 +101,16 @@ class ReceiptController extends GetxController {
 
       final asciiText = await ReceiptService.generateReceiptText(receipt);
       final lines = asciiText.split('\n');
+      // Ciontek().printLine
       final printLines = lines.map((printable) {
         return CiontekPrintLine(
           text: printable,
           bold: printable.contains("**") || printable.contains("CASH"),
           textGray: TextGray.medium,
-          type: CiontekPrintLineType.text,
+
+          type: printable.contains("https://")
+              ? CiontekPrintLineType.qrCode
+              : CiontekPrintLineType.text,
         );
       }).toList();
       printLines.add(CiontekPrintLine.feedPaper(lines: 5));

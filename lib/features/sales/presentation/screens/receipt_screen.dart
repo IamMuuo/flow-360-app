@@ -143,19 +143,9 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
             Expanded(
               child: ElevatedButton.icon(
                 onPressed: () {
-                  final lines = asciiText.split('\n');
-                  final printLines = lines.map((printable) {
-                    return CiontekPrintLine(
-                      text: printable,
-                      bold:
-                          printable.contains("**") ||
-                          printable.contains("CASH"),
-                      textGray: TextGray.medium,
-                      type: CiontekPrintLineType.text,
-                    );
-                  }).toList();
-                  printLines.add(CiontekPrintLine.feedPaper(lines: 5));
-                  Ciontek().printLine(lines: printLines);
+                  controller.printReceipt(
+                    receipt: controller.currentReceipt.value!,
+                  );
                 },
                 // _showPrintOptions(context),
                 icon: const Icon(Icons.print),
@@ -198,8 +188,7 @@ class _ReceiptScreenState extends State<ReceiptScreen> {
               leading: const Icon(Icons.picture_as_pdf),
               title: const Text('PDF Receipt'),
               subtitle: const Text('Generate PDF for printing'),
-              onTap: () {
-              },
+              onTap: () {},
             ),
           ],
         ),
